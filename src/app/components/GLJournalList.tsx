@@ -84,7 +84,8 @@ export default function GLJournalList({ onCreateClick }: GLJournalListProps) {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   const notDueYetCount = glJournals.filter(journal => {
-    const journalDate = new Date(journal.date.split('-').reverse().join('-'));
+    if (!journal.docDate) return false;
+    const journalDate = new Date(journal.docDate.split('/').reverse().join('-'));
     return journal.status !== 'error' && journalDate >= sevenDaysAgo;
   }).length;
 

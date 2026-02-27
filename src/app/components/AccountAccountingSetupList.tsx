@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Search } from 'lucide-react';
-import { FilterPanel } from './FilterPanel';
 import { Checkbox } from './ui/checkbox';
 import CreateAccountSetupPopup from './CreateAccountSetupPopup';
 import MasterDataToolbar from './MasterDataToolbar';
@@ -212,141 +211,126 @@ export default function AccountAccountingSetupList({ onBack }: AccountAccounting
   );
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Filter Panel */}
-      <FilterPanel
-        searchValue={searchText}
+    <div className="p-6">
+      <div className="mb-4">
+        <h1 className="text-2xl font-semibold text-gray-800 uppercase tracking-tight">Account Accounting Setup</h1>
+        <p className="text-sm text-gray-500 mt-1">
+          Configure chart of accounts with cost center, cost element, and reconciliation settings
+        </p>
+      </div>
+
+      <MasterDataToolbar
+        searchText={searchText}
         onSearchChange={setSearchText}
-        showStatus={false}
-        showType={false}
+        onAddRow={() => setShowCreatePopup(true)}
+        onDeleteRows={() => setSelectedRows([])}
+        onSave={() => console.log('Saving Account Accounting Setup...')}
+        selectedCount={selectedRows.length}
       />
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Page Header */}
-        <div className="bg-white border-b px-6 py-4">
-          <h1 className="text-xl font-semibold text-gray-800">Account Accounting Setup</h1>
-          <nav className="flex items-center gap-1.5 mt-1">
-            <span className="text-xs text-gray-400">Home</span>
-            <span className="text-xs text-gray-300">/</span>
-            <span className="text-xs text-gray-400">Master Data</span>
-            <span className="text-xs text-gray-300">/</span>
-            <span className="text-xs text-blue-600">Account Setup</span>
-          </nav>
-        </div>
-
-        <MasterDataToolbar
-          searchText={searchText}
-          onSearchChange={setSearchText}
-          onAddRow={() => setShowCreatePopup(true)}
-          onDeleteRows={() => setSelectedRows([])}
-          onSave={() => console.log('Saving Account Accounting Setup...')}
-          selectedCount={selectedRows.length}
-        />
-
-        {/* Table */}
-        <div className="flex-1 overflow-hidden bg-white mx-6 mb-6 border rounded-lg shadow-sm">
-          <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-250px)]">
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 z-10">
-                <tr className="bg-[#f0f7ff] border-b">
-                  <th className="px-3 py-3 text-left w-12 border-r bg-[#f0f7ff] sticky left-0 z-20">
-                    <Checkbox
-                      checked={selectedRows.length === filteredData.length && filteredData.length > 0}
-                      onCheckedChange={(checked) => {
-                        if (checked) setSelectedRows(filteredData.map(r => r.id));
-                        else setSelectedRows([]);
-                      }}
-                    />
-                  </th>
-                  <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-40 bg-[#f0f7ff] sticky left-12 z-20">Account Number</th>
-                  <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-64">Account Name</th>
-                  <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-40">Account Type</th>
-                  <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-56">Responsible</th>
-                  <th className="px-3 py-3 text-center text-blue-700 font-bold uppercase border-r w-24">Status</th>
-                  <th className="px-3 py-3 text-center text-blue-700 font-bold uppercase border-r w-28">Parent Party</th>
-                  <th className="px-3 py-3 text-center text-blue-700 font-bold uppercase border-r w-36">Use Cost Center</th>
-                  <th className="px-3 py-3 text-center text-blue-700 font-bold uppercase border-r w-36">Use Cost Element</th>
-                  <th className="px-3 py-3 text-center text-blue-700 font-bold uppercase w-28">Reconcile</th>
+      {/* Table */}
+      <div className="bg-white border border-t-0 rounded-b-lg overflow-hidden shadow-sm">
+        <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-250px)]">
+          <table className="w-full text-sm">
+            <thead className="sticky top-0 z-10">
+              <tr className="bg-[#f0f7ff] border-b">
+                <th className="px-3 py-3 text-left w-12 border-r bg-[#f0f7ff] sticky left-0 z-20">
+                  <Checkbox
+                    checked={selectedRows.length === filteredData.length && filteredData.length > 0}
+                    onCheckedChange={(checked) => {
+                      if (checked) setSelectedRows(filteredData.map(r => r.id));
+                      else setSelectedRows([]);
+                    }}
+                  />
+                </th>
+                <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-40 bg-[#f0f7ff] sticky left-12 z-20">Account Number</th>
+                <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-64">Account Name</th>
+                <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-40">Account Type</th>
+                <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-56">Responsible</th>
+                <th className="px-3 py-3 text-center text-blue-700 font-bold uppercase border-r w-24">Status</th>
+                <th className="px-3 py-3 text-center text-blue-700 font-bold uppercase border-r w-28">Parent Party</th>
+                <th className="px-3 py-3 text-center text-blue-700 font-bold uppercase border-r w-36">Use Cost Center</th>
+                <th className="px-3 py-3 text-center text-blue-700 font-bold uppercase border-r w-36">Use Cost Element</th>
+                <th className="px-3 py-3 text-center text-blue-700 font-bold uppercase w-28">Reconcile</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredData.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="px-3 py-12 text-center text-gray-500 bg-white">
+                    <div className="flex flex-col items-center gap-2">
+                      <Search className="w-12 h-12 opacity-10" />
+                      <span>No accounts found</span>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {filteredData.length === 0 ? (
-                  <tr>
-                    <td colSpan={10} className="px-3 py-12 text-center text-gray-500 bg-white">
-                      <div className="flex flex-col items-center gap-2">
-                        <Search className="w-12 h-12 opacity-10" />
-                        <span>No accounts found</span>
-                      </div>
+              ) : (
+                filteredData.map(row => (
+                  <tr key={row.id} className="border-b hover:bg-blue-50/50 transition-colors bg-white">
+                    <td className="px-3 py-2 border-r bg-inherit sticky left-0 z-10">
+                      <Checkbox
+                        checked={selectedRows.includes(row.id)}
+                        onCheckedChange={() => toggleRowSelection(row.id)}
+                      />
+                    </td>
+                    <td className="px-3 py-2 border-r bg-inherit sticky left-12 z-10 font-bold text-blue-600">
+                      {row.accountNumber}
+                    </td>
+                    <td className="px-3 py-2 border-r">
+                      <button className="text-blue-600 hover:underline text-left">
+                        {row.accountName}
+                      </button>
+                    </td>
+                    <td className="px-3 py-2 border-r">
+                      {row.accountType && (
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${
+                          row.accountType === 'Assets' ? 'bg-blue-100 text-blue-700' :
+                          row.accountType === 'Revenue' ? 'bg-green-100 text-green-700' :
+                          row.accountType === 'Liabilities' ? 'bg-yellow-100 text-yellow-700' :
+                          row.accountType === 'Equity' ? 'bg-purple-100 text-purple-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          {row.accountType}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2 border-r text-gray-600 text-xs">{row.responsible}</td>
+                    <td className="px-3 py-2 border-r text-center">
+                      <Checkbox checked={row.status} />
+                    </td>
+                    <td className="px-3 py-2 border-r text-center">
+                      <Checkbox checked={row.parentParty} />
+                    </td>
+                    <td className="px-3 py-2 border-r text-center">
+                      <Checkbox checked={row.useCostCenter} />
+                    </td>
+                    <td className="px-3 py-2 border-r text-center">
+                      <Checkbox checked={row.useCostElement} />
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                      <Checkbox checked={row.reconcile} />
                     </td>
                   </tr>
-                ) : (
-                  filteredData.map(row => (
-                    <tr key={row.id} className="border-b hover:bg-blue-50/50 transition-colors bg-white">
-                      <td className="px-3 py-2 border-r bg-inherit sticky left-0 z-10">
-                        <Checkbox
-                          checked={selectedRows.includes(row.id)}
-                          onCheckedChange={() => toggleRowSelection(row.id)}
-                        />
-                      </td>
-                      <td className="px-3 py-2 border-r bg-inherit sticky left-12 z-10 font-bold text-blue-600">
-                        {row.accountNumber}
-                      </td>
-                      <td className="px-3 py-2 border-r">
-                        <button className="text-blue-600 hover:underline text-left">
-                          {row.accountName}
-                        </button>
-                      </td>
-                      <td className="px-3 py-2 border-r">
-                        {row.accountType && (
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${row.accountType === 'Assets' ? 'bg-blue-100 text-blue-700' :
-                              row.accountType === 'Revenue' ? 'bg-green-100 text-green-700' :
-                                row.accountType === 'Liabilities' ? 'bg-yellow-100 text-yellow-700' :
-                                  row.accountType === 'Equity' ? 'bg-purple-100 text-purple-700' :
-                                    'bg-gray-100 text-gray-700'
-                            }`}>
-                            {row.accountType}
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-3 py-2 border-r text-gray-600 text-xs">{row.responsible}</td>
-                      <td className="px-3 py-2 border-r text-center">
-                        <Checkbox checked={row.status} />
-                      </td>
-                      <td className="px-3 py-2 border-r text-center">
-                        <Checkbox checked={row.parentParty} />
-                      </td>
-                      <td className="px-3 py-2 border-r text-center">
-                        <Checkbox checked={row.useCostCenter} />
-                      </td>
-                      <td className="px-3 py-2 border-r text-center">
-                        <Checkbox checked={row.useCostElement} />
-                      </td>
-                      <td className="px-3 py-2 text-center">
-                        <Checkbox checked={row.reconcile} />
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="px-4 py-3 border-t bg-gray-50 flex items-center justify-between text-xs text-gray-600">
-            <div>
-              Showing <span className="font-semibold">{filteredData.length}</span> of <span className="font-semibold">{accountData.length}</span> accounts
-            </div>
-            <div className="flex items-center gap-4">
-              <span>{selectedRows.length} selected</span>
-            </div>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
 
-        {/* Create Popup */}
-        {showCreatePopup && (
-          <CreateAccountSetupPopup onClose={() => setShowCreatePopup(false)} />
-        )}
+        <div className="px-4 py-3 border-t bg-gray-50 flex items-center justify-between text-xs text-gray-600">
+          <div>
+            Showing <span className="font-semibold">{filteredData.length}</span> of <span className="font-semibold">{accountData.length}</span> accounts
+          </div>
+          <div className="flex items-center gap-4">
+            <span>{selectedRows.length} selected</span>
+          </div>
+        </div>
       </div>
+
+      {/* Create Popup */}
+      {showCreatePopup && (
+        <CreateAccountSetupPopup onClose={() => setShowCreatePopup(false)} />
+      )}
     </div>
   );
 }

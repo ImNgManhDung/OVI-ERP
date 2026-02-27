@@ -209,16 +209,17 @@ export default function CreateFixedAsset({ onClose }: CreateFixedAssetProps) {
           <TabsContent value="main-info" className="p-0">
             {/* 3 DATA BLOCKS */}
             <div className="flex gap-6 mb-6 px-6 mt-6" style={{ width: '1600px' }}>
-              {/* Block 1: Asset Information */}
+              {/* Block 1: Asset Information - 3x3 grid (3 rows only) */}
               <div style={{ width: '440px' }}>
                 <div className="border rounded-lg p-4 bg-white">
                   <h3 className="text-sm font-medium mb-3 pb-2 border-b text-gray-700">ASSET INFORMATION</h3>
                   <div className="grid grid-cols-3 gap-4">
+                    {/* Row 1 */}
                     <div className="col-span-1">
                       <Label className="text-sm mb-1 block text-gray-700">
                         <span className="text-red-500">*</span> Asset ID
                       </Label>
-                      <Input className="bg-pink-50 h-10" placeholder="Auto-generated" disabled />
+                      <Input className="bg-pink-50 h-10" placeholder="Auto" disabled />
                     </div>
                     <div className="col-span-2">
                       <Label className="text-sm mb-1 block text-gray-700">
@@ -226,23 +227,21 @@ export default function CreateFixedAsset({ onClose }: CreateFixedAssetProps) {
                       </Label>
                       <Input className="bg-pink-50 h-10" placeholder="ACA001-00001" />
                     </div>
-                    <div className="col-span-3">
+                    
+                    {/* Row 2 */}
+                    <div className="col-span-2">
                       <Label className="text-sm mb-1 block text-gray-700">
                         <span className="text-red-500">*</span> Asset Name
                       </Label>
                       <Input className="bg-pink-50 h-10" placeholder="Tên tài sản" />
                     </div>
-                    <div className="col-span-3">
-                      <Label className="text-sm mb-1 block text-gray-700">Description</Label>
-                      <Input className="h-10" placeholder="Mô tả chi tiết" />
-                    </div>
-                    <div className="col-span-2">
+                    <div className="col-span-1">
                       <Label className="text-sm mb-1 block text-gray-700">
-                        <span className="text-red-500">*</span> Asset Category
+                        <span className="text-red-500">*</span> Category
                       </Label>
                       <Select>
                         <SelectTrigger className="bg-pink-50 h-10">
-                          <SelectValue placeholder="Chọn danh mục" />
+                          <SelectValue placeholder="Chọn" />
                         </SelectTrigger>
                         <SelectContent>
                           {MOCK_ASSET_CATEGORIES.map(cat => (
@@ -251,30 +250,57 @@ export default function CreateFixedAsset({ onClose }: CreateFixedAssetProps) {
                         </SelectContent>
                       </Select>
                     </div>
+                    
+                    {/* Row 3 */}
                     <div className="col-span-1">
-                      <Label className="text-sm mb-1 block text-gray-700">Parent Asset</Label>
-                      <Input className="h-10" placeholder="Optional" />
-                    </div>
-                    <div className="col-span-2">
                       <Label className="text-sm mb-1 block text-gray-700">Serial Number</Label>
-                      <Input className="h-10" placeholder="SN-XXXX" />
+                      <Input className="h-10" placeholder="SN-XXX" />
                     </div>
                     <div className="col-span-1">
                       <Label className="text-sm mb-1 block text-gray-700">Barcode</Label>
-                      <Input className="h-10" placeholder="BC-XXXX" />
+                      <Input className="h-10" placeholder="BC-XXX" />
+                    </div>
+                    <div className="col-span-1">
+                      <Label className="text-sm mb-1 block text-gray-700">Parent Asset</Label>
+                      <Input className="h-10" placeholder="Optional" />
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Block 2: Physical Information */}
+              {/* Block 2: Physical Information - 3x3 grid (3 rows only) */}
               <div style={{ width: '440px' }}>
                 <div className="border rounded-lg p-4 bg-white">
                   <h3 className="text-sm font-medium mb-3 pb-2 border-b text-gray-700">PHYSICAL INFORMATION</h3>
                   <div className="grid grid-cols-3 gap-4">
-                    <div className="col-span-2">
+                    {/* Row 1 */}
+                    <div className="col-span-1">
                       <Label className="text-sm mb-1 block text-gray-700">Model</Label>
-                      <Input className="h-10" placeholder="Model name" />
+                      <Input className="h-10" placeholder="Model" />
+                    </div>
+                    <div className="col-span-1">
+                      <Label className="text-sm mb-1 block text-gray-700">Manufacturer</Label>
+                      <Input className="h-10" placeholder="Nhà SX" />
+                    </div>
+                    <div className="col-span-1">
+                      <Label className="text-sm mb-1 block text-gray-700">Origin</Label>
+                      <Select>
+                        <SelectTrigger className="h-10">
+                          <SelectValue placeholder="Quốc gia" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Vietnam">Vietnam</SelectItem>
+                          <SelectItem value="China">China</SelectItem>
+                          <SelectItem value="Japan">Japan</SelectItem>
+                          <SelectItem value="USA">USA</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    {/* Row 2 */}
+                    <div className="col-span-1">
+                      <Label className="text-sm mb-1 block text-gray-700">Use Start Date</Label>
+                      <Input type="date" className="h-10" />
                     </div>
                     <div className="col-span-1">
                       <Label className="text-sm mb-1 block text-gray-700">Status</Label>
@@ -286,34 +312,12 @@ export default function CreateFixedAsset({ onClose }: CreateFixedAssetProps) {
                           <SelectItem value="DRAFT">Draft</SelectItem>
                           <SelectItem value="INACTIVE">Inactive</SelectItem>
                           <SelectItem value="ACTIVE">Active</SelectItem>
-                          <SelectItem value="BROKEN">Broken</SelectItem>
-                          <SelectItem value="LIQUIDATED">Liquidated</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="col-span-3">
-                      <Label className="text-sm mb-1 block text-gray-700">Manufacturer</Label>
-                      <Input className="h-10" placeholder="Nhà sản xuất" />
-                    </div>
-                    <div className="col-span-3">
-                      <Label className="text-sm mb-1 block text-gray-700">Origin Country</Label>
-                      <Select>
-                        <SelectTrigger className="h-10">
-                          <SelectValue placeholder="Chọn quốc gia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Vietnam">Vietnam</SelectItem>
-                          <SelectItem value="China">China</SelectItem>
-                          <SelectItem value="Japan">Japan</SelectItem>
-                          <SelectItem value="USA">USA</SelectItem>
-                          <SelectItem value="Germany">Germany</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="col-span-3">
-                      <Label className="text-sm mb-1 block text-gray-700">Use Start Date</Label>
-                      <Input type="date" className="h-10" />
-                    </div>
+                    <div className="col-span-1"></div>
+                    
+                    {/* Row 3 */}
                     <div className="col-span-1">
                       <Label className="text-sm mb-1 block text-gray-700">Complete</Label>
                       <div className="flex items-center h-10">
@@ -331,16 +335,17 @@ export default function CreateFixedAsset({ onClose }: CreateFixedAssetProps) {
                 </div>
               </div>
 
-              {/* Block 3: Location & Assignment */}
+              {/* Block 3: Location & Assignment - 3x3 grid (3 rows only) */}
               <div style={{ width: '440px' }}>
                 <div className="border rounded-lg p-4 bg-white">
                   <h3 className="text-sm font-medium mb-3 pb-2 border-b text-gray-700">LOCATION & ASSIGNMENT</h3>
                   <div className="grid grid-cols-3 gap-4">
-                    <div className="col-span-3">
+                    {/* Row 1 */}
+                    <div className="col-span-1">
                       <Label className="text-sm mb-1 block text-gray-700">Location</Label>
                       <Select>
                         <SelectTrigger className="h-10">
-                          <SelectValue placeholder="Chọn vị trí" />
+                          <SelectValue placeholder="Vị trí" />
                         </SelectTrigger>
                         <SelectContent>
                           {MOCK_LOCATIONS.map(loc => (
@@ -349,11 +354,11 @@ export default function CreateFixedAsset({ onClose }: CreateFixedAssetProps) {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="col-span-3">
+                    <div className="col-span-1">
                       <Label className="text-sm mb-1 block text-gray-700">Cost Center</Label>
                       <Select>
                         <SelectTrigger className="h-10">
-                          <SelectValue placeholder="Chọn cost center" />
+                          <SelectValue placeholder="CC" />
                         </SelectTrigger>
                         <SelectContent>
                           {MOCK_COST_CENTERS.map(cc => (
@@ -362,11 +367,11 @@ export default function CreateFixedAsset({ onClose }: CreateFixedAssetProps) {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="col-span-3">
+                    <div className="col-span-1">
                       <Label className="text-sm mb-1 block text-gray-700">Employee</Label>
                       <Select>
                         <SelectTrigger className="h-10">
-                          <SelectValue placeholder="Chọn người sử dụng" />
+                          <SelectValue placeholder="Người" />
                         </SelectTrigger>
                         <SelectContent>
                           {MOCK_EMPLOYEES.map(emp => (
@@ -375,11 +380,13 @@ export default function CreateFixedAsset({ onClose }: CreateFixedAssetProps) {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="col-span-3">
+                    
+                    {/* Row 2 */}
+                    <div className="col-span-1">
                       <Label className="text-sm mb-1 block text-gray-700">Project</Label>
                       <Select>
                         <SelectTrigger className="h-10">
-                          <SelectValue placeholder="Chọn dự án" />
+                          <SelectValue placeholder="Dự án" />
                         </SelectTrigger>
                         <SelectContent>
                           {MOCK_PROJECTS.map(proj => (
@@ -388,7 +395,7 @@ export default function CreateFixedAsset({ onClose }: CreateFixedAssetProps) {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="col-span-3">
+                    <div className="col-span-2">
                       <Label className="text-sm mb-1 block text-gray-700">
                         <span className="text-red-500">*</span> Total Asset Value
                       </Label>
@@ -398,6 +405,9 @@ export default function CreateFixedAsset({ onClose }: CreateFixedAssetProps) {
                         disabled
                       />
                     </div>
+                    
+                    {/* Row 3 - Empty or can add more fields later */}
+                    <div className="col-span-3"></div>
                   </div>
                 </div>
               </div>

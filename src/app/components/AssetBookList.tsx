@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { GripVertical } from 'lucide-react';
+import { CheckCircle, FileText, AlertTriangle, Calendar, Plus, ChevronDown, Search } from 'lucide-react';
+import { Button } from './ui/button';
 import { Input } from './ui/input';
 import {
   Select,
@@ -9,412 +10,251 @@ import {
   SelectValue,
 } from './ui/select';
 import { Checkbox } from './ui/checkbox';
-import { Switch } from './ui/switch';
-import { toast } from "sonner";
-import MasterDataToolbar from './MasterDataToolbar';
+import { FilterPanel } from './FilterPanel';
+import { StatsCard } from './StatsCard';
 
-interface AssetBookRow {
-  id: number;
-  aboId: string;
-  assId: string;
-  acbId: string;
-  lenId: string;
-  ledger: '0L' | '2L' | '1L' | '';
-  currencyCode: string;
-  deprStartDate: string;
-  lifeMonths: number | string;
-  deprMonths: number | string;
-  deprMethod: 'SL' | 'DE' | '';
-  originalCost: number | string;
-  accumDepr: number | string;
-  netBookValue: number | string;
-  isDepreciate: 'Y' | 'N';
+interface AssetBookListProps {
+  onCreateClick: () => void;
 }
 
-const MOCK_ASSETS = [
-  { id: 'ASS-001', name: 'Máy tính để bàn HP ProDesk' },
-  { id: 'ASS-002', name: 'Máy in Canon MF244DW' },
-  { id: 'ASS-003', name: 'Điều hòa Daikin 2HP' },
+const mockData = [
+  {
+    id: 1,
+    aboId: 'ABO-001',
+    bookCode: 'BOOK-ACC',
+    bookName: 'Sổ kế toán',
+    bookType: 'ACCOUNTING',
+    currency: 'VND',
+    deprMethod: 'STRAIGHT_LINE',
+    isActive: 'Y',
+    description: 'Sổ theo dõi kế toán tài sản'
+  },
+  {
+    id: 2,
+    aboId: 'ABO-002',
+    bookCode: 'BOOK-TAX',
+    bookName: 'Sổ thuế',
+    bookType: 'TAX',
+    currency: 'VND',
+    deprMethod: 'STRAIGHT_LINE',
+    isActive: 'Y',
+    description: 'Sổ theo dõi thuế tài sản'
+  },
+  {
+    id: 3,
+    aboId: 'ABO-003',
+    bookCode: 'BOOK-MGMT',
+    bookName: 'Sổ quản trị',
+    bookType: 'MANAGEMENT',
+    currency: 'VND',
+    deprMethod: 'DECLINING_BALANCE',
+    isActive: 'Y',
+    description: 'Sổ theo dõi quản trị nội bộ'
+  },
+  {
+    id: 4,
+    aboId: 'ABO-004',
+    bookCode: 'BOOK-STAT',
+    bookName: 'Sổ thống kê',
+    bookType: 'STATISTICAL',
+    currency: 'VND',
+    deprMethod: 'UNITS_OF_PRODUCTION',
+    isActive: 'N',
+    description: 'Sổ thống kê tài sản'
+  }
 ];
 
-const MOCK_ACB = [
-  { id: 'ACB-001', name: 'VAS - Máy móc thiết bị' },
-  { id: 'ACB-002', name: 'IFRS - Máy móc thiết bị' },
-  { id: 'ACB-003', name: 'INTERNAL - Máy móc thiết bị' },
-];
-
-const MOCK_LEGAL_ENTITIES = [
-  { id: 'LE-001', name: 'Công ty ABC', currency: 'VND' },
-  { id: 'LE-002', name: 'Chi nhánh HN', currency: 'VND' },
-  { id: 'LE-003', name: 'Chi nhánh HCM', currency: 'VND' },
-];
-
-export default function AssetBookList() {
+export default function AssetBookList({ onCreateClick }: AssetBookListProps) {
   const [searchText, setSearchText] = useState('');
-  const [selectedRows, setSelectedRows] = useState<number[]>([]);
-  
-  const [data, setData] = useState<AssetBookRow[]>([
-    {
-      id: 1,
-      aboId: 'ABO-001',
-      assId: 'ASS-001',
-      acbId: 'ACB-001',
-      lenId: 'LE-001',
-      ledger: '0L',
-      currencyCode: 'VND',
-      deprStartDate: '2024-01-01',
-      lifeMonths: 60,
-      deprMonths: 12,
-      deprMethod: 'SL',
-      originalCost: 25000000,
-      accumDepr: 5000000,
-      netBookValue: 20000000,
-      isDepreciate: 'Y'
-    },
-    {
-      id: 2,
-      aboId: 'ABO-002',
-      assId: 'ASS-001',
-      acbId: 'ACB-002',
-      lenId: 'LE-001',
-      ledger: '2L',
-      currencyCode: 'VND',
-      deprStartDate: '2024-01-01',
-      lifeMonths: 96,
-      deprMonths: 12,
-      deprMethod: 'SL',
-      originalCost: 25000000,
-      accumDepr: 3125000,
-      netBookValue: 21875000,
-      isDepreciate: 'Y'
-    },
-    {
-      id: 3,
-      aboId: 'ABO-003',
-      assId: 'ASS-002',
-      acbId: 'ACB-001',
-      lenId: 'LE-002',
-      ledger: '0L',
-      currencyCode: 'VND',
-      deprStartDate: '2024-06-01',
-      lifeMonths: 36,
-      deprMonths: 6,
-      deprMethod: 'SL',
-      originalCost: 8500000,
-      accumDepr: 1416667,
-      netBookValue: 7083333,
-      isDepreciate: 'Y'
-    }
-  ]);
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [selectedType, setSelectedType] = useState('all');
 
-  const toggleRowSelection = (id: number) => {
-    setSelectedRows(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    );
-  };
-
-  const getNextId = () => {
-    return data.length > 0 ? Math.max(...data.map(r => r.id)) + 1 : 1;
-  };
-
-  const handleAddRow = () => {
-    const newId = getNextId();
-    const newRow: AssetBookRow = {
-      id: newId,
-      aboId: `ABO-${String(newId).padStart(3, '0')}`,
-      assId: '',
-      acbId: '',
-      lenId: '',
-      ledger: '',
-      currencyCode: 'VND',
-      deprStartDate: '',
-      lifeMonths: '',
-      deprMonths: '',
-      deprMethod: 'SL',
-      originalCost: '',
-      accumDepr: '',
-      netBookValue: '',
-      isDepreciate: 'Y'
-    };
-    setData([...data, newRow]);
-    toast.success("Added new asset book");
-  };
-
-  const handleDeleteRows = () => {
-    setData(data.filter(row => !selectedRows.includes(row.id)));
-    setSelectedRows([]);
-    toast.error("Deleted selected records");
-  };
-
-  const handleSave = () => {
-    toast.success("Asset books saved successfully");
-  };
-
-  const updateRow = (id: number, field: keyof AssetBookRow, value: any) => {
-    setData(data.map(row => {
-      if (row.id === id) {
-        const updated = { ...row, [field]: value };
-        
-        // Auto update currency when legal entity changes
-        if (field === 'lenId') {
-          const entity = MOCK_LEGAL_ENTITIES.find(e => e.id === value);
-          if (entity) {
-            updated.currencyCode = entity.currency;
-          }
-        }
-        
-        // Auto calculate net book value
-        if (field === 'originalCost' || field === 'accumDepr') {
-          const original = field === 'originalCost' ? Number(value) : Number(updated.originalCost);
-          const accum = field === 'accumDepr' ? Number(value) : Number(updated.accumDepr);
-          updated.netBookValue = original - accum;
-        }
-        
-        return updated;
-      }
-      return row;
-    }));
-  };
-
-  const filteredData = data.filter(row =>
-    searchText === '' ||
-    Object.values(row).some(val =>
+  // Filter data
+  const filteredData = mockData.filter(item => {
+    const matchesSearch = searchText === '' || Object.values(item).some(val =>
       String(val).toLowerCase().includes(searchText.toLowerCase())
-    )
+    );
+    const matchesStatus = selectedStatus === 'all' || 
+      (selectedStatus === 'active' && item.isActive === 'Y') ||
+      (selectedStatus === 'inactive' && item.isActive === 'N');
+    const matchesType = selectedType === 'all' || item.bookType === selectedType;
+
+    return matchesSearch && matchesStatus && matchesType;
+  });
+
+  // Calculate stats
+  const activeCount = mockData.filter(item => item.isActive === 'Y').length;
+  const inactiveCount = mockData.filter(item => item.isActive === 'N').length;
+  const accountingCount = mockData.filter(item => item.bookType === 'ACCOUNTING').length;
+  const taxCount = mockData.filter(item => item.bookType === 'TAX').length;
+
+  const customFilters = (
+    <>
+      {/* Book Type Filter */}
+      <div className="space-y-2">
+        <label className="text-xs font-medium text-gray-600">Book Type</label>
+        <select
+          value={selectedType}
+          onChange={(e) => setSelectedType(e.target.value)}
+          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+        >
+          <option value="all">All Types</option>
+          <option value="ACCOUNTING">ACCOUNTING</option>
+          <option value="TAX">TAX</option>
+          <option value="MANAGEMENT">MANAGEMENT</option>
+          <option value="STATISTICAL">STATISTICAL</option>
+        </select>
+      </div>
+    </>
   );
 
-  const formatCurrency = (value: number | string) => {
-    if (!value) return '0';
-    return Number(value).toLocaleString('vi-VN');
-  };
-
   return (
-    <div className="p-6">
-      <div className="mb-4">
-        <h1 className="text-2xl font-semibold text-gray-800 uppercase tracking-tight">Asset Books</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Quản lý sổ khấu hao tài sản theo từng sổ kế toán (VAS/IFRS/INTERNAL)
-        </p>
-      </div>
-
-      {/* Toolbar */}
-      <MasterDataToolbar
-        searchText={searchText}
+    <div className="flex h-screen bg-gray-50">
+      {/* Left: Filter Panel */}
+      <FilterPanel
+        searchValue={searchText}
         onSearchChange={setSearchText}
-        onAddRow={handleAddRow}
-        onDeleteRows={handleDeleteRows}
-        onSave={handleSave}
-        selectedCount={selectedRows.length}
+        showStatus={true}
+        statusOptions={[
+          { value: 'all', label: 'All Status' },
+          { value: 'active', label: 'Active' },
+          { value: 'inactive', label: 'Inactive' },
+        ]}
+        selectedStatus={selectedStatus}
+        onStatusChange={setSelectedStatus}
+        showType={false}
+        customFilters={customFilters}
       />
 
-      <div className="bg-white border border-t-0 rounded-b-lg overflow-hidden shadow-sm">
-        <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-250px)]">
-          <table className="w-full text-sm min-w-[3600px]">
-            <thead className="sticky top-0 z-10">
-              <tr className="bg-[#f0f7ff] border-b">
-                <th className="px-3 py-3 text-left w-12 border-r bg-[#f0f7ff] sticky left-0 z-20">
-                  <Checkbox 
-                    checked={selectedRows.length === filteredData.length && filteredData.length > 0}
-                    onCheckedChange={(checked) => {
-                      if (checked) setSelectedRows(filteredData.map(r => r.id));
-                      else setSelectedRows([]);
-                    }}
-                  />
-                </th>
-                <th className="px-3 py-3 text-left w-12 border-r bg-[#f0f7ff] sticky left-12 z-20">
-                  <GripVertical className="w-4 h-4 text-gray-400" />
-                </th>
-                <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-40 bg-[#f0f7ff] sticky left-[100px] z-20">ABO ID</th>
-                <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-48">ASS ID</th>
-                <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-48">ACB ID</th>
-                <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-48">Legal Entity</th>
-                <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-32">Ledger</th>
-                <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-32">Currency</th>
-                <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-40">Depr Start Date</th>
-                <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-32">Life Months</th>
-                <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-32">Depr Months</th>
-                <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-40">Depr Method</th>
-                <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-48">Original Cost</th>
-                <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-48">Accum Depr</th>
-                <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-48">Net Book Value</th>
-                <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase w-32">Is Depreciate</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredData.map((row) => (
-                <tr key={row.id} className="border-b hover:bg-gray-50">
-                  <td className="px-3 py-2 border-r sticky left-0 bg-white z-10">
-                    <Checkbox
-                      checked={selectedRows.includes(row.id)}
-                      onCheckedChange={() => toggleRowSelection(row.id)}
-                    />
-                  </td>
-                  <td className="px-3 py-2 border-r sticky left-12 bg-white z-10">
-                    <GripVertical className="w-4 h-4 text-gray-400 cursor-move" />
-                  </td>
-                  <td className="px-3 py-2 border-r sticky left-[100px] bg-white z-10">
-                    <Input
-                      value={row.aboId}
-                      className="h-8 border-0 bg-transparent text-xs font-mono font-semibold text-blue-600"
-                      readOnly
-                    />
-                  </td>
-                  <td className="px-3 py-2 border-r">
-                    <Select
-                      value={row.assId}
-                      onValueChange={(val) => updateRow(row.id, 'assId', val)}
-                    >
-                      <SelectTrigger className="h-8 border-0 bg-transparent hover:bg-gray-100 text-xs">
-                        <SelectValue placeholder="Select..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {MOCK_ASSETS.map(asset => (
-                          <SelectItem key={asset.id} value={asset.id}>{asset.id} - {asset.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </td>
-                  <td className="px-3 py-2 border-r">
-                    <Select
-                      value={row.acbId}
-                      onValueChange={(val) => updateRow(row.id, 'acbId', val)}
-                    >
-                      <SelectTrigger className="h-8 border-0 bg-transparent hover:bg-gray-100 text-xs">
-                        <SelectValue placeholder="Select..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {MOCK_ACB.map(acb => (
-                          <SelectItem key={acb.id} value={acb.id}>{acb.id} - {acb.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </td>
-                  <td className="px-3 py-2 border-r">
-                    <Select
-                      value={row.lenId}
-                      onValueChange={(val) => updateRow(row.id, 'lenId', val)}
-                    >
-                      <SelectTrigger className="h-8 border-0 bg-transparent hover:bg-gray-100 text-xs">
-                        <SelectValue placeholder="Select..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {MOCK_LEGAL_ENTITIES.map(entity => (
-                          <SelectItem key={entity.id} value={entity.id}>{entity.id} - {entity.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </td>
-                  <td className="px-3 py-2 border-r">
-                    <Select
-                      value={row.ledger}
-                      onValueChange={(val) => updateRow(row.id, 'ledger', val)}
-                    >
-                      <SelectTrigger className="h-8 border-0 bg-transparent hover:bg-gray-100 text-xs">
-                        <SelectValue placeholder="Select..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="0L">0L - VAS</SelectItem>
-                        <SelectItem value="2L">2L - IFRS</SelectItem>
-                        <SelectItem value="1L">1L - INTERNAL</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </td>
-                  <td className="px-3 py-2 border-r">
-                    <Input
-                      value={row.currencyCode}
-                      className="h-8 border-0 bg-gray-50 text-xs font-mono text-center"
-                      readOnly
-                    />
-                  </td>
-                  <td className="px-3 py-2 border-r">
-                    <Input
-                      type="date"
-                      value={row.deprStartDate}
-                      onChange={(e) => updateRow(row.id, 'deprStartDate', e.target.value)}
-                      className="h-8 border-0 bg-transparent hover:bg-gray-100 text-xs"
-                    />
-                  </td>
-                  <td className="px-3 py-2 border-r">
-                    <Input
-                      type="number"
-                      value={row.lifeMonths}
-                      onChange={(e) => updateRow(row.id, 'lifeMonths', e.target.value)}
-                      className="h-8 border-0 bg-transparent hover:bg-gray-100 text-xs text-right"
-                      placeholder="60"
-                    />
-                  </td>
-                  <td className="px-3 py-2 border-r">
-                    <Input
-                      type="number"
-                      value={row.deprMonths}
-                      onChange={(e) => updateRow(row.id, 'deprMonths', e.target.value)}
-                      className="h-8 border-0 bg-transparent hover:bg-gray-100 text-xs text-right"
-                      placeholder="12"
-                    />
-                  </td>
-                  <td className="px-3 py-2 border-r">
-                    <Select
-                      value={row.deprMethod}
-                      onValueChange={(val) => updateRow(row.id, 'deprMethod', val)}
-                    >
-                      <SelectTrigger className="h-8 border-0 bg-transparent hover:bg-gray-100 text-xs">
-                        <SelectValue placeholder="Select..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="SL">SL - Straight Line</SelectItem>
-                        <SelectItem value="DE">DE - Declining Balance</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </td>
-                  <td className="px-3 py-2 border-r">
-                    <Input
-                      type="number"
-                      value={row.originalCost}
-                      onChange={(e) => updateRow(row.id, 'originalCost', e.target.value)}
-                      className="h-8 border-0 bg-transparent hover:bg-gray-100 text-xs text-right font-mono"
-                      placeholder="0"
-                    />
-                  </td>
-                  <td className="px-3 py-2 border-r">
-                    <Input
-                      type="number"
-                      value={row.accumDepr}
-                      onChange={(e) => updateRow(row.id, 'accumDepr', e.target.value)}
-                      className="h-8 border-0 bg-transparent hover:bg-gray-100 text-xs text-right font-mono"
-                      placeholder="0"
-                    />
-                  </td>
-                  <td className="px-3 py-2 border-r">
-                    <Input
-                      value={formatCurrency(row.netBookValue)}
-                      className="h-8 border-0 bg-blue-50 text-xs text-right font-mono font-semibold text-blue-700"
-                      readOnly
-                    />
-                  </td>
-                  <td className="px-3 py-2">
-                    <div className="flex items-center justify-center">
-                      <Switch
-                        checked={row.isDepreciate === 'Y'}
-                        onCheckedChange={(checked) => updateRow(row.id, 'isDepreciate', checked ? 'Y' : 'N')}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Right: Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Page Header */}
+        <div className="bg-white border-b px-6 py-4">
+          <h1 className="text-xl font-semibold text-gray-800">Asset Books</h1>
+          <nav className="flex items-center gap-1.5 mt-1">
+            <span className="text-xs text-gray-400">Home</span>
+            <span className="text-xs text-gray-300">/</span>
+            <span className="text-xs text-gray-400">Fixed Assets</span>
+            <span className="text-xs text-gray-300">/</span>
+            <span className="text-xs text-blue-600">Asset Books</span>
+          </nav>
         </div>
 
-        {/* Footer */}
-        <div className="px-4 py-2.5 border-t bg-gray-50 flex items-center justify-between text-xs text-gray-600">
-          <div>
-            Showing <span className="font-semibold">{filteredData.length}</span> of <span className="font-semibold">{data.length}</span> records
+        <div className="flex-1 overflow-auto p-6">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-4 gap-4 mb-6">
+            <StatsCard title="ACTIVE" value={activeCount} icon={CheckCircle} bgColor="text-green-600" iconBgColor="bg-green-50" />
+            <StatsCard title="INACTIVE" value={inactiveCount} icon={FileText} bgColor="text-orange-600" iconBgColor="bg-orange-50" />
+            <StatsCard title="ACCOUNTING" value={accountingCount} icon={AlertTriangle} bgColor="text-blue-600" iconBgColor="bg-blue-50" />
+            <StatsCard title="TAX" value={taxCount} icon={Calendar} bgColor="text-red-600" iconBgColor="bg-red-50" />
           </div>
-          <div className="flex items-center gap-2">
-            <span>Total Net Book Value:</span>
-            <span className="font-bold text-blue-700">
-              {formatCurrency(filteredData.reduce((sum, row) => sum + Number(row.netBookValue || 0), 0))} VND
-            </span>
+
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-2 mb-4">
+            <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={onCreateClick}>
+              <Plus className="w-4 h-4 mr-1" />
+              Create
+            </Button>
+          </div>
+
+          {/* Search and Actions Bar */}
+          <div className="bg-white border rounded-t-lg p-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Select defaultValue="all">
+                <SelectTrigger className="w-[120px] h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                placeholder="Search All Text Columns"
+                className="w-64 h-8"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+              <Button variant="outline" size="sm">Go</Button>
+              <Button variant="outline" size="sm">
+                Actions <ChevronDown className="w-4 h-4 ml-1" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Checkboxes */}
+          <div className="bg-white border border-t-0 px-4 py-2 flex items-center gap-4">
+            <label className="flex items-center gap-2 text-sm">
+              <Checkbox />
+              <span>Show Active Only</span>
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <Checkbox />
+              <span>Show Primary Books</span>
+            </label>
+          </div>
+
+          {/* Table */}
+          <div className="bg-white border border-t-0 rounded-b-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-blue-50 border-b">
+                    <th className="px-4 py-2 text-left text-sm text-blue-700">ABO ID</th>
+                    <th className="px-4 py-2 text-left text-sm text-blue-700">Book Code</th>
+                    <th className="px-4 py-2 text-left text-sm text-blue-700">Book Name</th>
+                    <th className="px-4 py-2 text-left text-sm text-blue-700">Book Type</th>
+                    <th className="px-4 py-2 text-left text-sm text-blue-700">Currency</th>
+                    <th className="px-4 py-2 text-left text-sm text-blue-700">Depr Method</th>
+                    <th className="px-4 py-2 text-left text-sm text-blue-700">Description</th>
+                    <th className="px-4 py-2 text-left text-sm text-blue-700">Is Active</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredData.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="px-4 py-12 text-center text-gray-500">
+                        <div className="flex flex-col items-center gap-2">
+                          <Search className="w-12 h-12 opacity-10" />
+                          <span>No asset books found</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredData.map((item) => (
+                      <tr key={item.id} className="border-b hover:bg-gray-50 cursor-pointer">
+                        <td className="px-4 py-2 text-sm font-bold text-blue-600">{item.aboId}</td>
+                        <td className="px-4 py-2 text-sm font-mono">{item.bookCode}</td>
+                        <td className="px-4 py-2 text-sm font-medium">{item.bookName}</td>
+                        <td className="px-4 py-2 text-sm">
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${
+                            item.bookType === 'ACCOUNTING' ? 'bg-blue-100 text-blue-700' :
+                            item.bookType === 'TAX' ? 'bg-red-100 text-red-700' :
+                            item.bookType === 'MANAGEMENT' ? 'bg-green-100 text-green-700' :
+                            'bg-purple-100 text-purple-700'
+                          }`}>
+                            {item.bookType}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2 text-sm">{item.currency}</td>
+                        <td className="px-4 py-2 text-sm">{item.deprMethod}</td>
+                        <td className="px-4 py-2 text-sm">{item.description}</td>
+                        <td className="px-4 py-2 text-sm">
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${
+                            item.isActive === 'Y' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                          }`}>
+                            {item.isActive === 'Y' ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="px-4 py-2 border-t bg-gray-50 text-sm text-right text-gray-600">
+              Showing {filteredData.length} of {mockData.length}
+            </div>
           </div>
         </div>
       </div>

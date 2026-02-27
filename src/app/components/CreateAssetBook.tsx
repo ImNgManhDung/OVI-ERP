@@ -12,37 +12,44 @@ import {
 } from './ui/select';
 import { Checkbox } from './ui/checkbox';
 
-interface CreateAssetCategoryProps {
+interface CreateAssetBookProps {
   onClose: () => void;
 }
 
 interface DetailRow {
   id: number;
   sip: number;
-  attributeCode: string;
-  attributeName: string;
-  attributeType: string;
-  isMandatory: string;
-  defaultValue: string;
+  categoryCode: string;
+  deprMethod: string;
+  usefulLife: number | string;
+  salvageRate: number | string;
+  deprRate: number | string;
 }
 
-const ATTRIBUTE_TYPES = [
-  { value: 'TEXT', label: 'TEXT' },
-  { value: 'NUMBER', label: 'NUMBER' },
-  { value: 'DATE', label: 'DATE' },
-  { value: 'SELECT', label: 'SELECT' },
+const DEPR_METHODS = [
+  { value: 'STRAIGHT_LINE', label: 'STRAIGHT LINE' },
+  { value: 'DECLINING_BALANCE', label: 'DECLINING BALANCE' },
+  { value: 'UNITS_OF_PRODUCTION', label: 'UNITS OF PRODUCTION' },
+  { value: 'SUM_OF_YEARS', label: 'SUM OF YEARS' },
 ];
 
-export default function CreateAssetCategory({ onClose }: CreateAssetCategoryProps) {
+const MOCK_CATEGORIES = [
+  { code: 'TS-MMTB', name: 'Máy móc thiết bị' },
+  { code: 'TS-NVGP', name: 'Nhà và vật kiến trúc' },
+  { code: 'TS-PTVT', name: 'Phương tiện vận tải' },
+  { code: 'TS-CNTT', name: 'Công nghệ thông tin' },
+];
+
+export default function CreateAssetBook({ onClose }: CreateAssetBookProps) {
   const [detailRows, setDetailRows] = useState<DetailRow[]>([
     {
       id: 1,
       sip: 1,
-      attributeCode: 'ATTR-001',
-      attributeName: 'Công suất',
-      attributeType: 'NUMBER',
-      isMandatory: 'Y',
-      defaultValue: ''
+      categoryCode: 'TS-MMTB',
+      deprMethod: 'STRAIGHT_LINE',
+      usefulLife: 10,
+      salvageRate: 5,
+      deprRate: 10
     }
   ]);
 
@@ -52,11 +59,11 @@ export default function CreateAssetCategory({ onClose }: CreateAssetCategoryProp
     const newRow: DetailRow = {
       id: detailRows.length + 1,
       sip: detailRows.length + 1,
-      attributeCode: `ATTR-${String(detailRows.length + 1).padStart(3, '0')}`,
-      attributeName: '',
-      attributeType: 'TEXT',
-      isMandatory: 'N',
-      defaultValue: ''
+      categoryCode: '',
+      deprMethod: 'STRAIGHT_LINE',
+      usefulLife: '',
+      salvageRate: '',
+      deprRate: ''
     };
     setDetailRows([...detailRows, newRow]);
   };
@@ -76,7 +83,7 @@ export default function CreateAssetCategory({ onClose }: CreateAssetCategoryProp
     <div className="min-h-screen bg-gray-50 p-6 overflow-x-auto">
       <div className="bg-white rounded-lg shadow-sm" style={{ width: '1600px' }}>
         <div className="flex items-center justify-between px-6 py-4 border-b">
-          <h2 className="text-lg">CREATE ASSET CATEGORY</h2>
+          <h2 className="text-lg">CREATE ASSET BOOK</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <X className="w-5 h-5" />
           </button>
@@ -91,29 +98,31 @@ export default function CreateAssetCategory({ onClose }: CreateAssetCategoryProp
               {/* Row 1 */}
               <div>
                 <Label className="text-sm mb-1 block">
-                  <span className="text-red-500">*</span> ACA ID
+                  <span className="text-red-500">*</span> ABO ID
                 </Label>
                 <Input className="bg-pink-50 h-10" placeholder="Auto generate" readOnly />
               </div>
 
               <div>
                 <Label className="text-sm mb-1 block">
-                  <span className="text-red-500">*</span> CATEGORY CODE
+                  <span className="text-red-500">*</span> BOOK CODE
                 </Label>
-                <Input className="bg-pink-50 h-10" placeholder="TS-MMTB" />
+                <Input className="bg-pink-50 h-10" placeholder="BOOK-ACC" />
               </div>
 
               <div>
                 <Label className="text-sm mb-1 block">
-                  <span className="text-red-500">*</span> ASSET TYPE
+                  <span className="text-red-500">*</span> BOOK TYPE
                 </Label>
                 <Select>
                   <SelectTrigger className="bg-pink-50 h-10">
                     <SelectValue placeholder="Select type..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="TANGIBLE">TANGIBLE (Hữu hình)</SelectItem>
-                    <SelectItem value="INTANGIBLE">INTANGIBLE (Vô hình)</SelectItem>
+                    <SelectItem value="ACCOUNTING">ACCOUNTING</SelectItem>
+                    <SelectItem value="TAX">TAX</SelectItem>
+                    <SelectItem value="MANAGEMENT">MANAGEMENT</SelectItem>
+                    <SelectItem value="STATISTICAL">STATISTICAL</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -121,39 +130,65 @@ export default function CreateAssetCategory({ onClose }: CreateAssetCategoryProp
               {/* Row 2 */}
               <div className="col-span-2">
                 <Label className="text-sm mb-1 block">
-                  <span className="text-red-500">*</span> CATEGORY NAME
+                  <span className="text-red-500">*</span> BOOK NAME
                 </Label>
-                <Input className="bg-pink-50 h-10" placeholder="Máy móc thiết bị" />
+                <Input className="bg-pink-50 h-10" placeholder="Sổ kế toán" />
               </div>
 
               <div>
-                <Label className="text-sm mb-1 block">LEVEL</Label>
-                <Input type="number" className="h-10" defaultValue="1" />
+                <Label className="text-sm mb-1 block">CURRENCY</Label>
+                <Select defaultValue="VND">
+                  <SelectTrigger className="h-10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="VND">VND</SelectItem>
+                    <SelectItem value="USD">USD</SelectItem>
+                    <SelectItem value="EUR">EUR</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Row 3 */}
               <div>
-                <Label className="text-sm mb-1 block">ASSET ACC</Label>
-                <Input className="h-10" placeholder="211" />
+                <Label className="text-sm mb-1 block">DEFAULT DEPR METHOD</Label>
+                <Select defaultValue="STRAIGHT_LINE">
+                  <SelectTrigger className="h-10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DEPR_METHODS.map(method => (
+                      <SelectItem key={method.value} value={method.value}>{method.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
-                <Label className="text-sm mb-1 block">DEPR ACC</Label>
-                <Input className="h-10" placeholder="214" />
+                <Label className="text-sm mb-1 block">LEGAL ENTITY</Label>
+                <Select defaultValue="LE001">
+                  <SelectTrigger className="h-10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="LE001">CÔNG TY TNHH ABC</SelectItem>
+                    <SelectItem value="LE002">CHI NHÁNH HÀ NỘI</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
-                <Label className="text-sm mb-1 block">EXPENSE ACC</Label>
-                <Input className="h-10" placeholder="641" />
+                <Label className="text-sm mb-1 block">DESCRIPTION</Label>
+                <Input className="h-10" placeholder="Ghi chú về sổ tài sản" />
               </div>
 
             </div>
           </div>
 
-          {/* DETAILS TABLE - Attributes */}
+          {/* DETAILS TABLE - Category Depreciation Rules */}
           <div className="border rounded-lg bg-white">
             <div className="px-4 py-3 border-b bg-gray-50 flex items-center justify-between">
-              <h3 className="text-sm font-medium text-gray-700">CATEGORY ATTRIBUTES</h3>
+              <h3 className="text-sm font-medium text-gray-700">CATEGORY DEPRECIATION RULES</h3>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" onClick={handleAddDetailRow}>
                   <Plus className="w-4 h-4 mr-1" />
@@ -185,11 +220,11 @@ export default function CreateAssetCategory({ onClose }: CreateAssetCategoryProp
                       />
                     </th>
                     <th className="px-3 py-3 text-center text-blue-700 font-bold border-r w-16">SIP</th>
-                    <th className="px-3 py-3 text-left text-blue-700 font-bold border-r w-48">ATTRIBUTE CODE</th>
-                    <th className="px-3 py-3 text-left text-blue-700 font-bold border-r w-64">ATTRIBUTE NAME</th>
-                    <th className="px-3 py-3 text-left text-blue-700 font-bold border-r w-48">ATTRIBUTE TYPE</th>
-                    <th className="px-3 py-3 text-left text-blue-700 font-bold border-r w-32">IS MANDATORY</th>
-                    <th className="px-3 py-3 text-left text-blue-700 font-bold w-64">DEFAULT VALUE</th>
+                    <th className="px-3 py-3 text-left text-blue-700 font-bold border-r w-64">CATEGORY CODE</th>
+                    <th className="px-3 py-3 text-left text-blue-700 font-bold border-r w-64">DEPR METHOD</th>
+                    <th className="px-3 py-3 text-right text-blue-700 font-bold border-r w-32">USEFUL LIFE</th>
+                    <th className="px-3 py-3 text-right text-blue-700 font-bold border-r w-32">SALVAGE RATE %</th>
+                    <th className="px-3 py-3 text-right text-blue-700 font-bold w-32">DEPR RATE %</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -203,28 +238,52 @@ export default function CreateAssetCategory({ onClose }: CreateAssetCategoryProp
                       </td>
                       <td className="px-3 py-2 text-center border-r text-gray-600">{row.sip}</td>
                       <td className="px-3 py-2 border-r">
-                        <Input value={row.attributeCode} className="h-8 border-gray-200 font-mono" readOnly />
-                      </td>
-                      <td className="px-3 py-2 border-r">
-                        <Input value={row.attributeName} className="h-8 border-gray-200" placeholder="Tên thuộc tính" />
-                      </td>
-                      <td className="px-3 py-2 border-r">
-                        <Select value={row.attributeType} onValueChange={(val) => {}}>
+                        <Select value={row.categoryCode} onValueChange={(val) => {}}>
                           <SelectTrigger className="h-8 border-gray-200">
-                            <SelectValue />
+                            <SelectValue placeholder="Select category..." />
                           </SelectTrigger>
                           <SelectContent>
-                            {ATTRIBUTE_TYPES.map(type => (
-                              <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                            {MOCK_CATEGORIES.map(cat => (
+                              <SelectItem key={cat.code} value={cat.code}>{cat.code} - {cat.name}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       </td>
-                      <td className="px-3 py-2 border-r text-center">
-                        <Checkbox checked={row.isMandatory === 'Y'} />
+                      <td className="px-3 py-2 border-r">
+                        <Select value={row.deprMethod} onValueChange={(val) => {}}>
+                          <SelectTrigger className="h-8 border-gray-200">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {DEPR_METHODS.map(method => (
+                              <SelectItem key={method.value} value={method.value}>{method.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </td>
+                      <td className="px-3 py-2 border-r">
+                        <Input 
+                          type="number" 
+                          value={row.usefulLife} 
+                          className="h-8 text-right border-gray-200" 
+                          placeholder="Years"
+                        />
+                      </td>
+                      <td className="px-3 py-2 border-r">
+                        <Input 
+                          type="number" 
+                          value={row.salvageRate} 
+                          className="h-8 text-right border-gray-200" 
+                          placeholder="%"
+                        />
                       </td>
                       <td className="px-3 py-2">
-                        <Input value={row.defaultValue} className="h-8 border-gray-200" placeholder="Giá trị mặc định" />
+                        <Input 
+                          type="number" 
+                          value={row.deprRate} 
+                          className="h-8 text-right border-gray-200" 
+                          placeholder="%"
+                        />
                       </td>
                     </tr>
                   ))}

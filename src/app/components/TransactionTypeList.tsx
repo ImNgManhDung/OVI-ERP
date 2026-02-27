@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Search } from 'lucide-react';
-import { FilterPanel } from './FilterPanel';
 import { Input } from './ui/input';
 import {
   Select,
@@ -31,7 +30,6 @@ interface TransactionTypeRow {
 export default function TransactionTypeList() {
   const [searchText, setSearchText] = useState('');
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
-  const [selectedType, setSelectedType] = useState('all');
   
   const [data, setData] = useState<TransactionTypeRow[]>([
     { id: 1, ttyCode: '100', ttyClass: 'Nhập kho', ttyName: 'Nhập mua hàng', description: 'Dr: 15x (MAT), Cr: 3319', postingControl: 'DUAL', projects: false, productOrder: false, costCenter: false, stores: true, object: false, bankAccount: false, notes: '' },
@@ -141,39 +139,19 @@ export default function TransactionTypeList() {
     ));
   };
 
-  const filteredData = data.filter(row => {
-    const matchesSearch = searchText === '' || Object.values(row).some(val =>
+  const filteredData = data.filter(row =>
+    searchText === '' ||
+    Object.values(row).some(val =>
       String(val).toLowerCase().includes(searchText.toLowerCase())
-    );
-    const matchesType = selectedType === 'all' || row.ttyClass === selectedType;
-    return matchesSearch && matchesType;
-  });
+    )
+  );
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Filter Panel */}
-      <FilterPanel
-        searchValue={searchText}
-        onSearchChange={setSearchText}
-        showStatus={false}
-        showType={true}
-        typeOptions={[
-          {'value':'all','label':'All Classes'},
-          {'value':'AR','label':'AR - Receivable'},
-          {'value':'AP','label':'AP - Payable'},
-          {'value':'CA','label':'CA - Cash'},
-          {'value':'BA','label':'BA - Bank'},
-          {'value':'GL','label':'GL - General'},
-        ]}
-        selectedType={selectedType}
-        onTypeChange={setSelectedType}
-      />
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+    <div className="erp-page">
       {/* Page Header */}
-        <div className="bg-white border-b px-6 py-4">
-          <h1 className="text-xl font-semibold text-gray-800">Transaction Type Management</h1>
+      <div className="erp-page-header">
+        <div>
+          <h1>Transaction Type Management</h1>
           <nav className="flex items-center gap-1.5 mt-1">
             <span className="text-xs text-gray-400">Home</span>
             <span className="text-xs text-gray-300">/</span>
@@ -182,6 +160,7 @@ export default function TransactionTypeList() {
             <span className="text-xs text-blue-600">Transaction Type</span>
           </nav>
         </div>
+      </div>
 
       <MasterDataToolbar 
         searchText={searchText}
@@ -192,7 +171,7 @@ export default function TransactionTypeList() {
         selectedCount={selectedRows.length}
       />
 
-      <div className="flex-1 overflow-hidden bg-white mx-6 mb-6 border rounded-lg shadow-sm">
+      <div className="bg-white border border-t-0 rounded-b-lg overflow-hidden shadow-sm">
         <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-250px)]">
           <table className="w-full text-sm min-w-[2800px]">
             <thead className="sticky top-0 z-10">
@@ -333,13 +312,10 @@ export default function TransactionTypeList() {
           </table>
         </div>
         
-        <div className="bg-white border-t px-6 py-3 flex items-center justify-between">
-          <div className="text-sm text-gray-600">
-            Showing <span className="font-semibold">{filteredData.length}</span> records
-          </div>
+        <div className="px-4 py-3 border-t bg-gray-50 text-xs text-right text-gray-500 font-medium">
+          TOTAL RECORDS: {filteredData.length}
         </div>
       </div>
-    </div>
     </div>
   );
 }

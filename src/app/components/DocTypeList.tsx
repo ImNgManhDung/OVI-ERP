@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from './ui/input';
-import { FilterPanel } from './FilterPanel';
 import {
   Select,
   SelectContent,
@@ -33,7 +32,7 @@ interface DocTypeRow {
 export default function DocTypeList() {
   const [searchText, setSearchText] = useState('');
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
-
+  
   const [data, setData] = useState<DocTypeRow[]>([
     { id: 1, docType: 'CR', name: 'Thu tiền mặt', nameEn: 'Cash receipt', rvDocType: 'RV', docCategory: 'CA', range: '11', docDesc: 'Tiền mặt', notes: 'Áp dụng màn hình thu tiền mặt', ca: true, ba: false, ob: false, aa: false, ma: false, gl: false },
     { id: 2, docType: 'CP', name: 'Chi tiền mặt', nameEn: 'Cash payment', rvDocType: 'RV', docCategory: 'CA', range: '12', docDesc: 'Tiền mặt', notes: 'Áp dụng màn hình chi tiền mặt', ca: true, ba: false, ob: false, aa: false, ma: false, gl: false },
@@ -91,49 +90,24 @@ export default function DocTypeList() {
   };
 
   const updateRow = (id: number, field: keyof DocTypeRow, value: any) => {
-    setData(data.map(row =>
+    setData(data.map(row => 
       row.id === id ? { ...row, [field]: value } : row
     ));
   };
 
-  const [selectedCategory, setSelectedCategory] = useState('all');
-
-  const filteredData = data.filter(row => {
-    const matchesSearch = searchText === '' || Object.values(row).some(val =>
+  const filteredData = data.filter(row =>
+    searchText === '' ||
+    Object.values(row).some(val =>
       String(val).toLowerCase().includes(searchText.toLowerCase())
-    );
-    const matchesCategory = selectedCategory === 'all' || row.docCategory === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+    )
+  );
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Filter Panel */}
-      <FilterPanel
-        searchValue={searchText}
-        onSearchChange={setSearchText}
-        showStatus={false}
-        showType={true}
-        typeOptions={[
-          { value: 'all', label: 'All Categories' },
-          { value: 'CA', label: 'CA - Cash' },
-          { value: 'BA', label: 'BA - Bank' },
-          { value: 'AR', label: 'AR - Receivable' },
-          { value: 'AP', label: 'AP - Payable' },
-          { value: 'AA', label: 'AA - Asset' },
-          { value: 'MA', label: 'MA - Material' },
-          { value: 'GL', label: 'GL - General' },
-          { value: 'RV', label: 'RV - Revert' },
-        ]}
-        selectedType={selectedCategory}
-        onTypeChange={setSelectedCategory}
-      />
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Page Header */}
-        <div className="bg-white border-b px-6 py-4">
-          <h1 className="text-xl font-semibold text-gray-800">Document Type Management</h1>
+    <div className="erp-page">
+      {/* Page Header */}
+      <div className="erp-page-header">
+        <div>
+          <h1>Document Type Management</h1>
           <nav className="flex items-center gap-1.5 mt-1">
             <span className="text-xs text-gray-400">Home</span>
             <span className="text-xs text-gray-300">/</span>
@@ -142,22 +116,24 @@ export default function DocTypeList() {
             <span className="text-xs text-blue-600">Doc Type</span>
           </nav>
         </div>
+      </div>
 
-        <MasterDataToolbar
-          searchText={searchText}
-          onSearchChange={setSearchText}
-          onAddRow={handleAddRow}
-          onDeleteRows={handleDeleteRows}
-          onSave={() => console.log('Saving Doc Types...')}
-          selectedCount={selectedRows.length}
-        />
+      <MasterDataToolbar 
+        searchText={searchText}
+        onSearchChange={setSearchText}
+        onAddRow={handleAddRow}
+        onDeleteRows={handleDeleteRows}
+        onSave={() => console.log('Saving Doc Types...')}
+        selectedCount={selectedRows.length}
+      />
 
-        <div className="flex-1 overflow-auto bg-white mx-6 mb-6 border rounded-lg shadow-sm">
+      <div className="bg-white border border-t-0 rounded-b-lg overflow-hidden shadow-sm">
+        <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-250px)]">
           <table className="w-full text-sm min-w-[3000px]">
             <thead className="sticky top-0 z-10">
               <tr className="bg-[#f0f7ff] border-b">
                 <th className="px-3 py-3 text-left w-12 border-r bg-[#f0f7ff] sticky left-0 z-20">
-                  <Checkbox
+                  <Checkbox 
                     checked={selectedRows.length === filteredData.length && filteredData.length > 0}
                     onCheckedChange={(checked) => {
                       if (checked) setSelectedRows(filteredData.map(r => r.id));
@@ -298,12 +274,9 @@ export default function DocTypeList() {
             </tbody>
           </table>
         </div>
-
-        {/* Footer */}
-        <div className="bg-white border-t px-6 py-3 flex items-center justify-between">
-          <div className="text-sm text-gray-600">
-            Showing <span className="font-semibold">{filteredData.length}</span> of <span className="font-semibold">{data.length}</span> records
-          </div>
+        
+        <div className="px-4 py-3 border-t bg-gray-50 text-xs text-right text-gray-500 font-medium">
+          TOTAL RECORDS: {filteredData.length}
         </div>
       </div>
     </div>

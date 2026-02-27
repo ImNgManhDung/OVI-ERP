@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Search } from 'lucide-react';
-import { FilterPanel } from './FilterPanel';
 import { Input } from './ui/input';
 import {
   Select,
@@ -36,8 +35,6 @@ interface ProjectAssignmentRow {
 export default function ProjectAssignmentList() {
   const [searchText, setSearchText] = useState('');
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
-  const [selectedStatus, setSelectedStatus] = useState('all');
-  const [selectedType, setSelectedType] = useState('all');
   
   const [data, setData] = useState<ProjectAssignmentRow[]>([
     {
@@ -143,55 +140,21 @@ export default function ProjectAssignmentList() {
     ));
   };
 
-  const filteredData = data.filter(row => {
-    const matchesSearch = searchText === '' || Object.values(row).some(val =>
+  const filteredData = data.filter(row =>
+    searchText === '' ||
+    Object.values(row).some(val =>
       String(val).toLowerCase().includes(searchText.toLowerCase())
-    );
-    const matchesStatus = selectedStatus === 'all' || row.status === selectedStatus;
-    const matchesType = selectedType === 'all' || row.pasType === selectedType;
-    return matchesSearch && matchesStatus && matchesType;
-  });
+    )
+  );
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Filter Panel */}
-      <FilterPanel
-        searchValue={searchText}
-        onSearchChange={setSearchText}
-        showStatus={true}
-        statusOptions={[
-          { value: 'all', label: 'All Status' },
-          { value: 'Y', label: 'Active' },
-          { value: 'N', label: 'Inactive' },
-          { value: 'Yes', label: 'Active' },
-          { value: 'No', label: 'Inactive' },
-        ]}
-        selectedStatus={selectedStatus}
-        onStatusChange={setSelectedStatus}
-        showType={true}
-        typeOptions={[
-          {'value':'all','label':'All Types'},
-          {'value':'Project','label':'Project'},
-          {'value':'Phase','label':'Phase'},
-          {'value':'Task','label':'Task'},
-        ]}
-        selectedType={selectedType}
-        onTypeChange={setSelectedType}
-      />
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Page Header */}
-        <div className="bg-white border-b px-6 py-4">
-          <h1 className="text-xl font-semibold text-gray-800">Project Assignment Management</h1>
-          <nav className="flex items-center gap-1.5 mt-1">
-            <span className="text-xs text-gray-400">Home</span>
-            <span className="text-xs text-gray-300">/</span>
-            <span className="text-xs text-gray-400">Master Data</span>
-            <span className="text-xs text-gray-300">/</span>
-            <span className="text-xs text-blue-600">Project Assignment</span>
-          </nav>
-        </div>
+    <div className="p-6">
+      <div className="mb-4">
+        <h1 className="text-2xl font-semibold text-gray-800 uppercase tracking-tight">Project Assignments</h1>
+        <p className="text-sm text-gray-500 mt-1">
+          Manage project cost assignments with hierarchical structure and budget references
+        </p>
+      </div>
 
       <MasterDataToolbar 
         searchText={searchText}
@@ -202,7 +165,7 @@ export default function ProjectAssignmentList() {
         selectedCount={selectedRows.length}
       />
 
-      <div className="flex-1 overflow-hidden bg-white mx-6 mb-6 border rounded-lg shadow-sm">
+      <div className="bg-white border border-t-0 rounded-b-lg overflow-hidden shadow-sm">
         <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-250px)]">
           <table className="w-full text-sm min-w-[3200px]">
             <thead className="sticky top-0 z-10">
@@ -399,13 +362,15 @@ export default function ProjectAssignmentList() {
           </table>
         </div>
 
-        <div className="bg-white border-t px-6 py-3 flex items-center justify-between">
-          <div className="text-sm text-gray-600">
-            Showing <span className="font-semibold">{filteredData.length}</span> records
+        <div className="px-4 py-3 border-t bg-gray-50 flex items-center justify-between text-xs text-gray-600">
+          <div>
+            Showing <span className="font-semibold">{filteredData.length}</span> of <span className="font-semibold">{data.length}</span> project assignments
+          </div>
+          <div className="flex items-center gap-4">
+            <span>{selectedRows.length} selected</span>
           </div>
         </div>
       </div>
-    </div>
     </div>
   );
 }

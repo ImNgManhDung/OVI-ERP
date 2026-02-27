@@ -48,9 +48,13 @@ import GLJournalForm from './components/GLJournalForm';
 import DeptClearingPopup from './components/DeptClearingPopup';
 import AssetComponentsList from './components/AssetComponentsList';
 import AssetFundingSourcesList from './components/AssetFundingSourcesList';
+import CreateAssetFundingSource from './components/CreateAssetFundingSource';
 import AssetCategoryList from './components/AssetCategoryList';
 import CreateAssetCategory from './components/CreateAssetCategory';
 import AssetBookList from './components/AssetBookList';
+import CreateAssetBook from './components/CreateAssetBook';
+import CreateAssetDepreciation from './components/CreateAssetDepreciation';
+import CreateAssetTransaction from './components/CreateAssetTransaction';
 import AdvanceRequestList from './components/AdvanceRequestList';
 import AdvanceSettlementList from './components/AdvanceSettlementList';
 import ExpensePolicy from './components/ExpensePolicy';
@@ -130,10 +134,13 @@ type ViewType =
   | 'asset-sources'
   | 'asset-components'
   | 'asset-funding-sources'
+  | 'create-asset-funding-source'
   | 'list-asset-category'
   | 'create-asset-category'
   | 'asset-books'
+  | 'create-asset-book'
   | 'asset-depreciations'
+  | 'create-asset-depreciation'
   // WMM Views
   | 'wmm-dashboard'
   | 'wmm-material-list'
@@ -303,21 +310,29 @@ export default function App() {
       case 'create-fixed-asset':
         return <CreateFixedAsset onClose={() => setCurrentView('list-fixed-assets')} />;
       case 'asset-transactions':
-        return <AssetTransactionList />;
+        return <AssetTransactionList onCreateClick={() => setCurrentView('create-asset-transaction')} />;
       case 'asset-sources':
         return <AssetSourcesList />;
       case 'asset-components':
         return <AssetComponentsList />;
       case 'asset-funding-sources':
-        return <AssetFundingSourcesList />;
+        return <AssetFundingSourcesList onCreateClick={() => setCurrentView('create-asset-funding-source')} />;
+      case 'create-asset-funding-source':
+        return <CreateAssetFundingSource onClose={() => setCurrentView('asset-funding-sources')} />;
       case 'list-asset-category':
         return <AssetCategoryList onCreateClick={() => setCurrentView('create-asset-category')} />;
       case 'create-asset-category':
         return <CreateAssetCategory onClose={() => setCurrentView('list-asset-category')} />;
       case 'asset-books':
-        return <AssetBookList />; // Removed onCreateClick parameter
+        return <AssetBookList onCreateClick={() => setCurrentView('create-asset-book')} />;
+      case 'create-asset-book':
+        return <CreateAssetBook onClose={() => setCurrentView('asset-books')} />;
       case 'asset-depreciations':
-        return <AssetDepreciationList />; // Removed onCreateClick parameter
+        return <AssetDepreciationList onCreateClick={() => setCurrentView('create-asset-depreciation')} />;
+      case 'create-asset-depreciation':
+        return <CreateAssetDepreciation onClose={() => setCurrentView('asset-depreciations')} />;
+      case 'create-asset-transaction':
+        return <CreateAssetTransaction onClose={() => setCurrentView('asset-transactions')} />;
       
       // TEM Views
       case 'tem-dashboard':
