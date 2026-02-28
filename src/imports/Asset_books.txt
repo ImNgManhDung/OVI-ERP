@@ -1,0 +1,26 @@
+CREATE TABLE ASSET_BOOKS (
+    ABO_ID              NUMBER NOT NULL,            -- PK
+    ASS_ID              NUMBER NOT NULL,            -- FK -> ASSETS
+	ACB_ID              NUMBER NOT NULL,            -- FK -> Asset_categry_book_default - Giá trị mặc định lấy từ bảng này
+	LEN_ID				NUMBER NOT NULL,			-- FK -> LEGAL_ENTITY
+    LEDGER			    VARCHAR2(2 CHAR),			-- 0L: VAS, 2L: IFRS, 1L: INTERNAL
+    
+    -- === THÔNG SỐ KHẤU HAO ===
+    CURRENCY_CODE       VARCHAR2(3 CHAR) ,          -- Bằng với loại tiền của LEN_ID
+    DEPR_START_DATE 	DATE NOT NULL,           	-- Ngày bắt đầu tính KH
+    LIFE_MONTHS         NUMBER(4) NOT NULL,         -- Số tháng sử dụng (VAS=60, IFRS=96)
+    DEPR_MONTHS         NUMBER(4) NOT NULL,         -- Số tháng đã khấu hao	
+    
+    -- METHOD: SL: STRAIGHT_LINE (Đường thẳng), DE: DECLINING (Số dư giảm dần)
+    DEPR_METHOD         VARCHAR2(20 CHAR) DEFAULT 'SL',
+    
+    -- === GIÁ TRỊ HIỆN TẠI (CẬP NHẬT HÀNG THÁNG) ===
+    ORIGINAL_COST        NUMBER(20,2),          -- Nguyên giá tài sản
+    ACCUM_DEPR        NUMBER(20,2),             -- Khấu hao lũy kế
+    NET_BOOK_VALUE    NUMBER(20,2),             -- Giá trị còn lại
+    
+    IS_DEPRECIATE       VARCHAR2(1 CHAR) DEFAULT 'Y', -- Y/N, Có trích KH không?
+    
+    CONSTRAINT PK_FA_BOOKS PRIMARY KEY (ABO_ID),
+    CONSTRAINT UK_FA_ASSET_BOOK UNIQUE (ABO_ID, ASS_ID, LEN_ID, LEDGER)
+);

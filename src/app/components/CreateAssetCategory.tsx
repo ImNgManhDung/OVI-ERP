@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { X, Plus, Trash2 } from 'lucide-react';
+import { X } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -10,73 +9,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
-import { Checkbox } from './ui/checkbox';
 
 interface CreateAssetCategoryProps {
   onClose: () => void;
 }
 
-interface DetailRow {
-  id: number;
-  sip: number;
-  attributeCode: string;
-  attributeName: string;
-  attributeType: string;
-  isMandatory: string;
-  defaultValue: string;
-}
-
-const ATTRIBUTE_TYPES = [
-  { value: 'TEXT', label: 'TEXT' },
-  { value: 'NUMBER', label: 'NUMBER' },
-  { value: 'DATE', label: 'DATE' },
-  { value: 'SELECT', label: 'SELECT' },
-];
-
 export default function CreateAssetCategory({ onClose }: CreateAssetCategoryProps) {
-  const [detailRows, setDetailRows] = useState<DetailRow[]>([
-    {
-      id: 1,
-      sip: 1,
-      attributeCode: 'ATTR-001',
-      attributeName: 'Công suất',
-      attributeType: 'NUMBER',
-      isMandatory: 'Y',
-      defaultValue: ''
-    }
-  ]);
-
-  const [selectedDetails, setSelectedDetails] = useState<number[]>([]);
-
-  const handleAddDetailRow = () => {
-    const newRow: DetailRow = {
-      id: detailRows.length + 1,
-      sip: detailRows.length + 1,
-      attributeCode: `ATTR-${String(detailRows.length + 1).padStart(3, '0')}`,
-      attributeName: '',
-      attributeType: 'TEXT',
-      isMandatory: 'N',
-      defaultValue: ''
-    };
-    setDetailRows([...detailRows, newRow]);
-  };
-
-  const handleDeleteDetailRows = () => {
-    setDetailRows(detailRows.filter(row => !selectedDetails.includes(row.id)));
-    setSelectedDetails([]);
-  };
-
-  const toggleDetailSelection = (id: number) => {
-    setSelectedDetails(prev => 
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    );
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 p-6 overflow-x-auto">
-      <div className="bg-white rounded-lg shadow-sm" style={{ width: '1600px' }}>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-[1600px] mx-auto bg-white rounded-lg shadow-sm">
         <div className="flex items-center justify-between px-6 py-4 border-b">
-          <h2 className="text-lg">CREATE ASSET CATEGORY</h2>
+          <h2 className="text-lg font-semibold">CREATE ASSET CATEGORY</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <X className="w-5 h-5" />
           </button>
@@ -93,7 +36,7 @@ export default function CreateAssetCategory({ onClose }: CreateAssetCategoryProp
                 <Label className="text-sm mb-1 block">
                   <span className="text-red-500">*</span> ACA ID
                 </Label>
-                <Input className="bg-pink-50 h-10" placeholder="Auto generate" readOnly />
+                <Input className="bg-gray-100 h-10" placeholder="Auto generate" readOnly />
               </div>
 
               <div>
@@ -114,6 +57,8 @@ export default function CreateAssetCategory({ onClose }: CreateAssetCategoryProp
                   <SelectContent>
                     <SelectItem value="TANGIBLE">TANGIBLE (Hữu hình)</SelectItem>
                     <SelectItem value="INTANGIBLE">INTANGIBLE (Vô hình)</SelectItem>
+                    <SelectItem value="CIP">CIP (XDCB dở dang)</SelectItem>
+                    <SelectItem value="PREPAID">PREPAID (Chi phí trả trước)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -127,114 +72,82 @@ export default function CreateAssetCategory({ onClose }: CreateAssetCategoryProp
               </div>
 
               <div>
-                <Label className="text-sm mb-1 block">LEVEL</Label>
-                <Input type="number" className="h-10" defaultValue="1" />
+                <Label className="text-sm mb-1 block">PARENT ID</Label>
+                <Select>
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder="Select parent..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None (Root level)</SelectItem>
+                    <SelectItem value="ACA-001">ACA-001 - Máy móc thiết bị</SelectItem>
+                    <SelectItem value="ACA-002">ACA-002 - Nhà và vật kiến trúc</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Row 3 */}
               <div>
-                <Label className="text-sm mb-1 block">ASSET ACC</Label>
-                <Input className="h-10" placeholder="211" />
+                <Label className="text-sm mb-1 block">
+                  <span className="text-red-500">*</span> ASSET ACC
+                </Label>
+                <Input className="bg-pink-50 h-10" placeholder="211" />
               </div>
 
               <div>
-                <Label className="text-sm mb-1 block">DEPR ACC</Label>
-                <Input className="h-10" placeholder="214" />
+                <Label className="text-sm mb-1 block">
+                  <span className="text-red-500">*</span> DEPR ACC
+                </Label>
+                <Input className="bg-pink-50 h-10" placeholder="214" />
               </div>
 
               <div>
-                <Label className="text-sm mb-1 block">EXPENSE ACC</Label>
-                <Input className="h-10" placeholder="641" />
+                <Label className="text-sm mb-1 block">
+                  <span className="text-red-500">*</span> EXPENSE ACC
+                </Label>
+                <Input className="bg-pink-50 h-10" placeholder="641" />
               </div>
 
             </div>
-          </div>
 
-          {/* DETAILS TABLE - Attributes */}
-          <div className="border rounded-lg bg-white">
-            <div className="px-4 py-3 border-b bg-gray-50 flex items-center justify-between">
-              <h3 className="text-sm font-medium text-gray-700">CATEGORY ATTRIBUTES</h3>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={handleAddDetailRow}>
-                  <Plus className="w-4 h-4 mr-1" />
-                  Add Row
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleDeleteDetailRows}
-                  disabled={selectedDetails.length === 0}
-                >
-                  <Trash2 className="w-4 h-4 mr-1" />
-                  Delete
-                </Button>
+            {/* Additional Fields - GL Accounts + Description */}
+            <div className="grid grid-cols-3 gap-x-6 gap-y-4 mt-4 pt-4 border-t">
+              <div>
+                <Label className="text-sm mb-1 block">DISPOSAL LOSS ACC</Label>
+                <Input className="h-10" placeholder="811" />
               </div>
-            </div>
 
-            <div className="overflow-x-auto" style={{ maxHeight: 'calc(100vh - 500px)' }}>
-              <table className="w-full text-sm">
-                <thead className="bg-blue-50 border-b sticky top-0 z-10">
-                  <tr>
-                    <th className="px-3 py-3 text-left w-12 border-r">
-                      <Checkbox 
-                        checked={selectedDetails.length === detailRows.length && detailRows.length > 0}
-                        onCheckedChange={(checked) => {
-                          if (checked) setSelectedDetails(detailRows.map(r => r.id));
-                          else setSelectedDetails([]);
-                        }}
-                      />
-                    </th>
-                    <th className="px-3 py-3 text-center text-blue-700 font-bold border-r w-16">SIP</th>
-                    <th className="px-3 py-3 text-left text-blue-700 font-bold border-r w-48">ATTRIBUTE CODE</th>
-                    <th className="px-3 py-3 text-left text-blue-700 font-bold border-r w-64">ATTRIBUTE NAME</th>
-                    <th className="px-3 py-3 text-left text-blue-700 font-bold border-r w-48">ATTRIBUTE TYPE</th>
-                    <th className="px-3 py-3 text-left text-blue-700 font-bold border-r w-32">IS MANDATORY</th>
-                    <th className="px-3 py-3 text-left text-blue-700 font-bold w-64">DEFAULT VALUE</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {detailRows.map((row) => (
-                    <tr key={row.id} className="border-b hover:bg-blue-50/30">
-                      <td className="px-3 py-2 border-r">
-                        <Checkbox
-                          checked={selectedDetails.includes(row.id)}
-                          onCheckedChange={() => toggleDetailSelection(row.id)}
-                        />
-                      </td>
-                      <td className="px-3 py-2 text-center border-r text-gray-600">{row.sip}</td>
-                      <td className="px-3 py-2 border-r">
-                        <Input value={row.attributeCode} className="h-8 border-gray-200 font-mono" readOnly />
-                      </td>
-                      <td className="px-3 py-2 border-r">
-                        <Input value={row.attributeName} className="h-8 border-gray-200" placeholder="Tên thuộc tính" />
-                      </td>
-                      <td className="px-3 py-2 border-r">
-                        <Select value={row.attributeType} onValueChange={(val) => {}}>
-                          <SelectTrigger className="h-8 border-gray-200">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {ATTRIBUTE_TYPES.map(type => (
-                              <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </td>
-                      <td className="px-3 py-2 border-r text-center">
-                        <Checkbox checked={row.isMandatory === 'Y'} />
-                      </td>
-                      <td className="px-3 py-2">
-                        <Input value={row.defaultValue} className="h-8 border-gray-200" placeholder="Giá trị mặc định" />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div>
+                <Label className="text-sm mb-1 block">DISPOSAL GAIN ACC</Label>
+                <Input className="h-10" placeholder="711" />
+              </div>
+
+              <div>
+                <Label className="text-sm mb-1 block">LEVEL</Label>
+                <Input type="number" className="h-10" defaultValue="1" min="1" max="5" />
+              </div>
+
+              <div className="col-span-2">
+                <Label className="text-sm mb-1 block">DESCRIPTION</Label>
+                <Input className="h-10" placeholder="Mô tả loại tài sản..." />
+              </div>
+
+              <div>
+                <Label className="text-sm mb-1 block">IS ACTIVE</Label>
+                <Select defaultValue="Y">
+                  <SelectTrigger className="h-10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Y">Yes</SelectItem>
+                    <SelectItem value="N">No</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-3 mt-6">
+          <div className="flex justify-end gap-3">
             <Button variant="outline" onClick={onClose}>Cancel</Button>
             <Button className="bg-blue-600 hover:bg-blue-700 text-white">
               Save

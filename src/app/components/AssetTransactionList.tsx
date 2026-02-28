@@ -21,50 +21,158 @@ const mockData = [
   {
     id: 1,
     atrId: 'ATR-001',
-    transCode: 'ADD0124-0001',
-    transDate: '15-01-2024',
-    transType: 'ADDITION',
-    assetCode: 'ACA001-00001',
-    assetName: 'Máy tính để bàn HP ProDesk',
-    amount: 15300000,
-    status: 'POSTED',
-    description: 'Mua mới thiết bị IT'
+    assId: 'ASS-001',
+    atrCode: 'ADD0124-0001',
+    atrType: 'ADD',
+    cceId: 'CCE-001',
+    projId: null,
+    assetAccId: '211',
+    offsetAccId: '331',
+    oldCost: 0,
+    newCost: 150000000,
+    amountChange: 150000000,
+    fromCceId: null,
+    toCceId: null,
+    fromLocId: null,
+    toLocId: null,
+    fromProjId: null,
+    toProjId: null,
+    fromEmpId: null,
+    toEmpId: null,
+    description: 'Mua mới thiết bị IT từ nhà cung cấp ABC',
+    status: 'P',
+    uleId: 'ULE-2024-01-0045',
+    postingDate: '15-01-2024'
   },
   {
     id: 2,
     atrId: 'ATR-002',
-    transCode: 'ADJ0224-0001',
-    transDate: '05-02-2024',
-    transType: 'ADJUSTMENT',
-    assetCode: 'ACA001-00002',
-    assetName: 'Máy in Canon MF244DW',
-    amount: 500000,
-    status: 'POSTED',
-    description: 'Điều chỉnh giá trị'
+    assId: 'ASS-001',
+    atrCode: 'ADJ0224-0001',
+    atrType: 'ADJ',
+    cceId: 'CCE-001',
+    projId: null,
+    assetAccId: '211',
+    offsetAccId: '338',
+    oldCost: 150000000,
+    newCost: 150500000,
+    amountChange: 500000,
+    fromCceId: null,
+    toCceId: null,
+    fromLocId: null,
+    toLocId: null,
+    fromProjId: null,
+    toProjId: null,
+    fromEmpId: null,
+    toEmpId: null,
+    description: 'Điều chỉnh giá trị do lắp thêm phụ kiện',
+    status: 'P',
+    uleId: 'ULE-2024-02-0078',
+    postingDate: '05-02-2024'
   },
   {
     id: 3,
     atrId: 'ATR-003',
-    transCode: 'TRA0324-0001',
-    transDate: '10-03-2024',
-    transType: 'TRANSFER',
-    assetCode: 'ACA003-00001',
-    assetName: 'Xe tải Hyundai HD120SL',
-    amount: 850000000,
-    status: 'POSTED',
-    description: 'Chuyển đổi giữa các bộ phận'
+    assId: 'ASS-002',
+    atrCode: 'TRA0324-0001',
+    atrType: 'TRA',
+    cceId: 'CCE-003',
+    projId: null,
+    assetAccId: '211',
+    offsetAccId: '211',
+    oldCost: 85000000,
+    newCost: 85000000,
+    amountChange: 0,
+    fromCceId: 'CCE-002',
+    toCceId: 'CCE-003',
+    fromLocId: 'LOC-HN',
+    toLocId: 'LOC-HCM',
+    fromProjId: null,
+    toProjId: null,
+    fromEmpId: 'EMP-001',
+    toEmpId: 'EMP-025',
+    description: 'Luân chuyển xe từ HN về HCM',
+    status: 'C',
+    uleId: null,
+    postingDate: null
   },
   {
     id: 4,
     atrId: 'ATR-004',
-    transCode: 'RET0424-0001',
-    transDate: '20-04-2024',
-    transType: 'RETIREMENT',
-    assetCode: 'ACA001-00003',
-    assetName: 'Máy photocopy Ricoh MP 3055',
-    amount: 45000000,
-    status: 'DRAFT',
-    description: 'Thanh lý tài sản cũ'
+    assId: 'ASS-003',
+    atrCode: 'RET0426-0001',
+    atrType: 'RET',
+    cceId: 'CCE-003',
+    projId: null,
+    assetAccId: '211',
+    offsetAccId: '811',
+    oldCost: 45000000,
+    newCost: 0,
+    amountChange: -45000000,
+    fromCceId: null,
+    toCceId: null,
+    fromLocId: null,
+    toLocId: null,
+    fromProjId: null,
+    toProjId: null,
+    fromEmpId: null,
+    toEmpId: null,
+    description: 'Thanh lý tài sản hết khấu hao',
+    status: 'D',
+    uleId: null,
+    postingDate: null
+  },
+  {
+    id: 5,
+    atrId: 'ATR-005',
+    assId: 'ASS-001',
+    atrCode: 'RAV0526-0001',
+    atrType: 'RAV',
+    cceId: 'CCE-001',
+    projId: null,
+    assetAccId: '211',
+    offsetAccId: '412',
+    oldCost: 150500000,
+    newCost: 155000000,
+    amountChange: 4500000,
+    fromCceId: null,
+    toCceId: null,
+    fromLocId: null,
+    toLocId: null,
+    fromProjId: null,
+    toProjId: null,
+    fromEmpId: null,
+    toEmpId: null,
+    description: 'Đánh giá lại giá trị theo IFRS',
+    status: 'D',
+    uleId: null,
+    postingDate: null
+  },
+  {
+    id: 6,
+    atrId: 'ATR-006',
+    assId: 'ASS-004',
+    atrCode: 'ADD0626-0001',
+    atrType: 'ADD',
+    cceId: 'CCE-004',
+    projId: 'PROJ-001',
+    assetAccId: '211',
+    offsetAccId: '241',
+    oldCost: 0,
+    newCost: 250000000,
+    amountChange: 250000000,
+    fromCceId: null,
+    toCceId: null,
+    fromLocId: null,
+    toLocId: null,
+    fromProjId: null,
+    toProjId: null,
+    fromEmpId: null,
+    toEmpId: null,
+    description: 'Tăng từ XDCB hoàn thành',
+    status: 'P',
+    uleId: 'ULE-2026-06-0234',
+    postingDate: '15-06-2026'
   }
 ];
 
@@ -79,20 +187,19 @@ export default function AssetTransactionList({ onCreateClick }: AssetTransaction
       String(val).toLowerCase().includes(searchText.toLowerCase())
     );
     const matchesStatus = selectedStatus === 'all' || item.status === selectedStatus;
-    const matchesType = selectedType === 'all' || item.transType === selectedType;
+    const matchesType = selectedType === 'all' || item.atrType === selectedType;
 
     return matchesSearch && matchesStatus && matchesType;
   });
 
   // Calculate stats
-  const postedCount = mockData.filter(item => item.status === 'POSTED').length;
-  const draftCount = mockData.filter(item => item.status === 'DRAFT').length;
-  const additionCount = mockData.filter(item => item.transType === 'ADDITION').length;
-  const retirementCount = mockData.filter(item => item.transType === 'RETIREMENT').length;
+  const postedCount = mockData.filter(item => item.status === 'P').length;
+  const draftCount = mockData.filter(item => item.status === 'D').length;
+  const addCount = mockData.filter(item => item.atrType === 'ADD').length;
+  const retCount = mockData.filter(item => item.atrType === 'RET').length;
 
   const customFilters = (
     <>
-      {/* Transaction Type Filter */}
       <div className="space-y-2">
         <label className="text-xs font-medium text-gray-600">Transaction Type</label>
         <select
@@ -101,10 +208,11 @@ export default function AssetTransactionList({ onCreateClick }: AssetTransaction
           className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
         >
           <option value="all">All Types</option>
-          <option value="ADDITION">ADDITION</option>
-          <option value="ADJUSTMENT">ADJUSTMENT</option>
-          <option value="TRANSFER">TRANSFER</option>
-          <option value="RETIREMENT">RETIREMENT</option>
+          <option value="ADD">ADD (Addition)</option>
+          <option value="ADJ">ADJ (Adjustment)</option>
+          <option value="RAV">RAV (Revaluation)</option>
+          <option value="TRA">TRA (Transfer)</option>
+          <option value="RET">RET (Retirement)</option>
         </select>
       </div>
     </>
@@ -119,8 +227,10 @@ export default function AssetTransactionList({ onCreateClick }: AssetTransaction
         showStatus={true}
         statusOptions={[
           { value: 'all', label: 'All Status' },
-          { value: 'POSTED', label: 'Posted' },
-          { value: 'DRAFT', label: 'Draft' },
+          { value: 'D', label: 'Draft' },
+          { value: 'C', label: 'Confirmed' },
+          { value: 'P', label: 'Posted' },
+          { value: 'R', label: 'Reversed' },
         ]}
         selectedStatus={selectedStatus}
         onStatusChange={setSelectedStatus}
@@ -147,8 +257,8 @@ export default function AssetTransactionList({ onCreateClick }: AssetTransaction
           <div className="grid grid-cols-4 gap-4 mb-6">
             <StatsCard title="POSTED" value={postedCount} icon={CheckCircle} bgColor="text-green-600" iconBgColor="bg-green-50" />
             <StatsCard title="DRAFT" value={draftCount} icon={FileText} bgColor="text-orange-600" iconBgColor="bg-orange-50" />
-            <StatsCard title="ADDITION" value={additionCount} icon={AlertTriangle} bgColor="text-blue-600" iconBgColor="bg-blue-50" />
-            <StatsCard title="RETIREMENT" value={retirementCount} icon={Calendar} bgColor="text-red-600" iconBgColor="bg-red-50" />
+            <StatsCard title="ADDITION" value={addCount} icon={AlertTriangle} bgColor="text-blue-600" iconBgColor="bg-blue-50" />
+            <StatsCard title="RETIREMENT" value={retCount} icon={Calendar} bgColor="text-red-600" iconBgColor="bg-red-50" />
           </div>
 
           {/* Action Buttons */}
@@ -198,24 +308,32 @@ export default function AssetTransactionList({ onCreateClick }: AssetTransaction
           {/* Table */}
           <div className="bg-white border border-t-0 rounded-b-lg overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full text-xs">
                 <thead>
                   <tr className="bg-blue-50 border-b">
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">ATR ID</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Trans Code</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Trans Date</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Trans Type</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Asset Code</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Asset Name</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Amount</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Description</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Status</th>
+                    <th className="px-2 py-2 text-left font-semibold text-blue-700">ATR ID</th>
+                    <th className="px-2 py-2 text-left font-semibold text-blue-700">ASS ID</th>
+                    <th className="px-2 py-2 text-left font-semibold text-blue-700">ATR Code</th>
+                    <th className="px-2 py-2 text-left font-semibold text-blue-700">Type</th>
+                    <th className="px-2 py-2 text-left font-semibold text-blue-700">CCE ID</th>
+                    <th className="px-2 py-2 text-left font-semibold text-blue-700">PROJ ID</th>
+                    <th className="px-2 py-2 text-left font-semibold text-blue-700">Asset Acc</th>
+                    <th className="px-2 py-2 text-left font-semibold text-blue-700">Offset Acc</th>
+                    <th className="px-2 py-2 text-right font-semibold text-blue-700">Old Cost</th>
+                    <th className="px-2 py-2 text-right font-semibold text-blue-700">New Cost</th>
+                    <th className="px-2 py-2 text-right font-semibold text-blue-700">Change</th>
+                    <th className="px-2 py-2 text-left font-semibold text-blue-700">From CCE</th>
+                    <th className="px-2 py-2 text-left font-semibold text-blue-700">To CCE</th>
+                    <th className="px-2 py-2 text-left font-semibold text-blue-700">Description</th>
+                    <th className="px-2 py-2 text-left font-semibold text-blue-700">Status</th>
+                    <th className="px-2 py-2 text-left font-semibold text-blue-700">ULE ID</th>
+                    <th className="px-2 py-2 text-left font-semibold text-blue-700">Posting Date</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredData.length === 0 ? (
                     <tr>
-                      <td colSpan={9} className="px-4 py-12 text-center text-gray-500">
+                      <td colSpan={17} className="px-4 py-12 text-center text-gray-500">
                         <div className="flex flex-col items-center gap-2">
                           <Search className="w-12 h-12 opacity-10" />
                           <span>No transactions found</span>
@@ -225,30 +343,42 @@ export default function AssetTransactionList({ onCreateClick }: AssetTransaction
                   ) : (
                     filteredData.map((item) => (
                       <tr key={item.id} className="border-b hover:bg-gray-50 cursor-pointer">
-                        <td className="px-4 py-2 text-sm font-bold text-blue-600">{item.atrId}</td>
-                        <td className="px-4 py-2 text-sm font-mono">{item.transCode}</td>
-                        <td className="px-4 py-2 text-sm">{item.transDate}</td>
-                        <td className="px-4 py-2 text-sm">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            item.transType === 'ADDITION' ? 'bg-green-100 text-green-700' :
-                            item.transType === 'ADJUSTMENT' ? 'bg-blue-100 text-blue-700' :
-                            item.transType === 'TRANSFER' ? 'bg-purple-100 text-purple-700' :
+                        <td className="px-2 py-2 font-bold text-blue-600">{item.atrId}</td>
+                        <td className="px-2 py-2 font-mono">{item.assId}</td>
+                        <td className="px-2 py-2 font-mono">{item.atrCode}</td>
+                        <td className="px-2 py-2">
+                          <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+                            item.atrType === 'ADD' ? 'bg-green-100 text-green-700' :
+                            item.atrType === 'ADJ' ? 'bg-blue-100 text-blue-700' :
+                            item.atrType === 'RAV' ? 'bg-purple-100 text-purple-700' :
+                            item.atrType === 'TRA' ? 'bg-orange-100 text-orange-700' :
                             'bg-red-100 text-red-700'
                           }`}>
-                            {item.transType}
+                            {item.atrType}
                           </span>
                         </td>
-                        <td className="px-4 py-2 text-sm font-mono">{item.assetCode}</td>
-                        <td className="px-4 py-2 text-sm font-medium">{item.assetName}</td>
-                        <td className="px-4 py-2 text-sm text-right">{item.amount.toLocaleString()}</td>
-                        <td className="px-4 py-2 text-sm">{item.description}</td>
-                        <td className="px-4 py-2 text-sm">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            item.status === 'POSTED' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                        <td className="px-2 py-2 font-mono">{item.cceId}</td>
+                        <td className="px-2 py-2 font-mono text-gray-500">{item.projId || '-'}</td>
+                        <td className="px-2 py-2 font-mono">{item.assetAccId}</td>
+                        <td className="px-2 py-2 font-mono">{item.offsetAccId}</td>
+                        <td className="px-2 py-2 text-right">{item.oldCost.toLocaleString()}</td>
+                        <td className="px-2 py-2 text-right font-medium">{item.newCost.toLocaleString()}</td>
+                        <td className="px-2 py-2 text-right font-bold">{item.amountChange.toLocaleString()}</td>
+                        <td className="px-2 py-2 font-mono text-gray-500">{item.fromCceId || '-'}</td>
+                        <td className="px-2 py-2 font-mono text-gray-500">{item.toCceId || '-'}</td>
+                        <td className="px-2 py-2 max-w-xs truncate" title={item.description}>{item.description}</td>
+                        <td className="px-2 py-2">
+                          <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+                            item.status === 'P' ? 'bg-green-100 text-green-700' :
+                            item.status === 'C' ? 'bg-blue-100 text-blue-700' :
+                            item.status === 'R' ? 'bg-red-100 text-red-700' :
+                            'bg-yellow-100 text-yellow-700'
                           }`}>
                             {item.status}
                           </span>
                         </td>
+                        <td className="px-2 py-2 font-mono text-blue-600">{item.uleId || '-'}</td>
+                        <td className="px-2 py-2">{item.postingDate || '-'}</td>
                       </tr>
                     ))
                   )}

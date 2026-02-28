@@ -1,0 +1,44 @@
+CREATE TABLE ASSET_TRANSACTIONS (
+    ATR_ID              NUMBER NOT NULL,            -- PK
+    ASS_ID              NUMBER NOT NULL,            -- FK
+    ATR_CODE	        VARCHAR2(20 CHAR),          -- Số tự sinh theo ATR_TYPE + MMYY + 4 STT tăng dần
+    
+    -- === LOẠI BIẾN ĐỘNG ===
+    
+    ATR_TYPE            VARCHAR2(20 CHAR) NOT NULL, 
+	-- ADD: ADDITION (Ghi tăng), ADJ: ADJUSTMENT (Điều chỉnh giá), RAV: REVALUATION (Đánh giá lại),TRA: TRANSFER (Luân chuyển),RET: RETIREMENT (Thanh lý)
+    
+    -- === TÀI KHOẢN HẠCH TOÁN ===
+    CCE_ID              NUMBER,                     -- Cost Center (Trung tâm chi phí)
+	PROJ_ID             NUMBER,                     -- Accounting_projects
+	ASSET_ACC_ID 		VARCHAR2(20 CHAR) NOT NULL, -- Khi ghi tăng, ghi Nợ TK này (VD: 211, 241)   
+    OFFSET_ACC_ID   	VARCHAR2(10 CHAR),          -- Tài khoản đối ứng, tăng từ hóa đơn, phiếu xuất 2119, tăng từ XDCB 241, tăng thủ công 338...
+    
+    -- === GIÁ TRỊ BIẾN ĐỘNG ===
+    OLD_COST            NUMBER(20,2),				-- Nguyên giá trước khi biến động			
+    NEW_COST            NUMBER(20,2),				-- Nguyên giá sau khi biến động
+    AMOUNT_CHANGE       NUMBER(20,2),               -- Số tiền chênh lệch
+
+    
+    -- === LUÂN CHUYỂN ===
+    FROM_CCE_ID        NUMBER,
+    TO_CCE_ID          NUMBER,
+	
+    FROM_LOC_ID        NUMBER,
+    TO_LOC_ID          NUMBER,
+	
+	FROM_PROJ_ID        NUMBER,
+    TO_PROJ_ID          NUMBER,
+	
+	FROM_EMP_ID        NUMBER,
+    TO_EMP_ID          NUMBER,
+    
+    DESCRIPTION         NVARCHAR2(500),
+    
+	-- === TRẠNG THÁI GHI SỔ (GL POSTING) ===
+    STATUS           	VARCHAR2(1 CHAR) DEFAULT 'C', 	-- D/C/P/R
+	ULE_ID				NUMBER,							-- Link tới bút toán trên tổng hợp
+    POSTING_DATE        DATE,    
+	
+    CONSTRAINT PK_FA_TRX PRIMARY KEY (ATR_ID)
+);

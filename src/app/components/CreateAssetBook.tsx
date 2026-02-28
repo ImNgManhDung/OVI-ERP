@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { X, Plus, Trash2 } from 'lucide-react';
+import { X } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -10,87 +9,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
-import { Checkbox } from './ui/checkbox';
 
 interface CreateAssetBookProps {
   onClose: () => void;
 }
 
-interface DetailRow {
-  id: number;
-  sip: number;
-  categoryCode: string;
-  deprMethod: string;
-  usefulLife: number | string;
-  salvageRate: number | string;
-  deprRate: number | string;
-}
-
-const DEPR_METHODS = [
-  { value: 'STRAIGHT_LINE', label: 'STRAIGHT LINE' },
-  { value: 'DECLINING_BALANCE', label: 'DECLINING BALANCE' },
-  { value: 'UNITS_OF_PRODUCTION', label: 'UNITS OF PRODUCTION' },
-  { value: 'SUM_OF_YEARS', label: 'SUM OF YEARS' },
-];
-
-const MOCK_CATEGORIES = [
-  { code: 'TS-MMTB', name: 'Máy móc thiết bị' },
-  { code: 'TS-NVGP', name: 'Nhà và vật kiến trúc' },
-  { code: 'TS-PTVT', name: 'Phương tiện vận tải' },
-  { code: 'TS-CNTT', name: 'Công nghệ thông tin' },
-];
-
 export default function CreateAssetBook({ onClose }: CreateAssetBookProps) {
-  const [detailRows, setDetailRows] = useState<DetailRow[]>([
-    {
-      id: 1,
-      sip: 1,
-      categoryCode: 'TS-MMTB',
-      deprMethod: 'STRAIGHT_LINE',
-      usefulLife: 10,
-      salvageRate: 5,
-      deprRate: 10
-    }
-  ]);
-
-  const [selectedDetails, setSelectedDetails] = useState<number[]>([]);
-
-  const handleAddDetailRow = () => {
-    const newRow: DetailRow = {
-      id: detailRows.length + 1,
-      sip: detailRows.length + 1,
-      categoryCode: '',
-      deprMethod: 'STRAIGHT_LINE',
-      usefulLife: '',
-      salvageRate: '',
-      deprRate: ''
-    };
-    setDetailRows([...detailRows, newRow]);
-  };
-
-  const handleDeleteDetailRows = () => {
-    setDetailRows(detailRows.filter(row => !selectedDetails.includes(row.id)));
-    setSelectedDetails([]);
-  };
-
-  const toggleDetailSelection = (id: number) => {
-    setSelectedDetails(prev => 
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    );
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 p-6 overflow-x-auto">
-      <div className="bg-white rounded-lg shadow-sm" style={{ width: '1600px' }}>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-[1600px] mx-auto bg-white rounded-lg shadow-sm">
         <div className="flex items-center justify-between px-6 py-4 border-b">
-          <h2 className="text-lg">CREATE ASSET BOOK</h2>
+          <h2 className="text-lg font-semibold">CREATE ASSET BOOK</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <div className="p-6">
-          {/* MAIN INFO - 3 ROWS x 3 COLS */}
           <div className="border rounded-lg p-4 bg-white mb-6">
             <h3 className="text-sm font-medium mb-4 pb-2 border-b text-gray-700">MAIN INFORMATION</h3>
             <div className="grid grid-cols-3 gap-x-6 gap-y-4">
@@ -100,43 +35,74 @@ export default function CreateAssetBook({ onClose }: CreateAssetBookProps) {
                 <Label className="text-sm mb-1 block">
                   <span className="text-red-500">*</span> ABO ID
                 </Label>
-                <Input className="bg-pink-50 h-10" placeholder="Auto generate" readOnly />
+                <Input className="bg-gray-100 h-10" placeholder="Auto generate" readOnly />
               </div>
 
               <div>
                 <Label className="text-sm mb-1 block">
-                  <span className="text-red-500">*</span> BOOK CODE
-                </Label>
-                <Input className="bg-pink-50 h-10" placeholder="BOOK-ACC" />
-              </div>
-
-              <div>
-                <Label className="text-sm mb-1 block">
-                  <span className="text-red-500">*</span> BOOK TYPE
+                  <span className="text-red-500">*</span> ASS ID
                 </Label>
                 <Select>
                   <SelectTrigger className="bg-pink-50 h-10">
-                    <SelectValue placeholder="Select type..." />
+                    <SelectValue placeholder="Select asset..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ACCOUNTING">ACCOUNTING</SelectItem>
-                    <SelectItem value="TAX">TAX</SelectItem>
-                    <SelectItem value="MANAGEMENT">MANAGEMENT</SelectItem>
-                    <SelectItem value="STATISTICAL">STATISTICAL</SelectItem>
+                    <SelectItem value="ASS-001">ASS-001 - Máy tính HP ProBook</SelectItem>
+                    <SelectItem value="ASS-002">ASS-002 - Xe tải Hyundai HD120</SelectItem>
+                    <SelectItem value="ASS-003">ASS-003 - Máy in Canon LBP</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="text-sm mb-1 block">
+                  <span className="text-red-500">*</span> ACB ID
+                </Label>
+                <Select>
+                  <SelectTrigger className="bg-pink-50 h-10">
+                    <SelectValue placeholder="Select config..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ACB-001">ACB-001 - Default Config VAS</SelectItem>
+                    <SelectItem value="ACB-002">ACB-002 - Default Config IFRS</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               {/* Row 2 */}
-              <div className="col-span-2">
+              <div>
                 <Label className="text-sm mb-1 block">
-                  <span className="text-red-500">*</span> BOOK NAME
+                  <span className="text-red-500">*</span> LEN ID
                 </Label>
-                <Input className="bg-pink-50 h-10" placeholder="Sổ kế toán" />
+                <Select>
+                  <SelectTrigger className="bg-pink-50 h-10">
+                    <SelectValue placeholder="Select legal entity..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="LEN-001">LEN-001 - CÔNG TY ABC</SelectItem>
+                    <SelectItem value="LEN-002">LEN-002 - CHI NHÁNH HN</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
-                <Label className="text-sm mb-1 block">CURRENCY</Label>
+                <Label className="text-sm mb-1 block">
+                  <span className="text-red-500">*</span> LEDGER
+                </Label>
+                <Select defaultValue="0L">
+                  <SelectTrigger className="bg-pink-50 h-10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0L">0L (VAS)</SelectItem>
+                    <SelectItem value="1L">1L (INTERNAL)</SelectItem>
+                    <SelectItem value="2L">2L (IFRS)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="text-sm mb-1 block">CURRENCY CODE</Label>
                 <Select defaultValue="VND">
                   <SelectTrigger className="h-10">
                     <SelectValue />
@@ -151,153 +117,76 @@ export default function CreateAssetBook({ onClose }: CreateAssetBookProps) {
 
               {/* Row 3 */}
               <div>
-                <Label className="text-sm mb-1 block">DEFAULT DEPR METHOD</Label>
-                <Select defaultValue="STRAIGHT_LINE">
-                  <SelectTrigger className="h-10">
+                <Label className="text-sm mb-1 block">
+                  <span className="text-red-500">*</span> DEPR START DATE
+                </Label>
+                <Input type="date" className="bg-pink-50 h-10" defaultValue="2024-01-01" />
+              </div>
+
+              <div>
+                <Label className="text-sm mb-1 block">
+                  <span className="text-red-500">*</span> LIFE MONTHS
+                </Label>
+                <Input type="number" className="bg-pink-50 h-10" placeholder="60" min="0" />
+              </div>
+
+              <div>
+                <Label className="text-sm mb-1 block">DEPR MONTHS</Label>
+                <Input type="number" className="h-10" placeholder="0" min="0" defaultValue="0" readOnly />
+              </div>
+
+            </div>
+
+            {/* Additional Fields */}
+            <div className="grid grid-cols-3 gap-x-6 gap-y-4 mt-4 pt-4 border-t">
+              <div>
+                <Label className="text-sm mb-1 block">
+                  <span className="text-red-500">*</span> DEPR METHOD
+                </Label>
+                <Select defaultValue="SL">
+                  <SelectTrigger className="bg-pink-50 h-10">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {DEPR_METHODS.map(method => (
-                      <SelectItem key={method.value} value={method.value}>{method.label}</SelectItem>
-                    ))}
+                    <SelectItem value="SL">SL (Straight Line)</SelectItem>
+                    <SelectItem value="DE">DE (Declining)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label className="text-sm mb-1 block">LEGAL ENTITY</Label>
-                <Select defaultValue="LE001">
+                <Label className="text-sm mb-1 block">ORIGINAL COST</Label>
+                <Input type="number" className="h-10" placeholder="0" min="0" />
+              </div>
+
+              <div>
+                <Label className="text-sm mb-1 block">IS DEPRECIATE</Label>
+                <Select defaultValue="Y">
                   <SelectTrigger className="h-10">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="LE001">CÔNG TY TNHH ABC</SelectItem>
-                    <SelectItem value="LE002">CHI NHÁNH HÀ NỘI</SelectItem>
+                    <SelectItem value="Y">Yes</SelectItem>
+                    <SelectItem value="N">No</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label className="text-sm mb-1 block">DESCRIPTION</Label>
-                <Input className="h-10" placeholder="Ghi chú về sổ tài sản" />
+                <Label className="text-sm mb-1 block">ACCUM DEPR</Label>
+                <Input type="number" className="bg-gray-100 h-10" placeholder="0" readOnly />
               </div>
 
+              <div>
+                <Label className="text-sm mb-1 block">NET BOOK VALUE</Label>
+                <Input type="number" className="bg-gray-100 h-10" placeholder="0" readOnly />
+              </div>
             </div>
           </div>
 
-          {/* DETAILS TABLE - Category Depreciation Rules */}
-          <div className="border rounded-lg bg-white">
-            <div className="px-4 py-3 border-b bg-gray-50 flex items-center justify-between">
-              <h3 className="text-sm font-medium text-gray-700">CATEGORY DEPRECIATION RULES</h3>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={handleAddDetailRow}>
-                  <Plus className="w-4 h-4 mr-1" />
-                  Add Row
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleDeleteDetailRows}
-                  disabled={selectedDetails.length === 0}
-                >
-                  <Trash2 className="w-4 h-4 mr-1" />
-                  Delete
-                </Button>
-              </div>
-            </div>
-
-            <div className="overflow-x-auto" style={{ maxHeight: 'calc(100vh - 500px)' }}>
-              <table className="w-full text-sm">
-                <thead className="bg-blue-50 border-b sticky top-0 z-10">
-                  <tr>
-                    <th className="px-3 py-3 text-left w-12 border-r">
-                      <Checkbox 
-                        checked={selectedDetails.length === detailRows.length && detailRows.length > 0}
-                        onCheckedChange={(checked) => {
-                          if (checked) setSelectedDetails(detailRows.map(r => r.id));
-                          else setSelectedDetails([]);
-                        }}
-                      />
-                    </th>
-                    <th className="px-3 py-3 text-center text-blue-700 font-bold border-r w-16">SIP</th>
-                    <th className="px-3 py-3 text-left text-blue-700 font-bold border-r w-64">CATEGORY CODE</th>
-                    <th className="px-3 py-3 text-left text-blue-700 font-bold border-r w-64">DEPR METHOD</th>
-                    <th className="px-3 py-3 text-right text-blue-700 font-bold border-r w-32">USEFUL LIFE</th>
-                    <th className="px-3 py-3 text-right text-blue-700 font-bold border-r w-32">SALVAGE RATE %</th>
-                    <th className="px-3 py-3 text-right text-blue-700 font-bold w-32">DEPR RATE %</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {detailRows.map((row) => (
-                    <tr key={row.id} className="border-b hover:bg-blue-50/30">
-                      <td className="px-3 py-2 border-r">
-                        <Checkbox
-                          checked={selectedDetails.includes(row.id)}
-                          onCheckedChange={() => toggleDetailSelection(row.id)}
-                        />
-                      </td>
-                      <td className="px-3 py-2 text-center border-r text-gray-600">{row.sip}</td>
-                      <td className="px-3 py-2 border-r">
-                        <Select value={row.categoryCode} onValueChange={(val) => {}}>
-                          <SelectTrigger className="h-8 border-gray-200">
-                            <SelectValue placeholder="Select category..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {MOCK_CATEGORIES.map(cat => (
-                              <SelectItem key={cat.code} value={cat.code}>{cat.code} - {cat.name}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </td>
-                      <td className="px-3 py-2 border-r">
-                        <Select value={row.deprMethod} onValueChange={(val) => {}}>
-                          <SelectTrigger className="h-8 border-gray-200">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {DEPR_METHODS.map(method => (
-                              <SelectItem key={method.value} value={method.value}>{method.label}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </td>
-                      <td className="px-3 py-2 border-r">
-                        <Input 
-                          type="number" 
-                          value={row.usefulLife} 
-                          className="h-8 text-right border-gray-200" 
-                          placeholder="Years"
-                        />
-                      </td>
-                      <td className="px-3 py-2 border-r">
-                        <Input 
-                          type="number" 
-                          value={row.salvageRate} 
-                          className="h-8 text-right border-gray-200" 
-                          placeholder="%"
-                        />
-                      </td>
-                      <td className="px-3 py-2">
-                        <Input 
-                          type="number" 
-                          value={row.deprRate} 
-                          className="h-8 text-right border-gray-200" 
-                          placeholder="%"
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex justify-end gap-3 mt-6">
+          <div className="flex justify-end gap-3">
             <Button variant="outline" onClick={onClose}>Cancel</Button>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-              Save
-            </Button>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white">Save</Button>
           </div>
         </div>
       </div>

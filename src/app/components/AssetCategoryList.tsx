@@ -24,13 +24,19 @@ const mockData = [
     categoryCode: 'TS-MMTB',
     categoryName: 'Máy móc thiết bị',
     assetType: 'TANGIBLE',
-    parentCategory: 'TS Hữu hình',
-    level: 2,
+    parentId: null,
+    level: 1,
+    assetAccId: '211',
+    deprAccId: '214',
+    expenseAccId: '641',
+    disposalLossAccId: '811',
+    disposalGainAccId: '711',
+    description: 'Máy móc thiết bị sản xuất',
     isActive: 'Y',
-    assetAcc: '211',
-    deprAcc: '214',
-    expenseAcc: '641',
-    description: 'Máy móc thiết bị sản xuất'
+    createdBy: 'admin',
+    createdDate: '01-01-2024',
+    modifiedBy: null,
+    modifyDate: null
   },
   {
     id: 2,
@@ -38,13 +44,19 @@ const mockData = [
     categoryCode: 'TS-NVGP',
     categoryName: 'Nhà và vật kiến trúc',
     assetType: 'TANGIBLE',
-    parentCategory: 'TS Hữu hình',
-    level: 2,
+    parentId: null,
+    level: 1,
+    assetAccId: '211',
+    deprAccId: '214',
+    expenseAccId: '641',
+    disposalLossAccId: '811',
+    disposalGainAccId: '711',
+    description: 'Nhà xưởng, văn phòng',
     isActive: 'Y',
-    assetAcc: '211',
-    deprAcc: '214',
-    expenseAcc: '641',
-    description: 'Nhà xưởng, văn phòng'
+    createdBy: 'admin',
+    createdDate: '01-01-2024',
+    modifiedBy: null,
+    modifyDate: null
   },
   {
     id: 3,
@@ -52,13 +64,19 @@ const mockData = [
     categoryCode: 'TS-PTVT',
     categoryName: 'Phương tiện vận tải',
     assetType: 'TANGIBLE',
-    parentCategory: 'TS Hữu hình',
-    level: 2,
+    parentId: null,
+    level: 1,
+    assetAccId: '211',
+    deprAccId: '214',
+    expenseAccId: '641',
+    disposalLossAccId: '811',
+    disposalGainAccId: '711',
+    description: 'Xe ô tô, xe tải',
     isActive: 'Y',
-    assetAcc: '211',
-    deprAcc: '214',
-    expenseAcc: '641',
-    description: 'Xe ô tô, xe tải'
+    createdBy: 'admin',
+    createdDate: '15-02-2024',
+    modifiedBy: null,
+    modifyDate: null
   },
   {
     id: 4,
@@ -66,13 +84,59 @@ const mockData = [
     categoryCode: 'TS-CNTT',
     categoryName: 'Công nghệ thông tin',
     assetType: 'INTANGIBLE',
-    parentCategory: 'TS Vô hình',
-    level: 2,
+    parentId: null,
+    level: 1,
+    assetAccId: '213',
+    deprAccId: '214',
+    expenseAccId: '642',
+    disposalLossAccId: '811',
+    disposalGainAccId: '711',
+    description: 'Phần mềm, bản quyền',
     isActive: 'N',
-    assetAcc: '213',
-    deprAcc: '214',
-    expenseAcc: '641',
-    description: 'Phần mềm, bản quyền'
+    createdBy: 'admin',
+    createdDate: '01-03-2024',
+    modifiedBy: 'user1',
+    modifyDate: '10-03-2024'
+  },
+  {
+    id: 5,
+    acaId: 'ACA-005',
+    categoryCode: 'TS-CIP',
+    categoryName: 'XDCB dở dang',
+    assetType: 'CIP',
+    parentId: null,
+    level: 1,
+    assetAccId: '241',
+    deprAccId: '214',
+    expenseAccId: '641',
+    disposalLossAccId: '811',
+    disposalGainAccId: '711',
+    description: 'Xây dựng cơ bản dở dang',
+    isActive: 'Y',
+    createdBy: 'admin',
+    createdDate: '01-01-2024',
+    modifiedBy: null,
+    modifyDate: null
+  },
+  {
+    id: 6,
+    acaId: 'ACA-006',
+    categoryCode: 'TS-PREP',
+    categoryName: 'Chi phí trả trước',
+    assetType: 'PREPAID',
+    parentId: null,
+    level: 1,
+    assetAccId: '242',
+    deprAccId: '214',
+    expenseAccId: '627',
+    disposalLossAccId: '811',
+    disposalGainAccId: '711',
+    description: 'Công cụ dụng cụ',
+    isActive: 'Y',
+    createdBy: 'admin',
+    createdDate: '01-01-2024',
+    modifiedBy: null,
+    modifyDate: null
   }
 ];
 
@@ -111,8 +175,10 @@ export default function AssetCategoryList({ onCreateClick }: AssetCategoryListPr
           className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
         >
           <option value="all">All Types</option>
-          <option value="TANGIBLE">TANGIBLE (Hữu hình)</option>
-          <option value="INTANGIBLE">INTANGIBLE (Vô hình)</option>
+          <option value="TANGIBLE">TANGIBLE</option>
+          <option value="INTANGIBLE">INTANGIBLE</option>
+          <option value="CIP">CIP</option>
+          <option value="PREPAID">PREPAID</option>
         </select>
       </div>
     </>
@@ -209,23 +275,27 @@ export default function AssetCategoryList({ onCreateClick }: AssetCategoryListPr
               <table className="w-full">
                 <thead>
                   <tr className="bg-blue-50 border-b">
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">ACA ID</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Category Code</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Category Name</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Asset Type</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Parent Category</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Level</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Asset Acc</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Depr Acc</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Expense Acc</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Description</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Is Active</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-blue-700">ACA ID</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-blue-700">Category Code</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-blue-700">Category Name</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-blue-700">Asset Type</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-blue-700">Parent ID</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-blue-700">Level</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-blue-700">Asset Acc</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-blue-700">Depr Acc</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-blue-700">Expense Acc</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-blue-700">Disposal Loss Acc</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-blue-700">Disposal Gain Acc</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-blue-700">Description</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-blue-700">Is Active</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-blue-700">Created By</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-blue-700">Created Date</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredData.length === 0 ? (
                     <tr>
-                      <td colSpan={11} className="px-4 py-12 text-center text-gray-500">
+                      <td colSpan={15} className="px-4 py-12 text-center text-gray-500">
                         <div className="flex flex-col items-center gap-2">
                           <Search className="w-12 h-12 opacity-10" />
                           <span>No asset categories found</span>
@@ -235,29 +305,36 @@ export default function AssetCategoryList({ onCreateClick }: AssetCategoryListPr
                   ) : (
                     filteredData.map((item) => (
                       <tr key={item.id} className="border-b hover:bg-gray-50 cursor-pointer">
-                        <td className="px-4 py-2 text-sm font-bold text-blue-600">{item.acaId}</td>
-                        <td className="px-4 py-2 text-sm font-mono">{item.categoryCode}</td>
-                        <td className="px-4 py-2 text-sm font-medium">{item.categoryName}</td>
-                        <td className="px-4 py-2 text-sm">
+                        <td className="px-4 py-2.5 text-xs font-bold text-blue-600">{item.acaId}</td>
+                        <td className="px-4 py-2.5 text-xs font-mono">{item.categoryCode}</td>
+                        <td className="px-4 py-2.5 text-xs font-medium">{item.categoryName}</td>
+                        <td className="px-4 py-2.5 text-xs">
                           <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            item.assetType === 'TANGIBLE' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
+                            item.assetType === 'TANGIBLE' ? 'bg-blue-100 text-blue-700' : 
+                            item.assetType === 'INTANGIBLE' ? 'bg-purple-100 text-purple-700' :
+                            item.assetType === 'CIP' ? 'bg-orange-100 text-orange-700' :
+                            'bg-green-100 text-green-700'
                           }`}>
                             {item.assetType}
                           </span>
                         </td>
-                        <td className="px-4 py-2 text-sm">{item.parentCategory}</td>
-                        <td className="px-4 py-2 text-sm text-center">{item.level}</td>
-                        <td className="px-4 py-2 text-sm font-mono">{item.assetAcc}</td>
-                        <td className="px-4 py-2 text-sm font-mono">{item.deprAcc}</td>
-                        <td className="px-4 py-2 text-sm font-mono">{item.expenseAcc}</td>
-                        <td className="px-4 py-2 text-sm">{item.description}</td>
-                        <td className="px-4 py-2 text-sm">
+                        <td className="px-4 py-2.5 text-xs text-gray-500">{item.parentId || '-'}</td>
+                        <td className="px-4 py-2.5 text-xs text-center">{item.level}</td>
+                        <td className="px-4 py-2.5 text-xs font-mono">{item.assetAccId}</td>
+                        <td className="px-4 py-2.5 text-xs font-mono">{item.deprAccId}</td>
+                        <td className="px-4 py-2.5 text-xs font-mono">{item.expenseAccId}</td>
+                        <td className="px-4 py-2.5 text-xs font-mono">{item.disposalLossAccId}</td>
+                        <td className="px-4 py-2.5 text-xs font-mono">{item.disposalGainAccId}</td>
+                        <td className="px-4 py-2.5 text-xs">{item.description}</td>
+                        <td className="px-4 py-2.5 text-xs">
                           <span className={`px-2 py-1 rounded text-xs font-medium ${
                             item.isActive === 'Y' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
                           }`}>
                             {item.isActive === 'Y' ? 'Active' : 'Inactive'}
                           </span>
                         </td>
+                        <td className="px-4 py-2.5 text-xs">{item.createdBy}</td>
+                        <td className="px-4 py-2.5 text-xs">{item.createdDate}</td>
                       </tr>
                     ))
                   )}

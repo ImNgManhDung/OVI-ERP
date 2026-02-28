@@ -1,3 +1,4 @@
+// Updated: Asset modules with full database fields
 import { useState } from 'react';
 import { LanguageProvider } from './i18n/LanguageContext';
 import AssetDepreciationList from './components/AssetDepreciationList';

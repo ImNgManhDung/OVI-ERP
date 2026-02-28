@@ -1,0 +1,47 @@
+CREATE TABLE ASSET_DEPRECIATIONS (
+    ADE_ID              NUMBER NOT NULL,            -- PK
+    ASS_ID              NUMBER NOT NULL,            -- FK -> ASSETS
+    LEN_ID				NUMBER NOT NULL,			-- FK -> LEGAL_ENTITY
+    LEDGER			    VARCHAR2(2 CHAR),			-- 0L: VAS, 2L: IFRS, 1L: INTERNAL
+    
+    -- Kỳ kế toán (Period)
+    FISCAL_YEAR         NUMBER(4) NOT NULL,         -- 2024
+    ACC_PERIOD          VARCHAR2(20 CHAR) NOT NULL, -- 02-2024
+    DOCUMENT_DATE       DATE,      					-- Ngày chạy khấu hao, mặc định là ngày cuối tháng
+    
+    -- === THÔNG TIN PHÂN BỔ (ALLOCATION) ===
+    -- Tại thời điểm khấu hao, tài sản đang ở đâu thì chi phí tính vào đó
+    CCE_ID              NUMBER,                     -- Cost Center (Trung tâm chi phí)
+	PROJ_ID             NUMBER,                     -- Accounting_projects
+    EXPENSE_ACC_ID      VARCHAR2(10 CHAR),          -- TK Chi phí (641/642/627...)
+    DEPR_ACC_ID   		VARCHAR2(10 CHAR),          -- TK Hao mòn (214)
+    
+    -- === GIÁ TRỊ TÍNH TOÁN (VALUATION) ===
+    CURRENCY_CODE       VARCHAR2(3 CHAR),			-- Lấy theo loại tiền của LEN_ID
+    ORIGINAL_COST       NUMBER NOT NULL,      		-- Nguyên giá tại thời điểm tính (Có thể thay đổi do nâng cấp)    
+    DEPR_AMOUNT         NUMBER NOT NULL,       		-- Số tiền khấu hao trong kỳ này (Monthly Expense)   
+    ADJUST_AMOUNT       NUMBER(20,2) DEFAULT 0,     -- Điều chỉnh khấu hao (nếu có sai sót kỳ trước hoặc đánh giá lại)
+    NET_BOOK_VALUE      NUMBER(20,2) NOT NULL,      -- Giá trị còn lại (Net Book Value) = Cost - Accum Depr
+    
+    -- === THÔNG SỐ KỸ THUẬT ===
+    REMAINING_LIFE_MONTHS NUMBER(4),                -- Số tháng còn lại
+    DEPR_METHOD         VARCHAR2(20 CHAR),          -- Phương pháp (STRAIGHT_LINE...)
+    IS_RETIRED          VARCHAR2(1 CHAR) DEFAULT 'N', -- Tài sản đã thanh lý trong kỳ này?
+    
+    -- === TRẠNG THÁI GHI SỔ (GL POSTING) ===
+    STATUS           	VARCHAR2(1 CHAR) DEFAULT 'C', 	-- D/C/P/R
+	ULE_ID				NUMBER,							-- Link tới bút toán trên tổng hợp
+    POSTING_DATE        DATE,
+    
+    -- === AUDIT ===
+    CREATED_BY          VARCHAR2(30 CHAR),
+    CREATED_DATE        DATE DEFAULT SYSDATE,
+    
+    CONSTRAINT PK_FA_DEPR_SCH PRIMARY KEY (FDS_ID),
+    
+    -- Đảm bảo 1 tài sản, 1 sổ, 1 kỳ chỉ có 1 dòng khấu hao
+    CONSTRAINT UK_FA_DEPR_PERIOD UNIQUE (ASS_ID, ACC_PERIOD, LEN_ID, LEDGER)
+);
+
+-- Index tối ưu cho báo cáo: "Lấy bảng phân bổ khấu hao tháng 02/2024"
+CREATE INDEX IDX_FA_DEPR_RPT ON FA_DEPRECIATION_SCHEDULE (FISCAL_YEAR, ACC_PERIOD, LEN_ID, LEDGER);
