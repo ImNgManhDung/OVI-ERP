@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { CheckCircle, FileText, AlertTriangle, Calendar, Plus, ChevronDown, Search } from 'lucide-react';
+import { Search, Plus, Settings2, RotateCcw, LayoutPanelLeft, CheckCircle, FileText, AlertTriangle, Calendar, Building2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import { Checkbox } from './ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -9,10 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
-import { Checkbox } from './ui/checkbox';
-import { FilterPanel } from './FilterPanel';
-import { StatsCard } from './StatsCard';
-import { useLanguage } from '../i18n/LanguageContext';
+import MasterDataToolbar from './MasterDataToolbar';
 
 interface AssetFundingSourcesListProps {
   onCreateClick: () => void;
@@ -67,215 +65,208 @@ const mockData: AssetFundingSourceRow[] = [
     isActive: 'Y',
     totalBudget: 2000000000,
     allocatedAmount: 1500000000
-  },
-  {
-    id: 4,
-    afsId: 'AFS-004',
-    sourceCode: 'PROJECT-01',
-    sourceName: 'Dự án mở rộng nhà máy 2024',
-    sourceType: 'PROJECT',
-    creditAcc: '411',
-    description: 'Nguồn vốn từ dự án mở rộng sản xuất năm 2024',
-    isActive: 'N',
-    totalBudget: 15000000000,
-    allocatedAmount: 0
   }
 ];
 
 export default function AssetFundingSourcesList({ onCreateClick }: AssetFundingSourcesListProps) {
   const [searchText, setSearchText] = useState('');
+  const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const [selectedStatus, setSelectedStatus] = useState('all');
-  const [selectedType, setSelectedType] = useState('all');
-  const { t } = useLanguage();
 
-  // Filter data
   const filteredData = mockData.filter(item => {
     const matchesSearch = searchText === '' || Object.values(item).some(val =>
       String(val).toLowerCase().includes(searchText.toLowerCase())
     );
-    const matchesStatus = selectedStatus === 'all' || 
+    const matchesStatus = selectedStatus === 'all' ||
       (selectedStatus === 'active' && item.isActive === 'Y') ||
       (selectedStatus === 'inactive' && item.isActive === 'N');
-    const matchesType = selectedType === 'all' || item.sourceType === selectedType;
-
-    return matchesSearch && matchesStatus && matchesType;
+    return matchesSearch && matchesStatus;
   });
 
-  // Calculate stats
-  const activeCount = mockData.filter(item => item.isActive === 'Y').length;
-  const inactiveCount = mockData.filter(item => item.isActive === 'N').length;
-  const equityCount = mockData.filter(item => item.sourceType === 'EQUITY').length;
-  const debtCount = mockData.filter(item => item.sourceType === 'DEBT').length;
-
-  const customFilters = (
-    <>
-      {/* Source Type Filter */}
-      <div className="space-y-2">
-        <label className="text-xs font-medium text-gray-600">Source Type</label>
-        <select
-          value={selectedType}
-          onChange={(e) => setSelectedType(e.target.value)}
-          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-        >
-          <option value="all">All Types</option>
-          <option value="EQUITY">EQUITY (Vốn)</option>
-          <option value="DEBT">DEBT (Nợ)</option>
-          <option value="GRANT">GRANT (Tài trợ)</option>
-          <option value="PROJECT">PROJECT (Dự án)</option>
-        </select>
-      </div>
-    </>
-  );
+  const activeCount = mockData.filter(r => r.isActive === 'Y').length;
+  const equityCount = mockData.filter(r => r.sourceType === 'EQUITY').length;
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Left: Filter Panel */}
-      <FilterPanel
-        searchValue={searchText}
-        onSearchChange={setSearchText}
-        showStatus={true}
-        statusOptions={[
-          { value: 'all', label: 'All Status' },
-          { value: 'active', label: 'Active' },
-          { value: 'inactive', label: 'Inactive' },
-        ]}
-        selectedStatus={selectedStatus}
-        onStatusChange={setSelectedStatus}
-        showType={false}
-        customFilters={customFilters}
-      />
-
-      {/* Right: Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Page Header */}
-        <div className="bg-white border-b px-6 py-4">
-          <h1 className="text-xl font-semibold text-gray-800">{t.assets.assetFundingSources}</h1>
-          <nav className="flex items-center gap-1.5 mt-1">
-            <span className="text-xs text-gray-400">{t.common.home}</span>
-            <span className="text-xs text-gray-300">/</span>
-            <span className="text-xs text-gray-400">{t.nav.fixedAssets}</span>
-            <span className="text-xs text-gray-300">/</span>
-            <span className="text-xs text-blue-600">{t.nav.assetFundingSources}</span>
-          </nav>
+    <div className="flex flex-col h-screen bg-gray-50 overflow-hidden text-gray-800">
+      {/* Page Header */}
+      <div className="bg-white border-b px-6 py-2 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-2">
+          <h1 className="text-sm font-bold text-blue-900 uppercase">Asset Funding Sources</h1>
+          <span className="text-[10px] text-gray-400 font-medium whitespace-nowrap">Nguồn vốn hình thành tài sản</span>
         </div>
+      </div>
 
-        <div className="flex-1 overflow-auto p-6">
-          {/* Stats Cards */}
-          <div className="grid grid-cols-4 gap-4 mb-6">
-            <StatsCard title="ACTIVE" value={activeCount} icon={CheckCircle} bgColor="text-green-600" iconBgColor="bg-green-50" />
-            <StatsCard title="INACTIVE" value={inactiveCount} icon={FileText} bgColor="text-orange-600" iconBgColor="bg-orange-50" />
-            <StatsCard title="EQUITY" value={equityCount} icon={AlertTriangle} bgColor="text-blue-600" iconBgColor="bg-blue-50" />
-            <StatsCard title="DEBT" value={debtCount} icon={Calendar} bgColor="text-red-600" iconBgColor="bg-red-50" />
+      <div className="flex flex-1 overflow-hidden">
+        {/* Filter Panel - Left Sidebar */}
+        <div className="w-[240px] bg-white border-r flex flex-col shrink-0 p-4 shadow-sm z-10">
+          <div className="flex items-center gap-2 text-xs font-bold text-gray-800 mb-4 uppercase tracking-wider">
+            <Search className="w-3.5 h-3.5 text-blue-600" />
+            Filters
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex justify-end gap-2 mb-4">
-            <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={onCreateClick}>
-              <Plus className="w-4 h-4 mr-1" />
-              Create
-            </Button>
-          </div>
-
-          {/* Search and Actions Bar */}
-          <div className="bg-white border rounded-t-lg p-3 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Select defaultValue="all">
-                <SelectTrigger className="w-[120px] h-8">
+          <div className="space-y-4 overflow-y-auto flex-1 pr-1 custom-scrollbar text-xs font-bold uppercase tracking-wider text-gray-500">
+            <div>
+              <label className="block text-[10px] mb-1.5 ml-0.5">Search</label>
+              <Input
+                placeholder="Name or Code..."
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                className="h-8 text-[11px] bg-gray-50/50 border-gray-200 shadow-none font-medium"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] mb-1.5 ml-0.5">Status</label>
+              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                <SelectTrigger className="h-8 text-[11px] bg-gray-50/50 border-gray-200 font-bold uppercase">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="all" className="text-[11px]">All Status</SelectItem>
+                  <SelectItem value="active" className="text-[11px]">Active</SelectItem>
+                  <SelectItem value="inactive" className="text-[11px]">Inactive</SelectItem>
                 </SelectContent>
               </Select>
-              <Input
-                placeholder="Search All Text Columns"
-                className="w-64 h-8"
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
-              <Button variant="outline" size="sm">Go</Button>
-              <Button variant="outline" size="sm">
-                Actions <ChevronDown className="w-4 h-4 ml-1" />
-              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          {/* Statistics Cards */}
+          <div className="px-6 py-4 grid grid-cols-3 gap-4">
+            <div className="bg-blue-50/40 border border-blue-100 rounded-lg p-3 flex justify-between items-center h-20">
+              <div>
+                <p className="text-[9px] font-bold text-blue-600/70 uppercase mb-1">Total Sources</p>
+                <p className="text-2xl font-black text-blue-900 leading-none">{mockData.length}</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-blue-100/30 flex items-center justify-center border border-blue-100">
+                <Building2 className="w-5 h-5 text-blue-500" />
+              </div>
+            </div>
+
+            <div className="bg-emerald-50/40 border border-emerald-100 rounded-lg p-3 flex justify-between items-center h-20">
+              <div>
+                <p className="text-[9px] font-bold text-emerald-600/70 uppercase mb-1">Active</p>
+                <p className="text-2xl font-black text-emerald-900 leading-none">{activeCount}</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-emerald-100/30 flex items-center justify-center border border-emerald-100">
+                <CheckCircle className="w-5 h-5 text-emerald-500" />
+              </div>
+            </div>
+
+            <div className="bg-purple-50/40 border border-purple-100 rounded-lg p-3 flex justify-between items-center h-20">
+              <div>
+                <p className="text-[9px] font-bold text-purple-600/70 uppercase mb-1">Equity Type</p>
+                <p className="text-2xl font-black text-purple-900 leading-none">{equityCount}</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-purple-100/30 flex items-center justify-center border border-purple-100">
+                <FileText className="w-5 h-5 text-purple-500" />
+              </div>
             </div>
           </div>
 
-          {/* Checkboxes */}
-          <div className="bg-white border border-t-0 px-4 py-2 flex items-center gap-4">
-            <label className="flex items-center gap-2 text-sm">
-              <Checkbox />
-              <span>Show Active Only</span>
-            </label>
-            <label className="flex items-center gap-2 text-sm">
-              <Checkbox />
-              <span>Show Fully Allocated</span>
-            </label>
+          {/* Grouping Bar and Toolbar */}
+          <div className="px-6 pb-2">
+            <div className="flex items-center justify-between mb-3">
+              <div className="bg-gray-100/50 border border-dashed border-gray-200 rounded-lg px-4 py-2 text-[11px] text-gray-400 italic flex-1 mr-6 flex items-center gap-2">
+                <LayoutPanelLeft className="w-3.5 h-3.5" />
+                Kéo tiêu đề một cột vào đây để nhóm một cột đó
+              </div>
+              <div className="flex items-center gap-3">
+                <Button size="sm" onClick={onCreateClick} className="bg-blue-600 hover:bg-blue-700 text-[11px] font-bold h-8 px-4 shadow-sm gap-2 whitespace-nowrap">
+                  <Plus className="w-3.5 h-3.5" /> New Funding Source
+                </Button>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                  <Input placeholder="Search..." className="h-8 w-40 pl-9 text-[11px] shadow-none font-medium" value={searchText} onChange={(e) => setSearchText(e.target.value)} />
+                </div>
+                <div className="flex items-center gap-1 h-8 bg-white border border-gray-200 rounded-md px-1 ml-1 divide-x divide-gray-100 text-gray-400">
+                  <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm scale-90"><LayoutPanelLeft className="w-3 h-3" /></Button>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm scale-90"><RotateCcw className="w-3 h-3" /></Button>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm scale-90"><Settings2 className="w-3 h-3" /></Button>
+                </div>
+              </div>
+            </div>
           </div>
+
+          {/* Action Toolbar */}
+          {selectedRows.length > 0 && (
+            <div className="mx-6 mb-2">
+              <MasterDataToolbar
+                searchText={searchText}
+                onSearchChange={setSearchText}
+                onAddRow={onCreateClick}
+                onDeleteRows={() => setSelectedRows([])}
+                onSave={() => console.log('Saving funding sources...')}
+                selectedCount={selectedRows.length}
+              />
+            </div>
+          )}
 
           {/* Table */}
-          <div className="bg-white border border-t-0 rounded-b-lg overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-blue-50 border-b">
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">AFS ID</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Source Code</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Source Name</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Source Type</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Credit Acc</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Total Budget</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Allocated Amount</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Description</th>
-                    <th className="px-4 py-2 text-left text-sm text-blue-700">Is Active</th>
+          <div className="flex-1 overflow-auto bg-white mx-6 mb-6 border rounded-lg shadow-sm">
+            <table className="w-full text-sm min-w-[1800px]">
+              <thead className="sticky top-0 z-30 font-bold uppercase tracking-tight text-[10px]">
+                <tr className="bg-[#f0f7ff] border-b">
+                  <th className="px-3 py-3 text-left w-12 border-r bg-[#f0f7ff] sticky left-0 z-40">
+                    <Checkbox
+                      checked={selectedRows.length === filteredData.length && filteredData.length > 0}
+                      onCheckedChange={(checked) => {
+                        if (checked) setSelectedRows(filteredData.map(r => r.id));
+                        else setSelectedRows([]);
+                      }}
+                    />
+                  </th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-32 bg-[#f0f7ff] sticky left-12 z-40 uppercase">AFS ID</th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-48 font-medium uppercase">Source Code</th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-64 font-medium uppercase">Source Name</th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-32 font-medium uppercase text-center">Type</th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-32 font-medium uppercase text-center">Credit Acc</th>
+                  <th className="px-3 py-3 text-right text-blue-700 border-r w-48 font-medium uppercase px-4">Budget</th>
+                  <th className="px-3 py-3 text-right text-blue-700 border-r w-48 font-medium uppercase px-4">Allocated</th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r font-medium uppercase">Description</th>
+                  <th className="px-3 py-3 text-center text-blue-700 w-32 font-medium uppercase">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredData.map((item) => (
+                  <tr key={item.id} className="border-b hover:bg-blue-50/30 transition-colors bg-white">
+                    <td className="px-3 py-2 border-r bg-white sticky left-0 z-20">
+                      <Checkbox checked={selectedRows.includes(item.id)} onCheckedChange={() => setSelectedRows(prev => prev.includes(item.id) ? prev.filter(x => x !== item.id) : [...prev, item.id])} />
+                    </td>
+                    <td className="px-3 py-2 border-r bg-white sticky left-12 z-20 text-[11px] font-bold text-blue-600 uppercase italic cursor-pointer group hover:underline flex items-center gap-1.5" onClick={onCreateClick}>
+                      <FileText className="w-3 h-3 text-blue-400 group-hover:text-blue-600" />
+                      {item.afsId}
+                    </td>
+                    <td className="px-3 py-2 border-r text-[11px] font-mono text-gray-500">{item.sourceCode}</td>
+                    <td className="px-3 py-2 border-r text-[11px] font-bold text-gray-800">{item.sourceName}</td>
+                    <td className="px-3 py-2 border-r text-[11px] text-center">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${item.sourceType === 'EQUITY' ? 'bg-blue-100 text-blue-700' :
+                          item.sourceType === 'DEBT' ? 'bg-rose-100 text-rose-700' :
+                            'bg-gray-100 text-gray-700'
+                        }`}>
+                        {item.sourceType}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2 border-r text-[11px] text-center font-mono text-amber-600 font-bold">{item.creditAcc}</td>
+                    <td className="px-3 py-2 border-r text-[11px] text-right font-black text-blue-700 px-4">{item.totalBudget.toLocaleString()}</td>
+                    <td className="px-3 py-2 border-r text-[11px] text-right font-black text-emerald-600 px-4">{item.allocatedAmount.toLocaleString()}</td>
+                    <td className="px-3 py-2 border-r text-[11px] text-gray-500 italic truncate max-w-[400px]">{item.description}</td>
+                    <td className="px-3 py-2 text-center">
+                      <span className={`px-2 py-0.5 rounded-[4px] text-[9px] font-bold uppercase tracking-wider ${item.isActive === 'Y' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-gray-100 text-gray-500 border border-gray-200'
+                        }`}>
+                        {item.isActive === 'Y' ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {filteredData.length === 0 ? (
-                    <tr>
-                      <td colSpan={9} className="px-4 py-12 text-center text-gray-500">
-                        <div className="flex flex-col items-center gap-2">
-                          <Search className="w-12 h-12 opacity-10" />
-                          <span>No funding sources found</span>
-                        </div>
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredData.map((item) => (
-                      <tr key={item.id} className="border-b hover:bg-gray-50 cursor-pointer">
-                        <td className="px-4 py-2 text-sm font-bold text-blue-600">{item.afsId}</td>
-                        <td className="px-4 py-2 text-sm font-mono">{item.sourceCode}</td>
-                        <td className="px-4 py-2 text-sm font-medium">{item.sourceName}</td>
-                        <td className="px-4 py-2 text-sm">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            item.sourceType === 'EQUITY' ? 'bg-blue-100 text-blue-700' :
-                            item.sourceType === 'DEBT' ? 'bg-red-100 text-red-700' :
-                            item.sourceType === 'GRANT' ? 'bg-green-100 text-green-700' :
-                            'bg-purple-100 text-purple-700'
-                          }`}>
-                            {item.sourceType}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2 text-sm font-mono">{item.creditAcc}</td>
-                        <td className="px-4 py-2 text-sm text-right">{item.totalBudget.toLocaleString()}</td>
-                        <td className="px-4 py-2 text-sm text-right">{item.allocatedAmount.toLocaleString()}</td>
-                        <td className="px-4 py-2 text-sm">{item.description}</td>
-                        <td className="px-4 py-2 text-sm">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            item.isActive === 'Y' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                          }`}>
-                            {item.isActive === 'Y' ? 'Active' : 'Inactive'}
-                          </span>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-            <div className="px-4 py-2 border-t bg-gray-50 text-sm text-right text-gray-600">
-              Showing {filteredData.length} of {mockData.length}
-            </div>
+          {/* Footer */}
+          <div className="bg-white border-t px-6 py-2 flex items-center justify-between shrink-0 font-bold text-[10px] text-gray-500 uppercase tracking-widest text-center">
+            <div>Showing <span className="text-blue-600">{filteredData.length}</span> of {mockData.length} records</div>
           </div>
         </div>
       </div>

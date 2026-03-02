@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Search, Plus, Trash2 } from 'lucide-react';
+import { Search, Plus, Settings2, RotateCcw, LayoutPanelLeft, Receipt } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import { Checkbox } from './ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -9,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
-import { Checkbox } from './ui/checkbox';
 import MasterDataToolbar from './MasterDataToolbar';
 
 interface ExpensePolicyRow {
@@ -27,35 +27,11 @@ const currencyOptions = ['VND', 'USD', 'EUR', 'JPY', 'SGD'];
 export default function ExpensePolicy() {
   const [searchText, setSearchText] = useState('');
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
-  
+
   const [policies, setPolicies] = useState<ExpensePolicyRow[]>([
-    {
-      id: 1,
-      employeeId: 'EMP001',
-      employeeName: 'Nguyễn Văn A',
-      policyMaxValue: '15000000',
-      currencyCode: 'VND',
-      approvedAmount: '12000000',
-      requestedAmount: '15000000',
-    },
-    {
-      id: 2,
-      employeeId: 'EMP002',
-      employeeName: 'Trần Thị B',
-      policyMaxValue: '10000000',
-      currencyCode: 'VND',
-      approvedAmount: '8000000',
-      requestedAmount: '10000000',
-    },
-    {
-      id: 3,
-      employeeId: 'EMP003',
-      employeeName: 'Lê Văn C',
-      policyMaxValue: '8000000',
-      currencyCode: 'VND',
-      approvedAmount: '0',
-      requestedAmount: '8000000',
-    },
+    { id: 1, employeeId: 'EMP001', employeeName: 'Nguyễn Văn A', policyMaxValue: '15000000', currencyCode: 'VND', approvedAmount: '12000000', requestedAmount: '15000000' },
+    { id: 2, employeeId: 'EMP002', employeeName: 'Trần Thị B', policyMaxValue: '10000000', currencyCode: 'VND', approvedAmount: '8000000', requestedAmount: '10000000' },
+    { id: 3, employeeId: 'EMP003', employeeName: 'Lê Văn C', policyMaxValue: '8000000', currencyCode: 'VND', approvedAmount: '0', requestedAmount: '8000000' },
   ]);
 
   const toggleRowSelection = (id: number) => {
@@ -77,15 +53,8 @@ export default function ExpensePolicy() {
     setPolicies([...policies, newRow]);
   };
 
-  const handleDeleteRows = () => {
-    setPolicies(policies.filter(row => !selectedRows.includes(row.id)));
-    setSelectedRows([]);
-  };
-
   const updateRow = (id: number, field: keyof ExpensePolicyRow, value: any) => {
-    setPolicies(policies.map(row => 
-      row.id === id ? { ...row, [field]: value } : row
-    ));
+    setPolicies(policies.map(row => row.id === id ? { ...row, [field]: value } : row));
   };
 
   const filteredPolicies = policies.filter(row =>
@@ -97,162 +66,171 @@ export default function ExpensePolicy() {
 
   const formatCurrency = (value: string, currency: string) => {
     const num = parseInt(value) || 0;
-    if (currency === 'VND') {
-      return num.toLocaleString('vi-VN');
-    }
-    return num.toLocaleString('en-US');
+    return num.toLocaleString(currency === 'VND' ? 'vi-VN' : 'en-US');
   };
 
   return (
-    <div className="p-6">
-      {/* Page Title */}
-      <div className="mb-4">
-        <h1 className="text-2xl font-semibold text-gray-800">ADVANCE REGISTRATION - TEM SYSTEM</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Quản lý đăng ký tạm ứng chi phí công tác theo nhân viên
-        </p>
-      </div>
-
-      <MasterDataToolbar 
-        searchText={searchText}
-        onSearchChange={setSearchText}
-        onAddRow={handleAddRow}
-        onDeleteRows={handleDeleteRows}
-        onSave={() => console.log('Saving Expense Policies...')}
-        selectedCount={selectedRows.length}
-      />
-
-      {/* Table */}
-      <div className="bg-white border border-t-0 rounded-b-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-blue-50 border-b">
-                <th className="px-3 py-2 text-left">
-                  <Checkbox />
-                </th>
-                <th className="px-3 py-2 text-left text-blue-700 font-semibold">EMPLOYEE ID</th>
-                <th className="px-3 py-2 text-left text-blue-700 font-semibold">EMPLOYEE NAME</th>
-                <th className="px-3 py-2 text-left text-blue-700 font-semibold">POLICY MAX VALUE</th>
-                <th className="px-3 py-2 text-left text-blue-700 font-semibold">CURRENCY</th>
-                <th className="px-3 py-2 text-left text-blue-700 font-semibold">SỐ TIỀN ĐƯỢC DUYỆT</th>
-                <th className="px-3 py-2 text-left text-blue-700 font-semibold">SỐ TIỀN ĐỀ NGHỊ</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPolicies.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-gray-500">
-                    <div className="flex flex-col items-center gap-2">
-                      <Search className="w-12 h-12 opacity-20" />
-                      <span>No data found</span>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                filteredPolicies.map((row) => (
-                  <tr key={row.id} className="border-b hover:bg-gray-50">
-                    <td className="px-3 py-2">
-                      <Checkbox
-                        checked={selectedRows.includes(row.id)}
-                        onCheckedChange={() => toggleRowSelection(row.id)}
-                      />
-                    </td>
-                    
-                    {/* EMPLOYEE ID */}
-                    <td className="px-3 py-2">
-                      <Input
-                        value={row.employeeId}
-                        onChange={(e) => updateRow(row.id, 'employeeId', e.target.value)}
-                        className="h-8 w-32"
-                      />
-                    </td>
-                    
-                    {/* EMPLOYEE NAME */}
-                    <td className="px-3 py-2">
-                      <Input
-                        value={row.employeeName}
-                        onChange={(e) => updateRow(row.id, 'employeeName', e.target.value)}
-                        className="h-8 w-48"
-                      />
-                    </td>
-                    
-                    {/* POLICY MAX VALUE */}
-                    <td className="px-3 py-2">
-                      <Input
-                        value={row.policyMaxValue}
-                        onChange={(e) => updateRow(row.id, 'policyMaxValue', e.target.value)}
-                        className="h-8 w-32 text-right"
-                        type="number"
-                      />
-                    </td>
-                    
-                    {/* CURRENCY */}
-                    <td className="px-3 py-2">
-                      <Select
-                        value={row.currencyCode}
-                        onValueChange={(value) => updateRow(row.id, 'currencyCode', value)}
-                      >
-                        <SelectTrigger className="h-8 w-24">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {currencyOptions.map((option) => (
-                            <SelectItem key={option} value={option}>
-                              {option}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </td>
-                    
-                    {/* APPROVED AMOUNT */}
-                    <td className="px-3 py-2">
-                      <Input
-                        value={row.approvedAmount}
-                        onChange={(e) => updateRow(row.id, 'approvedAmount', e.target.value)}
-                        className="h-8 w-32 text-right"
-                        type="number"
-                      />
-                    </td>
-                    
-                    {/* REQUESTED AMOUNT */}
-                    <td className="px-3 py-2">
-                      <Input
-                        value={row.requestedAmount}
-                        onChange={(e) => updateRow(row.id, 'requestedAmount', e.target.value)}
-                        className="h-8 w-32 text-right"
-                        type="number"
-                      />
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+    <div className="flex flex-col h-screen bg-gray-50 overflow-hidden text-gray-800">
+      {/* Page Header */}
+      <div className="bg-white border-b px-6 py-2 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-2">
+          <h1 className="text-sm font-bold text-blue-900 uppercase">Expense Policy</h1>
+          <span className="text-[10px] text-gray-400 font-medium whitespace-nowrap">Chính sách chi phí công tác</span>
         </div>
       </div>
 
-      {/* Summary Footer */}
-      <div className="bg-gray-50 border-x border-b rounded-b-lg p-4 mt-0">
-        <div className="flex justify-end gap-8 text-sm">
-          <div className="text-gray-600">
-            <span className="font-medium">Tổng số tiền được duyệt:</span>{' '}
-            <span className="font-semibold text-green-600">
-              {formatCurrency(
-                policies.reduce((sum, p) => sum + (parseInt(p.approvedAmount) || 0), 0).toString(),
-                'VND'
-              )} VND
-            </span>
+      <div className="flex flex-1 overflow-hidden">
+        {/* Filter Panel - Left Sidebar */}
+        <div className="w-[240px] bg-white border-r flex flex-col shrink-0 p-4 shadow-sm z-10">
+          <div className="flex items-center gap-2 text-xs font-bold text-gray-800 mb-4 uppercase tracking-wider">
+            <Search className="w-3.5 h-3.5 text-blue-600" />
+            Filters
           </div>
-          <div className="text-gray-600">
-            <span className="font-medium">Tổng số tiền đề nghị:</span>{' '}
-            <span className="font-semibold text-blue-600">
-              {formatCurrency(
-                policies.reduce((sum, p) => sum + (parseInt(p.requestedAmount) || 0), 0).toString(),
-                'VND'
-              )} VND
-            </span>
+
+          <div className="space-y-4 overflow-y-auto flex-1 pr-1 custom-scrollbar text-xs font-bold uppercase tracking-wider text-gray-500">
+            <div>
+              <label className="block text-[10px] mb-1.5 ml-0.5">Search Employee</label>
+              <Input
+                placeholder="Name or ID..."
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                className="h-8 text-[11px] bg-gray-50/50 border-gray-200 shadow-none font-medium"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          {/* Statistics Cards */}
+          <div className="px-6 py-4 grid grid-cols-3 gap-4">
+            <div className="bg-blue-50/40 border border-blue-100 rounded-lg p-3 flex justify-between items-center h-20">
+              <div>
+                <p className="text-[9px] font-bold text-blue-600/70 uppercase mb-1">Total Employees</p>
+                <p className="text-2xl font-black text-blue-900 leading-none">{policies.length}</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-blue-100/30 flex items-center justify-center border border-blue-100">
+                <Receipt className="w-5 h-5 text-blue-500" />
+              </div>
+            </div>
+
+            <div className="bg-emerald-50/40 border border-emerald-100 rounded-lg p-3 flex justify-between items-center h-20">
+              <div>
+                <p className="text-[9px] font-bold text-emerald-600/70 uppercase mb-1">Approved Total</p>
+                <p className="text-xl font-black text-emerald-900 leading-none">
+                  {formatCurrency(policies.reduce((sum, p) => sum + (parseInt(p.approvedAmount) || 0), 0).toString(), 'VND')}
+                </p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-emerald-100/30 flex items-center justify-center border border-emerald-100">
+                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+              </div>
+            </div>
+
+            <div className="bg-purple-50/40 border border-purple-100 rounded-lg p-3 flex justify-between items-center h-20">
+              <div>
+                <p className="text-[9px] font-bold text-purple-600/70 uppercase mb-1">Requested Total</p>
+                <p className="text-xl font-black text-purple-900 leading-none">
+                  {formatCurrency(policies.reduce((sum, p) => sum + (parseInt(p.requestedAmount) || 0), 0).toString(), 'VND')}
+                </p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-purple-100/30 flex items-center justify-center border border-purple-100">
+                <div className="w-2 h-2 rounded-full bg-purple-500" />
+              </div>
+            </div>
+          </div>
+
+          {/* Grouping Bar and Toolbar */}
+          <div className="px-6 pb-2">
+            <div className="flex items-center justify-between mb-3">
+              <div className="bg-gray-100/50 border border-dashed border-gray-200 rounded-lg px-4 py-2 text-[11px] text-gray-400 italic flex-1 mr-6 flex items-center gap-2">
+                <LayoutPanelLeft className="w-3.5 h-3.5" />
+                Kéo tiêu đề một cột vào đây để nhóm một cột đó
+              </div>
+              <div className="flex items-center gap-3">
+                <Button size="sm" onClick={handleAddRow} className="bg-blue-600 hover:bg-blue-700 text-[11px] font-bold h-8 px-4 shadow-sm gap-2 whitespace-nowrap">
+                  <Plus className="w-3.5 h-3.5" /> New Registration
+                </Button>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                  <Input placeholder="Search..." className="h-8 w-40 pl-9 text-[11px] shadow-none font-medium" value={searchText} onChange={(e) => setSearchText(e.target.value)} />
+                </div>
+                <div className="flex items-center gap-1 h-8 bg-white border border-gray-200 rounded-md px-1 ml-1 divide-x divide-gray-100 text-gray-400">
+                  <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm scale-90"><LayoutPanelLeft className="w-3 h-3" /></Button>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm scale-90"><RotateCcw className="w-3 h-3" /></Button>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm scale-90"><Settings2 className="w-3 h-3" /></Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Toolbar */}
+          {selectedRows.length > 0 && (
+            <div className="mx-6 mb-2">
+              <MasterDataToolbar
+                searchText={searchText}
+                onSearchChange={setSearchText}
+                onAddRow={handleAddRow}
+                onDeleteRows={() => setPolicies(policies.filter(r => !selectedRows.includes(r.id)))}
+                onSave={() => console.log('Saving policies...')}
+                selectedCount={selectedRows.length}
+              />
+            </div>
+          )}
+
+          {/* Table */}
+          <div className="flex-1 overflow-auto bg-white mx-6 mb-6 border rounded-lg shadow-sm">
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 z-30 font-bold uppercase tracking-tight text-[10px]">
+                <tr className="bg-[#f0f7ff] border-b">
+                  <th className="px-3 py-3 text-left w-12 border-r bg-[#f0f7ff] sticky left-0 z-40">
+                    <Checkbox
+                      checked={selectedRows.length === filteredPolicies.length && filteredPolicies.length > 0}
+                      onCheckedChange={(checked) => {
+                        if (checked) setSelectedRows(filteredPolicies.map(r => r.id));
+                        else setSelectedRows([]);
+                      }}
+                    />
+                  </th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-32 bg-[#f0f7ff] sticky left-12 z-40 uppercase">Employee ID</th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-48 font-medium uppercase text-center">Name</th>
+                  <th className="px-3 py-3 text-right text-blue-700 border-r w-40 font-medium uppercase px-6">Max Value</th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-24 font-medium uppercase text-center">Curr</th>
+                  <th className="px-3 py-3 text-right text-blue-700 border-r w-40 font-medium uppercase px-6">Approved</th>
+                  <th className="px-3 py-3 text-right text-blue-700 w-40 font-medium uppercase px-6">Requested</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPolicies.map((row) => (
+                  <tr key={row.id} className="border-b hover:bg-blue-50/30 transition-colors bg-white">
+                    <td className="px-3 py-2 border-r bg-white sticky left-0 z-20">
+                      <Checkbox checked={selectedRows.includes(row.id)} onCheckedChange={() => toggleRowSelection(row.id)} />
+                    </td>
+                    <td className="px-3 py-2 border-r bg-white sticky left-12 z-20 text-[11px] font-bold text-blue-600 uppercase text-center">{row.employeeId}</td>
+                    <td className="px-3 py-2 border-r text-[11px] font-bold"><Input value={row.employeeName} onChange={(e) => updateRow(row.id, 'employeeName', e.target.value)} className="h-7 border-transparent shadow-none" /></td>
+                    <td className="px-3 py-2 border-r text-[11px] font-black text-rose-600">
+                      <Input value={row.policyMaxValue} onChange={(e) => updateRow(row.id, 'policyMaxValue', e.target.value)} className="h-7 border-transparent text-right shadow-none px-4" type="number" />
+                    </td>
+                    <td className="px-3 py-2 border-r text-[11px]">
+                      <Select value={row.currencyCode} onValueChange={(v) => updateRow(row.id, 'currencyCode', v)}>
+                        <SelectTrigger className="h-7 border-transparent shadow-none text-center font-bold text-gray-500"><SelectValue /></SelectTrigger>
+                        <SelectContent>{currencyOptions.map(opt => <SelectItem key={opt} value={opt} className="text-[11px]">{opt}</SelectItem>)}</SelectContent>
+                      </Select>
+                    </td>
+                    <td className="px-3 py-2 border-r text-[11px] font-black text-emerald-600">
+                      <Input value={row.approvedAmount} onChange={(e) => updateRow(row.id, 'approvedAmount', e.target.value)} className="h-7 border-transparent text-right shadow-none px-4" type="number" />
+                    </td>
+                    <td className="px-3 py-2 text-[11px] font-black text-blue-600">
+                      <Input value={row.requestedAmount} onChange={(e) => updateRow(row.id, 'requestedAmount', e.target.value)} className="h-7 border-transparent text-right shadow-none px-4" type="number" />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Footer */}
+          <div className="bg-white border-t px-6 py-2 flex items-center justify-between shrink-0 font-bold text-[10px] text-gray-500 uppercase tracking-widest text-center">
+            <div>Showing <span className="text-blue-600">{filteredPolicies.length}</span> of {policies.length} records</div>
           </div>
         </div>
       </div>

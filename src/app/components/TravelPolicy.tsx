@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Search, ChevronDown, Plus, Trash2, Edit } from 'lucide-react';
+import { Search, Plus, Settings2, RotateCcw, LayoutPanelLeft, FileText } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { Label } from './ui/label';
+import { Checkbox } from './ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -10,171 +10,41 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
-import { Checkbox } from './ui/checkbox';
-import { ActionsDropdown } from './ActionsDropdown';
-import { SimpleColumnsDialog } from './SimpleColumnsDialog';
+import MasterDataToolbar from './MasterDataToolbar';
 
 interface ExpensePolicyRow {
   id: number;
-  expType: string; // Loại định mức
-  expCode: string; // Mã định mức
-  expClass: string; // Vé máy bay, tàu hỏa, tiếp khách...
-  expCategory: string; // Hạng vé...
-  description: string; // Auto-generated from type + class + category
-  positions: string; // Chức danh
-  
-  // Location conditions
+  expType: string;
+  expCode: string;
+  expClass: string;
+  expCategory: string;
+  description: string;
+  positions: string;
   locationDomestic: boolean;
   locationInternational: boolean;
-  locationRegion: string; // Tỉnh thành (nếu trong nước) hoặc khu vực (nếu ngoài nước)
-  
-  // Value conditions
+  locationRegion: string;
   minValue: string;
   maxValue: string;
-  uom: string; // Unit of measure
-  
-  // Time period
+  uom: string;
   startDate: string;
   endDate: string;
-  status: string; // Y/N
-  
-  // Policy values
+  status: string;
   policyMinValue: string;
   policyMaxValue: string;
   currencyCode: string;
-  
-  isEditing?: boolean;
 }
 
-// LOV Options
-const expTypeOptions = [
-  'Ăn',
-  'Mặc',
-  'Ở',
-  'Đi lại',
-];
-
-const expClassOptions = {
-  'Ăn': ['Ăn sáng', 'Ăn trưa', 'Ăn tối', 'Tiếp khách'],
-  'Mặc': ['Đồng phục', 'Trang phục làm việc', 'Giày dép'],
-  'Ở': ['Khách sạn', 'Nhà nghỉ', 'Căn hộ dịch vụ'],
-  'Đi lại': ['Vé máy bay', 'Tàu hỏa', 'Xe bus', 'Taxi', 'Xăng xe'],
-};
-
-const expCategoryOptions = {
-  'Vé máy bay': ['Economy', 'Premium Economy', 'Business', 'First Class'],
-  'Tàu hỏa': ['Ghế cứng', 'Ghế mềm', 'Giường nằm 4', 'Giường nằm 6'],
-  'Khách sạn': ['1 sao', '2 sao', '3 sao', '4 sao', '5 sao'],
-  'Xe bus': ['Ghế ngồi', 'Giường nằm', 'Limousine'],
-  'Ăn sáng': ['Tiêu chuẩn', 'Nâng cao'],
-  'Ăn trưa': ['Tiêu chuẩn', 'Nâng cao'],
-  'Ăn tối': ['Tiêu chuẩn', 'Nâng cao'],
-  'Tiếp khách': ['Cơ bản', 'Trang trọng', 'VIP'],
-};
-
-const positionOptions = [
-  'Nhân viên',
-  'Trưởng phòng',
-  'Phó giám đốc',
-  'Giám đốc',
-  'Tổng giám đốc',
-  'CEO',
-];
-
-const internationalRegionOptions = [
-  'Mỹ',
-  'Châu Âu',
-  'Châu Á',
-];
-
-// 34 tỉnh thành Việt Nam (theo thứ tự vùng)
-const domesticProvinces = [
-  // Miền Bắc
-  'Hà Nội',
-  'Hải Phòng',
-  'Quảng Ninh',
-  'Bắc Ninh',
-  'Hải Dương',
-  'Hưng Yên',
-  'Thái Bình',
-  'Nam Định',
-  'Ninh Bình',
-  'Hà Nam',
-  'Vĩnh Phúc',
-  'Phú Thọ',
-  'Thái Nguyên',
-  'Bắc Giang',
-  'Lạng Sơn',
-  'Cao Bằng',
-  'Lào Cai',
-  'Yên Bái',
-  'Điện Biên',
-  'Sơn La',
-  'Hòa Bình',
-  'Thanh Hóa',
-  'Nghệ An',
-  'Hà Tĩnh',
-  // Miền Trung
-  'Quảng Bình',
-  'Quảng Trị',
-  'Thừa Thiên Huế',
-  'Đà Nẵng',
-  'Quảng Nam',
-  'Quảng Ngãi',
-  'Bình Định',
-  'Phú Yên',
-  'Khánh Hòa',
-  'Ninh Thuận',
-  'Bình Thuận',
-  'Kon Tum',
-  'Gia Lai',
-  'Đắk Lắk',
-  'Đắk Nông',
-  'Lâm Đồng',
-  // Miền Nam
-  'TP Hồ Chí Minh',
-  'Bình Phước',
-  'Bình Dương',
-  'Đồng Nai',
-  'Bà Rịa - Vũng Tàu',
-  'Tây Ninh',
-  'Long An',
-  'Tiền Giang',
-  'Bến Tre',
-  'Trà Vinh',
-  'Vĩnh Long',
-  'Đồng Tháp',
-  'An Giang',
-  'Kiên Giang',
-  'Cần Thơ',
-  'Hậu Giang',
-  'Sóc Trăng',
-  'Bạc Liêu',
-  'Cà Mau',
-];
-
-const uomOptions = [
-  'KM',
-  'Giờ',
-  'Ngày',
-  'Tháng',
-  'Lần',
-  '%',
-];
-
-const currencyOptions = [
-  'VND',
-  'USD',
-  'EUR',
-  'JPY',
-  'SGD',
-];
+const expTypeOptions = ['Ăn', 'Mặc', 'Ở', 'Đi lại'];
+const positionOptions = ['Nhân viên', 'Trưởng phòng', 'Phó giám đốc', 'Giám đốc', 'Tổng giám đốc', 'CEO'];
+const internationalRegionOptions = ['Mỹ', 'Châu Âu', 'Châu Á'];
+const uomOptions = ['KM', 'Giờ', 'Ngày', 'Tháng', 'Lần', '%'];
+const currencyOptions = ['VND', 'USD', 'EUR', 'JPY', 'SGD'];
 
 export default function TravelPolicy() {
   const [searchText, setSearchText] = useState('');
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
-  const [showColumnsDialog, setShowColumnsDialog] = useState(false);
-  
+  const [selectedStatus, setSelectedStatus] = useState('all');
+
   const [policies, setPolicies] = useState<ExpensePolicyRow[]>([
     {
       id: 1,
@@ -218,70 +88,7 @@ export default function TravelPolicy() {
       policyMaxValue: '5000000',
       currencyCode: 'VND',
     },
-    {
-      id: 3,
-      expType: 'Ăn',
-      expCode: 'AN-001',
-      expClass: 'Tiếp khách',
-      expCategory: 'Trang trọng',
-      description: 'Ăn - Tiếp khách - Trang trọng',
-      positions: 'Trưởng phòng',
-      locationDomestic: true,
-      locationInternational: false,
-      locationRegion: '',
-      minValue: '1',
-      maxValue: '20',
-      uom: 'Lần',
-      startDate: '2026-01-01',
-      endDate: '2026-12-31',
-      status: 'Y',
-      policyMinValue: '500000',
-      policyMaxValue: '2000000',
-      currencyCode: 'VND',
-    },
   ]);
-
-  const [visibleColumns, setVisibleColumns] = useState<{[key: string]: boolean}>({
-    expType: true,
-    expCode: true,
-    expClass: true,
-    expCategory: true,
-    description: true,
-    positions: true,
-    locationDomestic: true,
-    locationInternational: true,
-    locationRegion: true,
-    minValue: true,
-    maxValue: true,
-    uom: true,
-    startDate: true,
-    endDate: true,
-    status: true,
-    policyMinValue: true,
-    policyMaxValue: true,
-    currencyCode: true,
-  });
-
-  const columns = [
-    { key: 'expType', label: 'Exp Type' },
-    { key: 'expCode', label: 'Exp Code' },
-    { key: 'expClass', label: 'Exp Class' },
-    { key: 'expCategory', label: 'Exp Category' },
-    { key: 'description', label: 'Description' },
-    { key: 'positions', label: 'Positions' },
-    { key: 'locationDomestic', label: 'Trong nước' },
-    { key: 'locationInternational', label: 'Ngoài nước' },
-    { key: 'locationRegion', label: 'Khu vực' },
-    { key: 'minValue', label: 'Min Value' },
-    { key: 'maxValue', label: 'Max Value' },
-    { key: 'uom', label: 'UOM' },
-    { key: 'startDate', label: 'Start Date' },
-    { key: 'endDate', label: 'End Date' },
-    { key: 'status', label: 'Status' },
-    { key: 'policyMinValue', label: 'Policy Min Value' },
-    { key: 'policyMaxValue', label: 'Policy Max Value' },
-    { key: 'currencyCode', label: 'Currency' },
-  ];
 
   const toggleRowSelection = (id: number) => {
     setSelectedRows(prev =>
@@ -310,552 +117,238 @@ export default function TravelPolicy() {
       policyMinValue: '',
       policyMaxValue: '',
       currencyCode: 'VND',
-      isEditing: true
     };
     setPolicies([...policies, newRow]);
   };
 
-  const handleDeleteRows = () => {
-    setPolicies(policies.filter(row => !selectedRows.includes(row.id)));
-    setSelectedRows([]);
+  const updateRow = (id: number, field: keyof ExpensePolicyRow, value: any) => {
+    setPolicies(policies.map(row => row.id === id ? { ...row, [field]: value } : row));
   };
 
-  const handleEditRows = () => {
-    setPolicies(policies.map(row => 
-      selectedRows.includes(row.id) ? { ...row, isEditing: true } : row
-    ));
-  };
-
-  const handleSave = () => {
-    setPolicies(policies.map(row => ({ ...row, isEditing: false })));
-    setSelectedRows([]);
-  };
-
-  const updateRow = (id: number, field: string, value: any) => {
-    setPolicies(policies.map(row => {
-      if (row.id === id) {
-        let updatedRow = { ...row, [field]: value };
-        
-        // Clear Exp Class when changing Exp Type
-        if (field === 'expType') {
-          updatedRow.expClass = '';
-          updatedRow.expCategory = '';
-        }
-        
-        // Clear Exp Category when changing Exp Class
-        if (field === 'expClass') {
-          updatedRow.expCategory = '';
-        }
-        
-        // Auto-generate description
-        if (field === 'expType' || field === 'expClass' || field === 'expCategory') {
-          const type = field === 'expType' ? value : updatedRow.expType;
-          const cls = field === 'expClass' ? value : updatedRow.expClass;
-          const cat = field === 'expCategory' ? value : updatedRow.expCategory;
-          
-          if (type && cls && cat) {
-            updatedRow.description = `${type} - ${cls} - ${cat}`;
-          } else if (type && cls) {
-            updatedRow.description = `${type} - ${cls}`;
-          } else if (type) {
-            updatedRow.description = type;
-          }
-        }
-        
-        // Clear region when changing location type
-        if (field === 'locationDomestic' && !value) {
-          updatedRow.locationRegion = '';
-        }
-        
-        if (field === 'locationInternational' && !value) {
-          updatedRow.locationRegion = '';
-        }
-        
-        return updatedRow;
-      }
-      return row;
-    }));
-  };
-
-  const filteredPolicies = policies.filter(row =>
-    searchText === '' ||
-    Object.values(row).some(val =>
-      String(val).toLowerCase().includes(searchText.toLowerCase())
-    )
-  );
+  const filteredPolicies = policies.filter(row => {
+    const matchesSearch = searchText === '' ||
+      Object.values(row).some(val =>
+        String(val).toLowerCase().includes(searchText.toLowerCase())
+      );
+    const matchesStatus = selectedStatus === 'all' || row.status === selectedStatus;
+    return matchesSearch && matchesStatus;
+  });
 
   return (
-    <div className="p-6">
-      {/* Page Title */}
-      <div className="mb-4">
-        <h1 className="text-2xl font-semibold text-gray-800">EXPENSE POLICY MANAGEMENT</h1>
-      </div>
-
-      {/* Search and Actions Bar */}
-      <div className="bg-white border rounded-t-lg p-3 flex items-center justify-between">
+    <div className="flex flex-col h-screen bg-gray-50 overflow-hidden text-gray-800">
+      {/* Page Header */}
+      <div className="bg-white border-b px-6 py-2 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
-          <Select defaultValue="all">
-            <SelectTrigger className="w-[120px] h-8">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-            </SelectContent>
-          </Select>
-          <Input
-            placeholder="Search All Text Columns"
-            className="w-64 h-8"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-          />
-          <Button variant="outline" size="sm">Go</Button>
-          <ActionsDropdown 
-            showColumns={true}
-            onColumnsClick={() => setShowColumnsDialog(true)}
-          />
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleEditRows}
-            disabled={selectedRows.length === 0}
-          >
-            <Edit className="w-4 h-4 mr-1" /> Edit
-          </Button>
-          <Button 
-            variant="default" 
-            size="sm"
-            onClick={handleSave}
-          >
-            Save
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={handleDeleteRows}
-            disabled={selectedRows.length === 0}
-          >
-            <Trash2 className="w-4 h-4 mr-1" /> Delete
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleAddRow}>
-            <Plus className="w-4 h-4 mr-1" /> Add Row
-          </Button>
+          <h1 className="text-sm font-bold text-blue-900 uppercase">Expense Policy</h1>
+          <span className="text-[10px] text-gray-400 font-medium whitespace-nowrap">Quản lý định mức chi phí</span>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white border border-t-0 rounded-b-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-blue-50 border-b">
-                <th className="px-3 py-2 text-left">
-                  <Checkbox />
-                </th>
-                {visibleColumns.expType && <th className="px-3 py-2 text-left text-blue-700">EXP TYPE</th>}
-                {visibleColumns.expCode && <th className="px-3 py-2 text-left text-blue-700">EXP CODE</th>}
-                {visibleColumns.expClass && <th className="px-3 py-2 text-left text-blue-700">EXP CLASS</th>}
-                {visibleColumns.expCategory && <th className="px-3 py-2 text-left text-blue-700">EXP CATEGORY</th>}
-                {visibleColumns.description && <th className="px-3 py-2 text-left text-blue-700">DESCRIPTION</th>}
-                {visibleColumns.positions && <th className="px-3 py-2 text-left text-blue-700">POSITIONS</th>}
-                {visibleColumns.locationDomestic && <th className="px-3 py-2 text-left text-blue-700">TRONG NƯỚC</th>}
-                {visibleColumns.locationInternational && <th className="px-3 py-2 text-left text-blue-700">NGOÀI NƯỚC</th>}
-                {visibleColumns.locationRegion && <th className="px-3 py-2 text-left text-blue-700">KHU VỰC</th>}
-                {visibleColumns.minValue && <th className="px-3 py-2 text-left text-blue-700">MIN VALUE</th>}
-                {visibleColumns.maxValue && <th className="px-3 py-2 text-left text-blue-700">MAX VALUE</th>}
-                {visibleColumns.uom && <th className="px-3 py-2 text-left text-blue-700">UOM</th>}
-                {visibleColumns.startDate && <th className="px-3 py-2 text-left text-blue-700">START DATE</th>}
-                {visibleColumns.endDate && <th className="px-3 py-2 text-left text-blue-700">END DATE</th>}
-                {visibleColumns.status && <th className="px-3 py-2 text-left text-blue-700">STATUS</th>}
-                {visibleColumns.policyMinValue && <th className="px-3 py-2 text-left text-blue-700">POLICY MIN VALUE</th>}
-                {visibleColumns.policyMaxValue && <th className="px-3 py-2 text-left text-blue-700">POLICY MAX VALUE</th>}
-                {visibleColumns.currencyCode && <th className="px-3 py-2 text-left text-blue-700">CURRENCY</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPolicies.length === 0 ? (
-                <tr>
-                  <td colSpan={19} className="px-3 py-8 text-center text-gray-500">
-                    <div className="flex flex-col items-center gap-2">
-                      <Search className="w-12 h-12 opacity-20" />
-                      <span>No data found</span>
-                    </div>
-                  </td>
+      <div className="flex flex-1 overflow-hidden">
+        {/* Filter Panel - Left Sidebar */}
+        <div className="w-[240px] bg-white border-r flex flex-col shrink-0 p-4 shadow-sm z-10">
+          <div className="flex items-center gap-2 text-xs font-bold text-gray-800 mb-4 uppercase tracking-wider">
+            <Search className="w-3.5 h-3.5 text-blue-600" />
+            Filters
+          </div>
+
+          <div className="space-y-4 overflow-y-auto flex-1 pr-1 custom-scrollbar text-xs font-bold uppercase tracking-wider text-gray-500">
+            <div>
+              <label className="block text-[10px] mb-1.5 ml-0.5">Search</label>
+              <Input
+                placeholder="Code, name..."
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                className="h-8 text-[11px] bg-gray-50/50 border-gray-200 shadow-none font-medium"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] mb-1.5 ml-0.5">Status</label>
+              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                <SelectTrigger className="h-8 text-[11px] bg-gray-50/50 border-gray-200">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all" className="text-[11px]">All Status</SelectItem>
+                  <SelectItem value="Y" className="text-[11px]">Active</SelectItem>
+                  <SelectItem value="N" className="text-[11px]">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          {/* Statistics Cards */}
+          <div className="px-6 py-4 grid grid-cols-3 gap-4">
+            <div className="bg-blue-50/40 border border-blue-100 rounded-lg p-3 flex justify-between items-center h-20">
+              <div>
+                <p className="text-[9px] font-bold text-blue-600/70 uppercase mb-1">Total Policies</p>
+                <p className="text-2xl font-black text-blue-900 leading-none">{policies.length}</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-blue-100/30 flex items-center justify-center border border-blue-100">
+                <FileText className="w-5 h-5 text-blue-500" />
+              </div>
+            </div>
+
+            <div className="bg-emerald-50/40 border border-emerald-100 rounded-lg p-3 flex justify-between items-center h-20">
+              <div>
+                <p className="text-[9px] font-bold text-emerald-600/70 uppercase mb-1">Active</p>
+                <p className="text-2xl font-black text-emerald-900 leading-none">{policies.filter(p => p.status === 'Y').length}</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-emerald-100/30 flex items-center justify-center border border-emerald-100">
+                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+              </div>
+            </div>
+
+            <div className="bg-purple-50/40 border border-purple-100 rounded-lg p-3 flex justify-between items-center h-20">
+              <div>
+                <p className="text-[9px] font-bold text-purple-600/70 uppercase mb-1">Domestic</p>
+                <p className="text-2xl font-black text-purple-900 leading-none">{policies.filter(p => p.locationDomestic).length}</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-purple-100/30 flex items-center justify-center border border-purple-100">
+                <div className="w-2 h-2 rounded-full bg-purple-500" />
+              </div>
+            </div>
+          </div>
+
+          {/* Grouping Bar and Toolbar */}
+          <div className="px-6 pb-2">
+            <div className="flex items-center justify-between mb-3">
+              <div className="bg-gray-100/50 border border-dashed border-gray-200 rounded-lg px-4 py-2 text-[11px] text-gray-400 italic flex-1 mr-6 flex items-center gap-2">
+                <LayoutPanelLeft className="w-3.5 h-3.5" />
+                Kéo tiêu đề một cột vào đây để nhóm một cột đó
+              </div>
+              <div className="flex items-center gap-3">
+                <Button size="sm" onClick={handleAddRow} className="bg-blue-600 hover:bg-blue-700 text-[11px] font-bold h-8 px-4 shadow-sm gap-2 whitespace-nowrap">
+                  <Plus className="w-3.5 h-3.5" /> New Policy
+                </Button>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                  <Input placeholder="Search..." className="h-8 w-40 pl-9 text-[11px] shadow-none font-medium" value={searchText} onChange={(e) => setSearchText(e.target.value)} />
+                </div>
+                <div className="flex items-center gap-1 h-8 bg-white border border-gray-200 rounded-md px-1 ml-1 divide-x divide-gray-100 text-gray-400">
+                  <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm scale-90"><LayoutPanelLeft className="w-3 h-3" /></Button>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm scale-90"><RotateCcw className="w-3 h-3" /></Button>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm scale-90"><Settings2 className="w-3 h-3" /></Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Toolbar */}
+          {selectedRows.length > 0 && (
+            <div className="mx-6 mb-2">
+              <MasterDataToolbar
+                searchText={searchText}
+                onSearchChange={setSearchText}
+                onAddRow={handleAddRow}
+                onDeleteRows={() => setPolicies(policies.filter(r => !selectedRows.includes(r.id)))}
+                onSave={() => console.log('Saving policies...')}
+                selectedCount={selectedRows.length}
+              />
+            </div>
+          )}
+
+          {/* Table */}
+          <div className="flex-1 overflow-auto bg-white mx-6 mb-6 border rounded-lg shadow-sm">
+            <table className="w-full text-sm min-w-[3000px]">
+              <thead className="sticky top-0 z-30 font-bold uppercase tracking-tight text-[10px]">
+                <tr className="bg-[#f0f7ff] border-b">
+                  <th className="px-3 py-3 text-left w-12 border-r bg-[#f0f7ff] sticky left-0 z-40">
+                    <Checkbox
+                      checked={selectedRows.length === filteredPolicies.length && filteredPolicies.length > 0}
+                      onCheckedChange={(checked) => {
+                        if (checked) setSelectedRows(filteredPolicies.map(r => r.id));
+                        else setSelectedRows([]);
+                      }}
+                    />
+                  </th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-32 bg-[#f0f7ff] sticky left-12 z-40 uppercase">Exp Code</th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-32 uppercase">Exp Type</th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-40 uppercase">Exp Class</th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-40 uppercase">Category</th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-64 uppercase">Description</th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-40 uppercase">Positions</th>
+                  <th className="px-3 py-3 text-center text-blue-700 border-r w-24 uppercase">Trong nước</th>
+                  <th className="px-3 py-3 text-center text-blue-700 border-r w-24 uppercase">Ngoài nước</th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-32 uppercase">Khu vực</th>
+                  <th className="px-3 py-3 text-right text-blue-700 border-r w-32 px-4 uppercase">Min Value</th>
+                  <th className="px-3 py-3 text-right text-blue-700 border-r w-32 px-4 uppercase">Max Value</th>
+                  <th className="px-3 py-3 text-center text-blue-700 border-r w-24 uppercase">UOM</th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-32 uppercase text-center">Start Date</th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-32 uppercase text-center">End Date</th>
+                  <th className="px-3 py-3 text-center text-blue-700 border-r w-20 uppercase">Status</th>
+                  <th className="px-3 py-3 text-right text-blue-700 border-r w-40 px-4 uppercase">Pol. Min</th>
+                  <th className="px-3 py-3 text-right text-blue-700 border-r w-40 px-4 uppercase">Pol. Max</th>
+                  <th className="px-3 py-3 text-center text-blue-700 w-24 uppercase">Curr</th>
                 </tr>
-              ) : (
-                filteredPolicies.map((row) => (
-                  <tr key={row.id} className="border-b hover:bg-gray-50">
-                    <td className="px-3 py-2">
-                      <Checkbox
-                        checked={selectedRows.includes(row.id)}
-                        onCheckedChange={() => toggleRowSelection(row.id)}
-                      />
+              </thead>
+              <tbody>
+                {filteredPolicies.map((row) => (
+                  <tr key={row.id} className="border-b hover:bg-blue-50/30 transition-colors bg-white">
+                    <td className="px-3 py-2 border-r bg-white sticky left-0 z-20">
+                      <Checkbox checked={selectedRows.includes(row.id)} onCheckedChange={() => toggleRowSelection(row.id)} />
                     </td>
-                    
-                    {/* EXP TYPE */}
-                    {visibleColumns.expType && (
-                      <td className="px-3 py-2">
-                        {row.isEditing ? (
-                          <Select
-                            value={row.expType}
-                            onValueChange={(value) => updateRow(row.id, 'expType', value)}
-                          >
-                            <SelectTrigger className="h-8 w-28">
-                              <SelectValue placeholder="Chọn" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {expTypeOptions.map((option) => (
-                                <SelectItem key={option} value={option}>
-                                  {option}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          row.expType
-                        )}
-                      </td>
-                    )}
-                    
-                    {/* EXP CODE */}
-                    {visibleColumns.expCode && (
-                      <td className="px-3 py-2">
-                        {row.isEditing ? (
-                          <Input
-                            value={row.expCode}
-                            onChange={(e) => updateRow(row.id, 'expCode', e.target.value)}
-                            className="h-8 w-28"
-                          />
-                        ) : (
-                          row.expCode
-                        )}
-                      </td>
-                    )}
-                    
-                    {/* EXP CLASS */}
-                    {visibleColumns.expClass && (
-                      <td className="px-3 py-2">
-                        {row.isEditing ? (
-                          <Select
-                            value={row.expClass}
-                            onValueChange={(value) => updateRow(row.id, 'expClass', value)}
-                            disabled={!row.expType}
-                          >
-                            <SelectTrigger className="h-8 w-36">
-                              <SelectValue placeholder="Chọn" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {(expClassOptions[row.expType as keyof typeof expClassOptions] || []).map((option) => (
-                                <SelectItem key={option} value={option}>
-                                  {option}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          row.expClass
-                        )}
-                      </td>
-                    )}
-                    
-                    {/* EXP CATEGORY */}
-                    {visibleColumns.expCategory && (
-                      <td className="px-3 py-2">
-                        {row.isEditing ? (
-                          <Select
-                            value={row.expCategory}
-                            onValueChange={(value) => updateRow(row.id, 'expCategory', value)}
-                            disabled={!row.expClass}
-                          >
-                            <SelectTrigger className="h-8 w-36">
-                              <SelectValue placeholder="Chọn" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {(expCategoryOptions[row.expClass as keyof typeof expCategoryOptions] || []).map((option) => (
-                                <SelectItem key={option} value={option}>
-                                  {option}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          row.expCategory
-                        )}
-                      </td>
-                    )}
-                    
-                    {/* DESCRIPTION */}
-                    {visibleColumns.description && (
-                      <td className="px-3 py-2">
-                        {row.description}
-                      </td>
-                    )}
-                    
-                    {/* POSITIONS */}
-                    {visibleColumns.positions && (
-                      <td className="px-3 py-2">
-                        {row.isEditing ? (
-                          <Select
-                            value={row.positions}
-                            onValueChange={(value) => updateRow(row.id, 'positions', value)}
-                          >
-                            <SelectTrigger className="h-8 w-36">
-                              <SelectValue placeholder="Chọn" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {positionOptions.map((option) => (
-                                <SelectItem key={option} value={option}>
-                                  {option}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          row.positions
-                        )}
-                      </td>
-                    )}
-                    
-                    {/* LOCATION - TRONG NƯỚC */}
-                    {visibleColumns.locationDomestic && (
-                      <td className="px-3 py-2">
-                        <Checkbox
-                          checked={row.locationDomestic}
-                          onCheckedChange={(checked) => updateRow(row.id, 'locationDomestic', checked)}
-                          disabled={!row.isEditing}
-                        />
-                      </td>
-                    )}
-                    
-                    {/* LOCATION - NGOÀI NƯỚC */}
-                    {visibleColumns.locationInternational && (
-                      <td className="px-3 py-2">
-                        <Checkbox
-                          checked={row.locationInternational}
-                          onCheckedChange={(checked) => updateRow(row.id, 'locationInternational', checked)}
-                          disabled={!row.isEditing}
-                        />
-                      </td>
-                    )}
-                    
-                    {/* LOCATION - KHU VỰC */}
-                    {visibleColumns.locationRegion && (
-                      <td className="px-3 py-2">
-                        {row.isEditing && (row.locationDomestic || row.locationInternational) ? (
-                          <Select
-                            value={row.locationRegion}
-                            onValueChange={(value) => updateRow(row.id, 'locationRegion', value)}
-                          >
-                            <SelectTrigger className="h-8 w-36">
-                              <SelectValue placeholder="Chọn" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {row.locationDomestic && domesticProvinces.map((option) => (
-                                <SelectItem key={option} value={option}>
-                                  {option}
-                                </SelectItem>
-                              ))}
-                              {row.locationInternational && internationalRegionOptions.map((option) => (
-                                <SelectItem key={option} value={option}>
-                                  {option}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          row.locationRegion || '-'
-                        )}
-                      </td>
-                    )}
-                    
-                    {/* MIN VALUE */}
-                    {visibleColumns.minValue && (
-                      <td className="px-3 py-2">
-                        {row.isEditing ? (
-                          <Input
-                            value={row.minValue}
-                            onChange={(e) => updateRow(row.id, 'minValue', e.target.value)}
-                            className="h-8 w-24"
-                            type="number"
-                          />
-                        ) : (
-                          row.minValue
-                        )}
-                      </td>
-                    )}
-                    
-                    {/* MAX VALUE */}
-                    {visibleColumns.maxValue && (
-                      <td className="px-3 py-2">
-                        {row.isEditing ? (
-                          <Input
-                            value={row.maxValue}
-                            onChange={(e) => updateRow(row.id, 'maxValue', e.target.value)}
-                            className="h-8 w-24"
-                            type="number"
-                          />
-                        ) : (
-                          row.maxValue
-                        )}
-                      </td>
-                    )}
-                    
-                    {/* UOM */}
-                    {visibleColumns.uom && (
-                      <td className="px-3 py-2">
-                        {row.isEditing ? (
-                          <Select
-                            value={row.uom}
-                            onValueChange={(value) => updateRow(row.id, 'uom', value)}
-                          >
-                            <SelectTrigger className="h-8 w-24">
-                              <SelectValue placeholder="Chọn" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {uomOptions.map((option) => (
-                                <SelectItem key={option} value={option}>
-                                  {option}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          row.uom
-                        )}
-                      </td>
-                    )}
-                    
-                    {/* START DATE */}
-                    {visibleColumns.startDate && (
-                      <td className="px-3 py-2">
-                        {row.isEditing ? (
-                          <Input
-                            type="date"
-                            value={row.startDate}
-                            onChange={(e) => updateRow(row.id, 'startDate', e.target.value)}
-                            className="h-8 w-36"
-                          />
-                        ) : (
-                          row.startDate
-                        )}
-                      </td>
-                    )}
-                    
-                    {/* END DATE */}
-                    {visibleColumns.endDate && (
-                      <td className="px-3 py-2">
-                        {row.isEditing ? (
-                          <Input
-                            type="date"
-                            value={row.endDate}
-                            onChange={(e) => updateRow(row.id, 'endDate', e.target.value)}
-                            className="h-8 w-36"
-                          />
-                        ) : (
-                          row.endDate
-                        )}
-                      </td>
-                    )}
-                    
-                    {/* STATUS */}
-                    {visibleColumns.status && (
-                      <td className="px-3 py-2">
-                        {row.isEditing ? (
-                          <Select
-                            value={row.status}
-                            onValueChange={(value) => updateRow(row.id, 'status', value)}
-                          >
-                            <SelectTrigger className="h-8 w-20">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Y">Y</SelectItem>
-                              <SelectItem value="N">N</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          <span className={row.status === 'Y' ? 'text-green-600' : 'text-red-600'}>
-                            {row.status}
-                          </span>
-                        )}
-                      </td>
-                    )}
-                    
-                    {/* POLICY MIN VALUE */}
-                    {visibleColumns.policyMinValue && (
-                      <td className="px-3 py-2">
-                        {row.isEditing ? (
-                          <Input
-                            value={row.policyMinValue}
-                            onChange={(e) => updateRow(row.id, 'policyMinValue', e.target.value)}
-                            className="h-8 w-32"
-                            type="number"
-                          />
-                        ) : (
-                          row.policyMinValue ? Number(row.policyMinValue).toLocaleString() : '-'
-                        )}
-                      </td>
-                    )}
-                    
-                    {/* POLICY MAX VALUE */}
-                    {visibleColumns.policyMaxValue && (
-                      <td className="px-3 py-2">
-                        {row.isEditing ? (
-                          <Input
-                            value={row.policyMaxValue}
-                            onChange={(e) => updateRow(row.id, 'policyMaxValue', e.target.value)}
-                            className="h-8 w-32"
-                            type="number"
-                          />
-                        ) : (
-                          row.policyMaxValue ? Number(row.policyMaxValue).toLocaleString() : '-'
-                        )}
-                      </td>
-                    )}
-                    
-                    {/* CURRENCY CODE */}
-                    {visibleColumns.currencyCode && (
-                      <td className="px-3 py-2">
-                        {row.isEditing ? (
-                          <Select
-                            value={row.currencyCode}
-                            onValueChange={(value) => updateRow(row.id, 'currencyCode', value)}
-                          >
-                            <SelectTrigger className="h-8 w-24">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {currencyOptions.map((option) => (
-                                <SelectItem key={option} value={option}>
-                                  {option}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          row.currencyCode
-                        )}
-                      </td>
-                    )}
+                    <td className="px-3 py-2 border-r bg-white sticky left-12 z-20 text-[11px] font-bold text-blue-600">{row.expCode}</td>
+                    <td className="px-3 py-2 border-r text-[11px]">
+                      <Select value={row.expType} onValueChange={(v) => updateRow(row.id, 'expType', v)}>
+                        <SelectTrigger className="h-7 border-transparent shadow-none"><SelectValue /></SelectTrigger>
+                        <SelectContent>{expTypeOptions.map(opt => <SelectItem key={opt} value={opt} className="text-[11px]">{opt}</SelectItem>)}</SelectContent>
+                      </Select>
+                    </td>
+                    <td className="px-3 py-2 border-r text-[11px]"><Input value={row.expClass} onChange={(e) => updateRow(row.id, 'expClass', e.target.value)} className="h-7 border-transparent shadow-none" /></td>
+                    <td className="px-3 py-2 border-r text-[11px]"><Input value={row.expCategory} onChange={(e) => updateRow(row.id, 'expCategory', e.target.value)} className="h-7 border-transparent shadow-none" /></td>
+                    <td className="px-3 py-2 border-r text-[11px]"><Input value={row.description} onChange={(e) => updateRow(row.id, 'description', e.target.value)} className="h-7 border-transparent shadow-none" /></td>
+                    <td className="px-3 py-2 border-r text-[11px]">
+                      <Select value={row.positions} onValueChange={(v) => updateRow(row.id, 'positions', v)}>
+                        <SelectTrigger className="h-7 border-transparent shadow-none"><SelectValue /></SelectTrigger>
+                        <SelectContent>{positionOptions.map(opt => <SelectItem key={opt} value={opt} className="text-[11px]">{opt}</SelectItem>)}</SelectContent>
+                      </Select>
+                    </td>
+                    <td className="px-3 py-2 border-r text-center"><Checkbox checked={row.locationDomestic} onCheckedChange={(c) => updateRow(row.id, 'locationDomestic', !!c)} /></td>
+                    <td className="px-3 py-2 border-r text-center"><Checkbox checked={row.locationInternational} onCheckedChange={(c) => updateRow(row.id, 'locationInternational', !!c)} /></td>
+                    <td className="px-3 py-2 border-r text-[11px]"><Input value={row.locationRegion} onChange={(e) => updateRow(row.id, 'locationRegion', e.target.value)} className="h-7 border-transparent shadow-none" /></td>
+                    <td className="px-3 py-2 border-r text-[11px] font-bold"><Input value={row.minValue} onChange={(e) => updateRow(row.id, 'minValue', e.target.value)} className="h-7 border-transparent text-right shadow-none px-2" type="number" /></td>
+                    <td className="px-3 py-2 border-r text-[11px] font-bold"><Input value={row.maxValue} onChange={(e) => updateRow(row.id, 'maxValue', e.target.value)} className="h-7 border-transparent text-right shadow-none px-2" type="number" /></td>
+                    <td className="px-3 py-2 border-r text-[11px]">
+                      <Select value={row.uom} onValueChange={(v) => updateRow(row.id, 'uom', v)}>
+                        <SelectTrigger className="h-7 border-transparent shadow-none"><SelectValue /></SelectTrigger>
+                        <SelectContent>{uomOptions.map(opt => <SelectItem key={opt} value={opt} className="text-[11px]">{opt}</SelectItem>)}</SelectContent>
+                      </Select>
+                    </td>
+                    <td className="px-3 py-2 border-r text-[11px] italic text-gray-400 text-center"><Input value={row.startDate} onChange={(e) => updateRow(row.id, 'startDate', e.target.value)} className="h-7 border-transparent shadow-none text-center" type="date" /></td>
+                    <td className="px-3 py-2 border-r text-[11px] italic text-gray-400 text-center"><Input value={row.endDate} onChange={(e) => updateRow(row.id, 'endDate', e.target.value)} className="h-7 border-transparent shadow-none text-center" type="date" /></td>
+                    <td className="px-3 py-2 border-r text-center">
+                      <Select value={row.status} onValueChange={(v) => updateRow(row.id, 'status', v)}>
+                        <SelectTrigger className="h-7 border-transparent shadow-none text-center"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Y" className="text-[11px]">Y</SelectItem>
+                          <SelectItem value="N" className="text-[11px]">N</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </td>
+                    <td className="px-3 py-2 border-r text-[11px] font-black text-emerald-600 px-4"><Input value={row.policyMinValue} onChange={(e) => updateRow(row.id, 'policyMinValue', e.target.value)} className="h-7 border-transparent text-right shadow-none" type="number" /></td>
+                    <td className="px-3 py-2 border-r text-[11px] font-black text-rose-600 px-4"><Input value={row.policyMaxValue} onChange={(e) => updateRow(row.id, 'policyMaxValue', e.target.value)} className="h-7 border-transparent text-right shadow-none" type="number" /></td>
+                    <td className="px-3 py-2 text-[11px]">
+                      <Select value={row.currencyCode} onValueChange={(v) => updateRow(row.id, 'currencyCode', v)}>
+                        <SelectTrigger className="h-7 border-transparent shadow-none font-bold text-gray-400 text-center uppercase"><SelectValue /></SelectTrigger>
+                        <SelectContent>{currencyOptions.map(opt => <SelectItem key={opt} value={opt} className="text-[11px]">{opt}</SelectItem>)}</SelectContent>
+                      </Select>
+                    </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-        
-        <div className="px-4 py-2 border-t bg-gray-50 text-sm text-right text-gray-600">
-          Total: {filteredPolicies.length}
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Footer */}
+          <div className="bg-white border-t px-6 py-2 flex items-center justify-between shrink-0 font-bold text-[10px] text-gray-500 uppercase tracking-widest text-center">
+            <div>Showing <span className="text-blue-600">{filteredPolicies.length}</span> of {policies.length} records</div>
+          </div>
         </div>
       </div>
-
-      {/* Columns Dialog */}
-      <SimpleColumnsDialog
-        open={showColumnsDialog}
-        onOpenChange={setShowColumnsDialog}
-        columns={columns}
-        visibleColumns={visibleColumns}
-        onVisibleColumnsChange={setVisibleColumns}
-      />
     </div>
   );
 }

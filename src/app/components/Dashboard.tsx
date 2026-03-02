@@ -184,7 +184,7 @@ export default function Dashboard() {
         {/* Sales Invoice KPIs */}
         <div className="erp-card p-4">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-gray-700">Sales Invoices</h2>
+            <h2 className="text-sm font-semibold text-gray-700">Accounts Receivable</h2>
             <span className="text-xs text-blue-600 hover:underline cursor-pointer flex items-center gap-0.5">
               View all <ChevronRight className="w-3 h-3" />
             </span>
@@ -209,7 +209,7 @@ export default function Dashboard() {
         {/* Purchase Invoice KPIs */}
         <div className="erp-card p-4">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-gray-700">Purchase Invoices</h2>
+            <h2 className="text-sm font-semibold text-gray-700">Accounts Payable</h2>
             <span className="text-xs text-blue-600 hover:underline cursor-pointer flex items-center gap-0.5">
               View all <ChevronRight className="w-3 h-3" />
             </span>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Search, Download } from 'lucide-react';
+import { Plus, Search, Download, List, Grid3x3, RefreshCw, MoreVertical, Save, CheckCircle, FileText, AlertTriangle, XCircle } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import {
@@ -12,8 +12,9 @@ import {
 import { Checkbox } from './ui/checkbox';
 import CreateTravelExpenditureRequisition from './CreateTravelExpenditureRequisition';
 import CreateAdvanceRequest from './CreateAdvanceRequest';
-import { Label } from './ui/label';
 import { useLanguage } from '../i18n/LanguageContext';
+import { FilterPanel } from './FilterPanel';
+import { StatsCard } from './StatsCard';
 
 interface RequisitionRow {
   id: number;
@@ -22,7 +23,7 @@ interface RequisitionRow {
   department: string;
   type: string;
   destination: string;
-  amount: string;
+  amount: number;
   status: string;
   date: string;
 }
@@ -32,7 +33,6 @@ export default function TravelExpenditureRequisition() {
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
-  const [departmentFilter, setDepartmentFilter] = useState('all');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showPaymentRequest, setShowPaymentRequest] = useState(false);
   const [paymentRequestData, setPaymentRequestData] = useState<any>(null);
@@ -46,7 +46,7 @@ export default function TravelExpenditureRequisition() {
       department: 'Kế toán',
       type: 'Công tác',
       destination: 'Hà Nội',
-      amount: '5,000,000',
+      amount: 5000000,
       status: 'Pending',
       date: '2025-01-15',
     },
@@ -57,7 +57,7 @@ export default function TravelExpenditureRequisition() {
       department: 'Nhân sự',
       type: 'Đi công tác nước ngoài',
       destination: 'Singapore',
-      amount: '15,000,000',
+      amount: 15000000,
       status: 'Approved',
       date: '2025-01-14',
     },
@@ -68,7 +68,7 @@ export default function TravelExpenditureRequisition() {
       department: 'Marketing',
       type: 'Công tác',
       destination: 'TP. Hồ Chí Minh',
-      amount: '3,500,000',
+      amount: 3500000,
       status: 'Rejected',
       date: '2025-01-13',
     },
@@ -79,7 +79,7 @@ export default function TravelExpenditureRequisition() {
       department: 'IT',
       type: 'Đi công tác trong nước',
       destination: 'Đà Nẵng',
-      amount: '4,200,000',
+      amount: 4200000,
       status: 'Pending',
       date: '2025-01-12',
     },
@@ -91,6 +91,14 @@ export default function TravelExpenditureRequisition() {
     );
   };
 
+  const toggleAllRows = () => {
+    if (selectedRows.length === filteredRequisitions.length && filteredRequisitions.length > 0) {
+      setSelectedRows([]);
+    } else {
+      setSelectedRows(filteredRequisitions.map(r => r.id));
+    }
+  };
+
   const filteredRequisitions = requisitions.filter(row => {
     const matchSearch = searchText === '' ||
       Object.values(row).some(val =>
@@ -98,15 +106,36 @@ export default function TravelExpenditureRequisition() {
       );
     const matchStatus = statusFilter === 'all' || row.status === statusFilter;
     const matchType = typeFilter === 'all' || row.type === typeFilter;
-    const matchDepartment = departmentFilter === 'all' || row.department === departmentFilter;
-    
-    return matchSearch && matchStatus && matchType && matchDepartment;
+    return matchSearch && matchStatus && matchType;
   });
+
+  const formatCurrency = (value: number) => value.toLocaleString('vi-VN');
+
+  // KPI counts
+  const pendingCount = requisitions.filter(r => r.status === 'Pending').length;
+  const approvedCount = requisitions.filter(r => r.status === 'Approved').length;
+  const rejectedCount = requisitions.filter(r => r.status === 'Rejected').length;
+  const draftCount = requisitions.filter(r => r.status === 'Draft').length;
+
+  const statusOptions = [
+    { value: 'all', label: 'All Status' },
+    { value: 'Pending', label: 'Pending' },
+    { value: 'Approved', label: 'Approved' },
+    { value: 'Rejected', label: 'Rejected' },
+    { value: 'Draft', label: 'Draft' },
+  ];
+
+  const typeOptions = [
+    { value: 'all', label: 'All Types' },
+    { value: 'Công tác', label: 'Công tác' },
+    { value: 'Đi công tác trong nước', label: 'Đi công tác trong nước' },
+    { value: 'Đi công tác nước ngoài', label: 'Đi công tác nước ngoài' },
+  ];
 
   if (showCreateForm) {
     return (
-      <CreateTravelExpenditureRequisition 
-        onClose={() => setShowCreateForm(false)} 
+      <CreateTravelExpenditureRequisition
+        onClose={() => setShowCreateForm(false)}
         onNavigateToPaymentRequest={(data) => {
           setPaymentRequestData(data);
           setShowCreateForm(false);
@@ -118,190 +147,144 @@ export default function TravelExpenditureRequisition() {
 
   if (showPaymentRequest) {
     return (
-      <CreateAdvanceRequest 
-        onClose={() => setShowPaymentRequest(false)} 
+      <CreateAdvanceRequest
+        onClose={() => setShowPaymentRequest(false)}
         data={paymentRequestData}
       />
     );
   }
 
   return (
-    <div className="p-6 max-w-[1600px]">
-      {/* Page Header - Enterprise Style */}
-      <div className="mb-6">
-        <h1 className="text-xl font-semibold text-gray-900 uppercase tracking-tight mb-1">
-          {t.tem.travelRequisitionList}
-        </h1>
-        <p className="text-sm text-gray-600">
-          {t.tem.travelRequisitionSubtitle}
-        </p>
-      </div>
+    <div className="flex h-screen bg-gray-50">
+      {/* Filter Panel - Left Sidebar (same as Invoice FCM) */}
+      <FilterPanel
+        searchValue={searchText}
+        onSearchChange={setSearchText}
+        statusOptions={statusOptions}
+        selectedStatus={statusFilter}
+        onStatusChange={setStatusFilter}
+        typeOptions={typeOptions}
+        selectedType={typeFilter}
+        onTypeChange={setTypeFilter}
+        showStatus={true}
+        showType={true}
+      />
 
-      {/* Card Container */}
-      <div className="bg-white rounded-lg shadow-sm border">
-        {/* Filters Section */}
-        <div className="p-4 border-b bg-gray-50">
-          <div className="grid grid-cols-12 gap-3">
-            {/* Search - 4 columns */}
-            <div className="col-span-4">
-              <Label className="text-xs font-medium text-gray-700 mb-1.5 block">{t.tem.search}</Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <Input
-                  placeholder="ID, employee, destination..."
-                  className="pl-9 h-9 text-sm"
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
-                />
-              </div>
-            </div>
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="bg-white border-b px-6 py-4">
+          <h1 className="text-xl font-semibold text-gray-800">{t.tem.travelRequisitionList || 'Yêu cầu Công tác'}</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            {t.tem.travelRequisitionSubtitle || 'Quản lý yêu cầu công tác và tạm ứng'}
+          </p>
+        </div>
 
-            {/* Status Filter - 2 columns */}
-            <div className="col-span-2">
-              <Label className="text-xs font-medium text-gray-700 mb-1.5 block">{t.tem.status}</Label>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="h-9 text-sm">
-                  <SelectValue placeholder="All Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t.tem.allStatus}</SelectItem>
-                  <SelectItem value="Pending">Pending</SelectItem>
-                  <SelectItem value="Approved">Approved</SelectItem>
-                  <SelectItem value="Rejected">Rejected</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Type Filter - 3 columns */}
-            <div className="col-span-3">
-              <Label className="text-xs font-medium text-gray-700 mb-1.5 block">{t.tem.typeLabel}</Label>
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="h-9 text-sm">
-                  <SelectValue placeholder="All Types" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="Công tác">Công tác</SelectItem>
-                  <SelectItem value="Đi công tác trong nước">Đi công tác trong nước</SelectItem>
-                  <SelectItem value="Đi công tác nước ngoài">Đi công tác nước ngoài</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Department Filter - 3 columns */}
-            <div className="col-span-3">
-              <Label className="text-xs font-medium text-gray-700 mb-1.5 block">{t.tem.departmentLabel}</Label>
-              <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-                <SelectTrigger className="h-9 text-sm">
-                  <SelectValue placeholder="All Departments" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Departments</SelectItem>
-                  <SelectItem value="Kế toán">Kế toán</SelectItem>
-                  <SelectItem value="Nhân sự">Nhân sự</SelectItem>
-                  <SelectItem value="Marketing">Marketing</SelectItem>
-                  <SelectItem value="IT">IT</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        {/* Stats Cards */}
+        <div className="bg-white border-b px-6 py-4">
+          <div className="flex items-center gap-12">
+            <StatsCard label="PENDING" value={pendingCount} color="orange" />
+            <StatsCard label="APPROVED" value={approvedCount} color="green" />
+            <StatsCard label="REJECTED" value={rejectedCount} color="red" />
+            <StatsCard label="DRAFT" value={draftCount} color="gray" />
           </div>
         </div>
 
-        {/* Action Bar */}
-        <div className="px-4 py-3 border-b bg-white flex items-center justify-between">
-          <div className="flex gap-2">
-            <Button 
-              size="sm" 
-              className="h-9 px-4 text-sm gap-1.5 bg-blue-600 hover:bg-blue-700 text-white" 
+        {/* Toolbar */}
+        <div className="bg-white border-b px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Button
               onClick={() => setShowCreateForm(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
             >
-              <Plus className="w-4 h-4" /> {t.tem.createTravelReq}
+              <Plus className="w-4 h-4 mr-1" />
+              {t.tem.createTravelReq || '+ Tạo yêu cầu công tác'}
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
               onClick={() => setShowPaymentRequest(true)}
-              className="h-9 px-4 font-medium border-gray-300"
             >
-              <Plus className="w-4 h-4 mr-1.5" />
+              <Plus className="w-4 h-4 mr-1" />
               Payment Request
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="h-9 px-4 font-medium border-gray-300"
-            >
-              <Download className="w-4 h-4 mr-1.5" />
-              Export
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Save className="w-4 h-4 mr-1" />
+              Save
             </Button>
           </div>
-          <div className="text-xs text-gray-600 font-medium">
-            {filteredRequisitions.length} of {requisitions.length} requests
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm"><List className="w-4 h-4" /></Button>
+            <Button variant="ghost" size="sm"><Grid3x3 className="w-4 h-4" /></Button>
+            <Button variant="ghost" size="sm"><RefreshCw className="w-4 h-4" /></Button>
+            <Button variant="ghost" size="sm"><MoreVertical className="w-4 h-4" /></Button>
           </div>
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-[#f8fafc] border-b">
-              <tr>
-                <th className="px-4 py-3 text-left w-12">
-                  <Checkbox />
+        <div className="flex-1 overflow-auto bg-white mx-6 mb-6 border rounded-lg shadow-sm">
+          <table className="w-full text-sm min-w-[1200px]">
+            <thead className="sticky top-0 z-10">
+              <tr className="bg-gray-50 border-b">
+                <th className="px-3 py-3 text-left w-12 border-r bg-gray-50 sticky left-0 z-20">
+                  <Checkbox
+                    checked={selectedRows.length === filteredRequisitions.length && filteredRequisitions.length > 0}
+                    onCheckedChange={toggleAllRows}
+                  />
                 </th>
-                <th className="text-left px-4 py-3">{t.tem.requestId}</th>
-                <th className="text-left px-4 py-3">{t.tem.employeeLabel}</th>
-                <th className="text-left px-4 py-3">{t.tem.departmentLabel}</th>
-                <th className="text-left px-4 py-3">{t.tem.typeLabel}</th>
-                <th className="text-left px-4 py-3">{t.tem.destinationLabel}</th>
-                <th className="text-right px-4 py-3">{t.tem.amountLabel}</th>
-                <th className="text-left px-4 py-3">{t.tem.status}</th>
-                <th className="text-left px-4 py-3">{t.tem.dateLabel}</th>
-                <th className="text-right px-4 py-3">{t.common.actions}</th>
+                <th className="px-3 py-3 text-left text-gray-700 font-semibold border-r w-40 bg-gray-50 sticky left-12 z-20">Mã yêu cầu</th>
+                <th className="px-3 py-3 text-left text-gray-700 font-semibold border-r w-48">Nhân viên</th>
+                <th className="px-3 py-3 text-left text-gray-700 font-semibold border-r w-32">Phòng ban</th>
+                <th className="px-3 py-3 text-left text-gray-700 font-semibold border-r w-56">Loại</th>
+                <th className="px-3 py-3 text-left text-gray-700 font-semibold border-r w-48">Điểm đến</th>
+                <th className="px-3 py-3 text-right text-gray-700 font-semibold border-r w-36">Số tiền</th>
+                <th className="px-3 py-3 text-center text-gray-700 font-semibold border-r w-28">Trạng thái</th>
+                <th className="px-3 py-3 text-left text-gray-700 font-semibold border-r w-32">Ngày</th>
+                <th className="px-3 py-3 text-center text-gray-700 font-semibold w-24">Thao tác</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody>
               {filteredRequisitions.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="text-center py-12 text-gray-400">
-                    {t.tem.noRecordsFound}
+                  <td colSpan={10} className="px-4 py-12 text-center text-gray-500">
+                    <div className="flex flex-col items-center gap-2">
+                      <Search className="w-12 h-12 opacity-10" />
+                      <span>{t.tem.noRecordsFound || 'No records found'}</span>
+                    </div>
                   </td>
                 </tr>
               ) : (
                 filteredRequisitions.map((row) => (
-                  <tr key={row.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-3">
+                  <tr key={row.id} className="border-b hover:bg-gray-50 transition-colors bg-white">
+                    <td className="px-3 py-2 border-r bg-inherit sticky left-0 z-10">
                       <Checkbox
                         checked={selectedRows.includes(row.id)}
                         onCheckedChange={() => toggleRowSelection(row.id)}
                       />
                     </td>
-                    <td className="px-4 py-3 font-semibold text-blue-600">
+                    <td className="px-3 py-2 border-r bg-inherit sticky left-12 z-10 font-semibold text-blue-600">
                       {row.requestId}
                     </td>
-                    <td className="px-4 py-3 text-gray-900">{row.employee}</td>
-                    <td className="px-4 py-3 text-gray-600">{row.department}</td>
-                    <td className="px-4 py-3 text-gray-600">{row.type}</td>
-                    <td className="px-4 py-3 text-gray-900">{row.destination}</td>
-                    <td className="px-4 py-3 text-right font-semibold text-gray-900 tabular-nums">
-                      {row.amount}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        row.status === 'Approved' 
-                          ? 'bg-green-100 text-green-800' 
-                          : row.status === 'Pending'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
+                    <td className="px-3 py-2 border-r text-gray-900">{row.employee}</td>
+                    <td className="px-3 py-2 border-r text-gray-600">{row.department}</td>
+                    <td className="px-3 py-2 border-r text-gray-600">{row.type}</td>
+                    <td className="px-3 py-2 border-r text-gray-900">{row.destination}</td>
+                    <td className="px-3 py-2 border-r text-right tabular-nums font-semibold">{formatCurrency(row.amount)}</td>
+                    <td className="px-3 py-2 border-r text-center">
+                      <span className={
+                        row.status === 'Approved' ? 'erp-badge-success' :
+                          row.status === 'Pending' ? 'erp-badge-warning' :
+                            row.status === 'Rejected' ? 'erp-badge-danger' :
+                              'erp-badge-neutral'
+                      }>
                         {row.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-600 tabular-nums">{row.date}</td>
-                    <td className="px-4 py-3 text-right">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-8 px-3 text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-medium"
+                    <td className="px-3 py-2 border-r text-gray-600 tabular-nums">{row.date}</td>
+                    <td className="px-3 py-2 text-center">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-medium text-xs"
                       >
                         View
                       </Button>
@@ -313,18 +296,22 @@ export default function TravelExpenditureRequisition() {
           </table>
         </div>
 
-        {/* Footer */}
-        <div className="px-4 py-3 border-t bg-gray-50 flex items-center justify-between">
-          <div className="text-xs text-gray-600">
-            Showing {filteredRequisitions.length} results
+        {/* Pagination Footer */}
+        <div className="bg-white border-t px-6 py-3 flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            Showing <span className="font-semibold">{filteredRequisitions.length}</span> of <span className="font-semibold">{requisitions.length}</span> requests
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="h-8 px-3 text-xs" disabled>
-              Previous
-            </Button>
-            <Button variant="outline" size="sm" className="h-8 px-3 text-xs" disabled>
-              Next
-            </Button>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-600">
+              Total: <span className="font-semibold text-gray-800">
+                {formatCurrency(filteredRequisitions.reduce((s, r) => s + r.amount, 0))} VND
+              </span>
+            </span>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" disabled>Previous</Button>
+              <Button variant="outline" size="sm">1</Button>
+              <Button variant="outline" size="sm" disabled>Next</Button>
+            </div>
           </div>
         </div>
       </div>

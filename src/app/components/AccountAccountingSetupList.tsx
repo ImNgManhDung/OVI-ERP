@@ -1,336 +1,250 @@
 import { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Plus, Download, Upload, Settings } from 'lucide-react';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
 import { Checkbox } from './ui/checkbox';
-import CreateAccountSetupPopup from './CreateAccountSetupPopup';
-import MasterDataToolbar from './MasterDataToolbar';
 
-interface AccountAccountingSetupListProps {
-  onBack: () => void;
-}
+const mockData = [
+  {
+    id: 1,
+    accountNumber: '0000000',
+    accountName: 'Clearing Account',
+    accountType: 'Assets',
+    responsible: '',
+    status: false,
+    parentParty: false,
+    useCostCenter: false,
+    useCostElement: false,
+    reconcile: false
+  },
+  {
+    id: 2,
+    accountNumber: '11',
+    accountName: '3',
+    accountType: 'Revenue',
+    responsible: '',
+    status: false,
+    parentParty: false,
+    useCostCenter: false,
+    useCostElement: false,
+    reconcile: false
+  },
+  {
+    id: 3,
+    accountNumber: '1',
+    accountName: '00771568',
+    accountType: 'Revenue',
+    responsible: 'sử dụng tiền tiền 1 nào o',
+    status: false,
+    parentParty: false,
+    useCostCenter: false,
+    useCostElement: false,
+    reconcile: false
+  },
+  {
+    id: 4,
+    accountNumber: '1112700',
+    accountName: 'Tiền mặt-EUR',
+    accountType: 'Assets',
+    responsible: '',
+    status: false,
+    parentParty: false,
+    useCostCenter: false,
+    useCostElement: false,
+    reconcile: false
+  },
+  {
+    id: 5,
+    accountNumber: '110000',
+    accountName: 'Tiền mặt',
+    accountType: 'Liabilities',
+    responsible: '',
+    status: false,
+    parentParty: false,
+    useCostCenter: true,
+    useCostElement: false,
+    reconcile: false
+  },
+  {
+    id: 6,
+    accountNumber: '1110000',
+    accountName: 'Tiền mặt-Việt nam đồng',
+    accountType: 'Equity',
+    responsible: '',
+    status: false,
+    parentParty: false,
+    useCostCenter: false,
+    useCostElement: false,
+    reconcile: false
+  },
+  {
+    id: 7,
+    accountNumber: '112000',
+    accountName: 'Tiền mặt ngoại tệ',
+    accountType: 'Revenue',
+    responsible: '',
+    status: false,
+    parentParty: false,
+    useCostCenter: false,
+    useCostElement: false,
+    reconcile: false
+  },
+  {
+    id: 8,
+    accountNumber: '1112100',
+    accountName: 'Tiền mặt-USD bộ mỹ',
+    accountType: 'Assets',
+    responsible: '',
+    status: false,
+    parentParty: false,
+    useCostCenter: false,
+    useCostElement: false,
+    reconcile: false
+  }
+];
 
-interface AccountRow {
-  id: number;
-  accountNumber: string;
-  accountName: string;
-  accountType: string;
-  responsible: string;
-  status: boolean;
-  parentParty: boolean;
-  useCostCenter: boolean;
-  useCostElement: boolean;
-  reconcile: boolean;
-}
-
-export default function AccountAccountingSetupList({ onBack }: AccountAccountingSetupListProps) {
+export default function AccountAccountingSetupList() {
   const [searchText, setSearchText] = useState('');
-  const [showCreatePopup, setShowCreatePopup] = useState(false);
-  const [selectedRows, setSelectedRows] = useState<number[]>([]);
+  const [selectedType, setSelectedType] = useState('all');
 
-  const accountData: AccountRow[] = [
-    {
-      id: 1,
-      accountNumber: '0000000',
-      accountName: 'Clearing Account',
-      accountType: 'Assets',
-      responsible: '',
-      status: false,
-      parentParty: false,
-      useCostCenter: false,
-      useCostElement: false,
-      reconcile: false
-    },
-    {
-      id: 2,
-      accountNumber: '11',
-      accountName: '3',
-      accountType: 'Revenue',
-      responsible: '',
-      status: false,
-      parentParty: false,
-      useCostCenter: false,
-      useCostElement: false,
-      reconcile: false
-    },
-    {
-      id: 3,
-      accountNumber: '1',
-      accountName: '00771568',
-      accountType: 'Revenue',
-      responsible: 'sử dụng tiền tiền 1 nào o',
-      status: false,
-      parentParty: false,
-      useCostCenter: false,
-      useCostElement: false,
-      reconcile: false
-    },
-    {
-      id: 4,
-      accountNumber: '1112700',
-      accountName: 'Tiền mặt-EUR',
-      accountType: 'Assets',
-      responsible: '',
-      status: false,
-      parentParty: false,
-      useCostCenter: false,
-      useCostElement: false,
-      reconcile: false
-    },
-    {
-      id: 5,
-      accountNumber: '110000',
-      accountName: 'Tiền mặt',
-      accountType: 'Liabilities',
-      responsible: '',
-      status: false,
-      parentParty: false,
-      useCostCenter: true,
-      useCostElement: false,
-      reconcile: false
-    },
-    {
-      id: 6,
-      accountNumber: '1110000',
-      accountName: 'Tiền mặt-Việt nam đồng',
-      accountType: 'Equity',
-      responsible: '',
-      status: false,
-      parentParty: false,
-      useCostCenter: false,
-      useCostElement: false,
-      reconcile: false
-    },
-    {
-      id: 7,
-      accountNumber: '112000',
-      accountName: 'Tiền mặt ngoại tệ',
-      accountType: 'Revenue',
-      responsible: '',
-      status: false,
-      parentParty: false,
-      useCostCenter: false,
-      useCostElement: false,
-      reconcile: false
-    },
-    {
-      id: 8,
-      accountNumber: '1112100',
-      accountName: 'Tiền mặt-USD bộ mỹ',
-      accountType: 'Assets',
-      responsible: '',
-      status: false,
-      parentParty: false,
-      useCostCenter: false,
-      useCostElement: false,
-      reconcile: false
-    },
-    {
-      id: 9,
-      accountNumber: '11113000',
-      accountName: 'Vàng bạc, kim loại quý, đá quý',
-      accountType: 'Assets',
-      responsible: '',
-      status: false,
-      parentParty: false,
-      useCostCenter: false,
-      useCostElement: false,
-      reconcile: false
-    },
-    {
-      id: 10,
-      accountNumber: '1114000',
-      accountName: 'Các loại tập phẩu; ký phẩu...',
-      accountType: 'Assets',
-      responsible: '',
-      status: false,
-      parentParty: false,
-      useCostCenter: false,
-      useCostElement: false,
-      reconcile: false
-    },
-    {
-      id: 11,
-      accountNumber: '1117000',
-      accountName: 'Trung Gian',
-      accountType: 'Assets',
-      responsible: '',
-      status: false,
-      parentParty: false,
-      useCostCenter: false,
-      useCostElement: false,
-      reconcile: false
-    },
-    {
-      id: 12,
-      accountNumber: '1116000',
-      accountName: 'Trung gian tiền mại-USD',
-      accountType: 'Assets',
-      responsible: '',
-      status: false,
-      parentParty: false,
-      useCostCenter: false,
-      useCostElement: false,
-      reconcile: false
-    },
-    {
-      id: 13,
-      accountNumber: '1119000',
-      accountName: 'Tạo bù dịch trung gian nội tội',
-      accountType: 'Assets',
-      responsible: '',
-      status: false,
-      parentParty: false,
-      useCostCenter: false,
-      useCostElement: false,
-      reconcile: false
-    },
-    {
-      id: 14,
-      accountNumber: '2',
-      accountName: 'TEDA',
-      accountType: 'Assets',
-      responsible: '',
-      status: false,
-      parentParty: false,
-      useCostCenter: true,
-      useCostElement: false,
-      reconcile: false
-    }
-  ];
-
-  const toggleRowSelection = (id: number) => {
-    setSelectedRows(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    );
-  };
-
-  const filteredData = accountData.filter(row =>
-    searchText === '' ||
-    Object.values(row).some(val =>
-      String(val).toLowerCase().includes(searchText.toLowerCase())
-    )
-  );
+  const filteredData = mockData.filter(item => {
+    const matchesSearch = searchText === '' || 
+      item.accountNumber.toLowerCase().includes(searchText.toLowerCase()) ||
+      item.accountName.toLowerCase().includes(searchText.toLowerCase());
+    const matchesType = selectedType === 'all' || item.accountType === selectedType;
+    return matchesSearch && matchesType;
+  });
 
   return (
-    <div className="p-6">
-      <div className="mb-4">
-        <h1 className="text-2xl font-semibold text-gray-800 uppercase tracking-tight">Account Accounting Setup</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Configure chart of accounts with cost center, cost element, and reconciliation settings
-        </p>
+    <div className="h-screen bg-gray-50 flex flex-col">
+      <div className="bg-white border-b px-6 py-4">
+        <h1 className="text-xl font-semibold text-gray-800">Account Accounting Setup</h1>
+        <nav className="flex items-center gap-1.5 mt-1">
+          <span className="text-xs text-gray-400">Home</span>
+          <span className="text-xs text-gray-300">/</span>
+          <span className="text-xs text-gray-400">Configuration</span>
+          <span className="text-xs text-gray-300">/</span>
+          <span className="text-xs text-blue-600">Account Accounting Setup</span>
+        </nav>
       </div>
 
-      <MasterDataToolbar
-        searchText={searchText}
-        onSearchChange={setSearchText}
-        onAddRow={() => setShowCreatePopup(true)}
-        onDeleteRows={() => setSelectedRows([])}
-        onSave={() => console.log('Saving Account Accounting Setup...')}
-        selectedCount={selectedRows.length}
-      />
+      <div className="flex-1 overflow-auto p-6">
+        <div className="bg-white border rounded-lg p-4 mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1 min-w-[400px]">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                placeholder="Search by Account Number or Name..."
+                className="pl-10 h-9"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+            </div>
+            <select
+              value={selectedType}
+              onChange={(e) => setSelectedType(e.target.value)}
+              className="px-3 py-2 text-sm border border-gray-300 rounded-md h-9 min-w-[150px]"
+            >
+              <option value="all">All Types</option>
+              <option value="Assets">Assets</option>
+              <option value="Liabilities">Liabilities</option>
+              <option value="Equity">Equity</option>
+              <option value="Revenue">Revenue</option>
+              <option value="Expense">Expense</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm">
+              <Upload className="w-4 h-4 mr-1" />
+              Import
+            </Button>
+            <Button variant="outline" size="sm">
+              <Download className="w-4 h-4 mr-1" />
+              Export
+            </Button>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white" size="sm">
+              <Settings className="w-4 h-4 mr-1" />
+              Bulk Update
+            </Button>
+          </div>
+        </div>
 
-      {/* Table */}
-      <div className="bg-white border border-t-0 rounded-b-lg overflow-hidden shadow-sm">
-        <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-250px)]">
-          <table className="w-full text-sm">
-            <thead className="sticky top-0 z-10">
-              <tr className="bg-[#f0f7ff] border-b">
-                <th className="px-3 py-3 text-left w-12 border-r bg-[#f0f7ff] sticky left-0 z-20">
-                  <Checkbox
-                    checked={selectedRows.length === filteredData.length && filteredData.length > 0}
-                    onCheckedChange={(checked) => {
-                      if (checked) setSelectedRows(filteredData.map(r => r.id));
-                      else setSelectedRows([]);
-                    }}
-                  />
-                </th>
-                <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-40 bg-[#f0f7ff] sticky left-12 z-20">Account Number</th>
-                <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-64">Account Name</th>
-                <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-40">Account Type</th>
-                <th className="px-3 py-3 text-left text-blue-700 font-bold uppercase border-r w-56">Responsible</th>
-                <th className="px-3 py-3 text-center text-blue-700 font-bold uppercase border-r w-24">Status</th>
-                <th className="px-3 py-3 text-center text-blue-700 font-bold uppercase border-r w-28">Parent Party</th>
-                <th className="px-3 py-3 text-center text-blue-700 font-bold uppercase border-r w-36">Use Cost Center</th>
-                <th className="px-3 py-3 text-center text-blue-700 font-bold uppercase border-r w-36">Use Cost Element</th>
-                <th className="px-3 py-3 text-center text-blue-700 font-bold uppercase w-28">Reconcile</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredData.length === 0 ? (
-                <tr>
-                  <td colSpan={10} className="px-3 py-12 text-center text-gray-500 bg-white">
-                    <div className="flex flex-col items-center gap-2">
-                      <Search className="w-12 h-12 opacity-10" />
-                      <span>No accounts found</span>
-                    </div>
-                  </td>
+        <div className="bg-white border rounded-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-blue-50 border-b">
+                  <th className="px-4 py-3 text-left">
+                    <Checkbox />
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-blue-700">Account Number</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-blue-700">Account Name</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-blue-700">Account Type</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-blue-700">Responsible</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-blue-700">Status</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-blue-700">Parent Party</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-blue-700">Cost Center</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-blue-700">Cost Element</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-blue-700">Reconcile</th>
                 </tr>
-              ) : (
-                filteredData.map(row => (
-                  <tr key={row.id} className="border-b hover:bg-blue-50/50 transition-colors bg-white">
-                    <td className="px-3 py-2 border-r bg-inherit sticky left-0 z-10">
-                      <Checkbox
-                        checked={selectedRows.includes(row.id)}
-                        onCheckedChange={() => toggleRowSelection(row.id)}
-                      />
-                    </td>
-                    <td className="px-3 py-2 border-r bg-inherit sticky left-12 z-10 font-bold text-blue-600">
-                      {row.accountNumber}
-                    </td>
-                    <td className="px-3 py-2 border-r">
-                      <button className="text-blue-600 hover:underline text-left">
-                        {row.accountName}
-                      </button>
-                    </td>
-                    <td className="px-3 py-2 border-r">
-                      {row.accountType && (
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${
-                          row.accountType === 'Assets' ? 'bg-blue-100 text-blue-700' :
-                          row.accountType === 'Revenue' ? 'bg-green-100 text-green-700' :
-                          row.accountType === 'Liabilities' ? 'bg-yellow-100 text-yellow-700' :
-                          row.accountType === 'Equity' ? 'bg-purple-100 text-purple-700' :
-                          'bg-gray-100 text-gray-700'
-                        }`}>
-                          {row.accountType}
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-3 py-2 border-r text-gray-600 text-xs">{row.responsible}</td>
-                    <td className="px-3 py-2 border-r text-center">
-                      <Checkbox checked={row.status} />
-                    </td>
-                    <td className="px-3 py-2 border-r text-center">
-                      <Checkbox checked={row.parentParty} />
-                    </td>
-                    <td className="px-3 py-2 border-r text-center">
-                      <Checkbox checked={row.useCostCenter} />
-                    </td>
-                    <td className="px-3 py-2 border-r text-center">
-                      <Checkbox checked={row.useCostElement} />
-                    </td>
-                    <td className="px-3 py-2 text-center">
-                      <Checkbox checked={row.reconcile} />
+              </thead>
+              <tbody>
+                {filteredData.length === 0 ? (
+                  <tr>
+                    <td colSpan={10} className="px-4 py-12 text-center text-gray-500">
+                      <div className="flex flex-col items-center gap-2">
+                        <Search className="w-12 h-12 opacity-10" />
+                        <span>No accounts found</span>
+                      </div>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="px-4 py-3 border-t bg-gray-50 flex items-center justify-between text-xs text-gray-600">
-          <div>
-            Showing <span className="font-semibold">{filteredData.length}</span> of <span className="font-semibold">{accountData.length}</span> accounts
+                ) : (
+                  filteredData.map((item) => (
+                    <tr key={item.id} className="border-b hover:bg-gray-50">
+                      <td className="px-4 py-3">
+                        <Checkbox />
+                      </td>
+                      <td className="px-4 py-3 text-sm font-mono font-bold text-blue-600">{item.accountNumber}</td>
+                      <td className="px-4 py-3 text-sm">{item.accountName}</td>
+                      <td className="px-4 py-3 text-sm">
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${
+                          item.accountType === 'Assets' ? 'bg-blue-100 text-blue-700' :
+                          item.accountType === 'Liabilities' ? 'bg-orange-100 text-orange-700' :
+                          item.accountType === 'Equity' ? 'bg-purple-100 text-purple-700' :
+                          item.accountType === 'Revenue' ? 'bg-green-100 text-green-700' :
+                          'bg-red-100 text-red-700'
+                        }`}>
+                          {item.accountType}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-500">{item.responsible || '-'}</td>
+                      <td className="px-4 py-3 text-center">
+                        <Checkbox checked={item.status} />
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <Checkbox checked={item.parentParty} />
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <Checkbox checked={item.useCostCenter} />
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <Checkbox checked={item.useCostElement} />
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <Checkbox checked={item.reconcile} />
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
-          <div className="flex items-center gap-4">
-            <span>{selectedRows.length} selected</span>
+
+          <div className="px-4 py-3 border-t bg-gray-50 text-sm text-right text-gray-600">
+            Showing {filteredData.length} of {mockData.length} accounts
           </div>
         </div>
       </div>
-
-      {/* Create Popup */}
-      {showCreatePopup && (
-        <CreateAccountSetupPopup onClose={() => setShowCreatePopup(false)} />
-      )}
     </div>
   );
 }

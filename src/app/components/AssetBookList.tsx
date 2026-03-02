@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { CheckCircle, FileText, AlertTriangle, Calendar, Plus, ChevronDown, Search } from 'lucide-react';
+import { Search, Plus, Settings2, RotateCcw, LayoutPanelLeft, CheckCircle, FileText, AlertTriangle, Calendar, Book } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import { Checkbox } from './ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -9,9 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
-import { Checkbox } from './ui/checkbox';
-import { FilterPanel } from './FilterPanel';
-import { StatsCard } from './StatsCard';
+import MasterDataToolbar from './MasterDataToolbar';
 
 interface AssetBookListProps {
   onCreateClick: () => void;
@@ -22,14 +21,9 @@ const mockData = [
     id: 1,
     aboId: 'ABO-001',
     assId: 'ASS-001',
-    acbId: 'ACB-001',
-    lenId: 'LEN-001',
     ledger: '0L',
     currencyCode: 'VND',
     deprStartDate: '01-01-2024',
-    lifeMonths: 60,
-    deprMonths: 14,
-    deprMethod: 'SL',
     originalCost: 150000000,
     accumDepr: 35000000,
     netBookValue: 115000000,
@@ -39,14 +33,9 @@ const mockData = [
     id: 2,
     aboId: 'ABO-002',
     assId: 'ASS-001',
-    acbId: 'ACB-002',
-    lenId: 'LEN-001',
     ledger: '2L',
     currencyCode: 'VND',
     deprStartDate: '01-01-2024',
-    lifeMonths: 96,
-    deprMonths: 14,
-    deprMethod: 'SL',
     originalCost: 150000000,
     accumDepr: 21875000,
     netBookValue: 128125000,
@@ -56,256 +45,211 @@ const mockData = [
     id: 3,
     aboId: 'ABO-003',
     assId: 'ASS-002',
-    acbId: 'ACB-001',
-    lenId: 'LEN-001',
     ledger: '0L',
     currencyCode: 'VND',
     deprStartDate: '01-06-2024',
-    lifeMonths: 36,
-    deprMonths: 9,
-    deprMethod: 'DE',
     originalCost: 85000000,
     accumDepr: 24500000,
     netBookValue: 60500000,
     isDepreciate: 'Y'
-  },
-  {
-    id: 4,
-    aboId: 'ABO-004',
-    assId: 'ASS-003',
-    acbId: 'ACB-003',
-    lenId: 'LEN-002',
-    ledger: '1L',
-    currencyCode: 'USD',
-    deprStartDate: '15-03-2024',
-    lifeMonths: 48,
-    deprMonths: 11,
-    deprMethod: 'SL',
-    originalCost: 25000,
-    accumDepr: 5729,
-    netBookValue: 19271,
-    isDepreciate: 'Y'
-  },
-  {
-    id: 5,
-    aboId: 'ABO-005',
-    assId: 'ASS-004',
-    acbId: 'ACB-001',
-    lenId: 'LEN-001',
-    ledger: '0L',
-    currencyCode: 'VND',
-    deprStartDate: '01-01-2025',
-    lifeMonths: 0,
-    deprMonths: 0,
-    deprMethod: 'SL',
-    originalCost: 45000000,
-    accumDepr: 0,
-    netBookValue: 45000000,
-    isDepreciate: 'N'
   }
 ];
 
 export default function AssetBookList({ onCreateClick }: AssetBookListProps) {
   const [searchText, setSearchText] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedLedger, setSelectedLedger] = useState('all');
+  const [selectedRows, setSelectedRows] = useState<number[]>([]);
 
-  // Filter data
   const filteredData = mockData.filter(item => {
     const matchesSearch = searchText === '' || Object.values(item).some(val =>
       String(val).toLowerCase().includes(searchText.toLowerCase())
     );
-    const matchesStatus = selectedStatus === 'all' || 
-      (selectedStatus === 'depreciate' && item.isDepreciate === 'Y') ||
-      (selectedStatus === 'no-depreciate' && item.isDepreciate === 'N');
     const matchesLedger = selectedLedger === 'all' || item.ledger === selectedLedger;
-
-    return matchesSearch && matchesStatus && matchesLedger;
+    return matchesSearch && matchesLedger;
   });
 
-  // Calculate stats
-  const deprCount = mockData.filter(item => item.isDepreciate === 'Y').length;
-  const noDeprCount = mockData.filter(item => item.isDepreciate === 'N').length;
-  const vasCount = mockData.filter(item => item.ledger === '0L').length;
-  const ifrsCount = mockData.filter(item => item.ledger === '2L').length;
-
-  const customFilters = (
-    <>
-      {/* Ledger Filter */}
-      <div className="space-y-2">
-        <label className="text-xs font-medium text-gray-600">Ledger</label>
-        <select
-          value={selectedLedger}
-          onChange={(e) => setSelectedLedger(e.target.value)}
-          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-        >
-          <option value="all">All Ledgers</option>
-          <option value="0L">0L (VAS)</option>
-          <option value="1L">1L (INTERNAL)</option>
-          <option value="2L">2L (IFRS)</option>
-        </select>
-      </div>
-    </>
-  );
+  const deprCount = mockData.filter(r => r.isDepreciate === 'Y').length;
+  const vasCount = mockData.filter(r => r.ledger === '0L').length;
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Left: Filter Panel */}
-      <FilterPanel
-        searchValue={searchText}
-        onSearchChange={setSearchText}
-        showStatus={true}
-        statusOptions={[
-          { value: 'all', label: 'All Status' },
-          { value: 'depreciate', label: 'Depreciate' },
-          { value: 'no-depreciate', label: 'No Depreciate' },
-        ]}
-        selectedStatus={selectedStatus}
-        onStatusChange={setSelectedStatus}
-        showType={false}
-        customFilters={customFilters}
-      />
-
-      {/* Right: Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Page Header */}
-        <div className="bg-white border-b px-6 py-4">
-          <h1 className="text-xl font-semibold text-gray-800">Asset Books</h1>
-          <nav className="flex items-center gap-1.5 mt-1">
-            <span className="text-xs text-gray-400">Home</span>
-            <span className="text-xs text-gray-300">/</span>
-            <span className="text-xs text-gray-400">Fixed Assets</span>
-            <span className="text-xs text-gray-300">/</span>
-            <span className="text-xs text-blue-600">Asset Books</span>
-          </nav>
+    <div className="flex flex-col h-screen bg-gray-50 overflow-hidden text-gray-800">
+      {/* Page Header */}
+      <div className="bg-white border-b px-6 py-2 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-2">
+          <h1 className="text-sm font-bold text-blue-900 uppercase">Asset Books</h1>
+          <span className="text-[10px] text-gray-400 font-medium whitespace-nowrap">Sổ theo dõi tài sản</span>
         </div>
+      </div>
 
-        <div className="flex-1 overflow-auto p-6">
-          {/* Stats Cards */}
-          <div className="grid grid-cols-4 gap-4 mb-6">
-            <StatsCard title="DEPRECIATE" value={deprCount} icon={CheckCircle} bgColor="text-green-600" iconBgColor="bg-green-50" />
-            <StatsCard title="NO DEPRECIATE" value={noDeprCount} icon={FileText} bgColor="text-orange-600" iconBgColor="bg-orange-50" />
-            <StatsCard title="VAS (0L)" value={vasCount} icon={AlertTriangle} bgColor="text-blue-600" iconBgColor="bg-blue-50" />
-            <StatsCard title="IFRS (2L)" value={ifrsCount} icon={Calendar} bgColor="text-purple-600" iconBgColor="bg-purple-50" />
+      <div className="flex flex-1 overflow-hidden">
+        {/* Filter Panel - Left Sidebar */}
+        <div className="w-[240px] bg-white border-r flex flex-col shrink-0 p-4 shadow-sm z-10">
+          <div className="flex items-center gap-2 text-xs font-bold text-gray-800 mb-4 uppercase tracking-wider">
+            <Search className="w-3.5 h-3.5 text-blue-600" />
+            Filters
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex justify-end gap-2 mb-4">
-            <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={onCreateClick}>
-              <Plus className="w-4 h-4 mr-1" />
-              Create
-            </Button>
-          </div>
-
-          {/* Search and Actions Bar */}
-          <div className="bg-white border rounded-t-lg p-3 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Select defaultValue="all">
-                <SelectTrigger className="w-[120px] h-8">
+          <div className="space-y-4 overflow-y-auto flex-1 pr-1 custom-scrollbar text-xs font-bold uppercase tracking-wider text-gray-500">
+            <div>
+              <label className="block text-[10px] mb-1.5 ml-0.5">Search</label>
+              <Input
+                placeholder="ID or Ledger..."
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                className="h-8 text-[11px] bg-gray-50/50 border-gray-200 shadow-none font-medium"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] mb-1.5 ml-0.5">Ledger</label>
+              <Select value={selectedLedger} onValueChange={setSelectedLedger}>
+                <SelectTrigger className="h-8 text-[11px] bg-gray-50/50 border-gray-200 font-bold uppercase">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="all" className="text-[11px]">All Ledgers</SelectItem>
+                  <SelectItem value="0L" className="text-[11px]">0L (VAS)</SelectItem>
+                  <SelectItem value="2L" className="text-[11px]">2L (IFRS)</SelectItem>
                 </SelectContent>
               </Select>
-              <Input
-                placeholder="Search All Text Columns"
-                className="w-64 h-8"
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
-              <Button variant="outline" size="sm">Go</Button>
-              <Button variant="outline" size="sm">
-                Actions <ChevronDown className="w-4 h-4 ml-1" />
-              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          {/* Statistics Cards */}
+          <div className="px-6 py-4 grid grid-cols-3 gap-4">
+            <div className="bg-blue-50/40 border border-blue-100 rounded-lg p-3 flex justify-between items-center h-20">
+              <div>
+                <p className="text-[9px] font-bold text-blue-600/70 uppercase mb-1">Total Books</p>
+                <p className="text-2xl font-black text-blue-900 leading-none">{mockData.length}</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-blue-100/30 flex items-center justify-center border border-blue-100">
+                <Book className="w-5 h-5 text-blue-500" />
+              </div>
+            </div>
+
+            <div className="bg-emerald-50/40 border border-emerald-100 rounded-lg p-3 flex justify-between items-center h-20">
+              <div>
+                <p className="text-[9px] font-bold text-emerald-600/70 uppercase mb-1">Depreciating</p>
+                <p className="text-2xl font-black text-emerald-900 leading-none">{deprCount}</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-emerald-100/30 flex items-center justify-center border border-emerald-100">
+                <CheckCircle className="w-5 h-5 text-emerald-500" />
+              </div>
+            </div>
+
+            <div className="bg-amber-50/40 border border-amber-100 rounded-lg p-3 flex justify-between items-center h-20">
+              <div>
+                <p className="text-[9px] font-bold text-amber-600/70 uppercase mb-1">VAS (0L)</p>
+                <p className="text-2xl font-black text-amber-900 leading-none">{vasCount}</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-amber-100/30 flex items-center justify-center border border-amber-100">
+                <AlertTriangle className="w-5 h-5 text-amber-500" />
+              </div>
             </div>
           </div>
 
-          {/* Checkboxes */}
-          <div className="bg-white border border-t-0 px-4 py-2 flex items-center gap-4">
-            <label className="flex items-center gap-2 text-sm">
-              <Checkbox />
-              <span>Show Depreciate Only</span>
-            </label>
-            <label className="flex items-center gap-2 text-sm">
-              <Checkbox />
-              <span>Show VAS Only</span>
-            </label>
+          {/* Grouping Bar and Toolbar */}
+          <div className="px-6 pb-2">
+            <div className="flex items-center justify-between mb-3">
+              <div className="bg-gray-100/50 border border-dashed border-gray-200 rounded-lg px-4 py-2 text-[11px] text-gray-400 italic flex-1 mr-6 flex items-center gap-2">
+                <LayoutPanelLeft className="w-3.5 h-3.5" />
+                Kéo tiêu đề một cột vào đây để nhóm một cột đó
+              </div>
+              <div className="flex items-center gap-3">
+                <Button size="sm" onClick={onCreateClick} className="bg-blue-600 hover:bg-blue-700 text-[11px] font-bold h-8 px-4 shadow-sm gap-2 whitespace-nowrap">
+                  <Plus className="w-3.5 h-3.5" /> New Book
+                </Button>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                  <Input placeholder="Search..." className="h-8 w-40 pl-9 text-[11px] shadow-none font-medium" value={searchText} onChange={(e) => setSearchText(e.target.value)} />
+                </div>
+                <div className="flex items-center gap-1 h-8 bg-white border border-gray-200 rounded-md px-1 ml-1 divide-x divide-gray-100 text-gray-400">
+                  <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm scale-90"><LayoutPanelLeft className="w-3 h-3" /></Button>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm scale-90"><RotateCcw className="w-3 h-3" /></Button>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm scale-90"><Settings2 className="w-3 h-3" /></Button>
+                </div>
+              </div>
+            </div>
           </div>
+
+          {/* Action Toolbar */}
+          {selectedRows.length > 0 && (
+            <div className="mx-6 mb-2">
+              <MasterDataToolbar
+                searchText={searchText}
+                onSearchChange={setSearchText}
+                onAddRow={onCreateClick}
+                onDeleteRows={() => setSelectedRows([])}
+                onSave={() => console.log('Saving asset books...')}
+                selectedCount={selectedRows.length}
+              />
+            </div>
+          )}
 
           {/* Table */}
-          <div className="bg-white border border-t-0 rounded-b-lg overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-blue-50 border-b">
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-blue-700">ABO ID</th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-blue-700">ASS ID</th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-blue-700">ACB ID</th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-blue-700">LEN ID</th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-blue-700">Ledger</th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-blue-700">Currency</th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-blue-700">Depr Start</th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-blue-700">Life (Mo)</th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-blue-700">Depr (Mo)</th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-blue-700">Method</th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-blue-700">Original Cost</th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-blue-700">Accum Depr</th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-blue-700">NBV</th>
-                    <th className="px-3 py-2 text-left text-xs font-semibold text-blue-700">Is Depr</th>
+          <div className="flex-1 overflow-auto bg-white mx-6 mb-6 border rounded-lg shadow-sm">
+            <table className="w-full text-sm min-w-[1400px]">
+              <thead className="sticky top-0 z-30 font-bold uppercase tracking-tight text-[10px]">
+                <tr className="bg-[#f0f7ff] border-b">
+                  <th className="px-3 py-3 text-left w-12 border-r bg-[#f0f7ff] sticky left-0 z-40">
+                    <Checkbox
+                      checked={selectedRows.length === filteredData.length && filteredData.length > 0}
+                      onCheckedChange={(checked) => {
+                        if (checked) setSelectedRows(filteredData.map(r => r.id));
+                        else setSelectedRows([]);
+                      }}
+                    />
+                  </th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-32 bg-[#f0f7ff] sticky left-12 z-40 uppercase">ABO ID</th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-32 font-medium uppercase text-center">ASS ID</th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-32 font-medium uppercase text-center">Ledger</th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-32 font-medium uppercase text-center">Depr Start</th>
+                  <th className="px-3 py-3 text-right text-blue-700 border-r w-40 font-medium uppercase px-4">Original Cost</th>
+                  <th className="px-3 py-3 text-right text-blue-700 border-r w-40 font-medium uppercase px-4">Accum Depr</th>
+                  <th className="px-3 py-3 text-right text-blue-700 border-r w-40 font-medium uppercase px-4 text-emerald-600 font-black tracking-tight">Net Book Value</th>
+                  <th className="px-3 py-3 text-center text-blue-700 w-32 font-medium uppercase">Depreciating</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredData.map((item) => (
+                  <tr key={item.id} className="border-b hover:bg-blue-50/30 transition-colors bg-white">
+                    <td className="px-3 py-2 border-r bg-white sticky left-0 z-20">
+                      <Checkbox checked={selectedRows.includes(item.id)} onCheckedChange={() => setSelectedRows(prev => prev.includes(item.id) ? prev.filter(x => x !== item.id) : [...prev, item.id])} />
+                    </td>
+                    <td className="px-3 py-2 border-r bg-white sticky left-12 z-20 text-[11px] font-bold text-blue-600 group cursor-pointer hover:underline flex items-center gap-1.5" onClick={onCreateClick}>
+                      <FileText className="w-3 h-3 text-blue-400 group-hover:text-blue-600" />
+                      {item.aboId}
+                    </td>
+                    <td className="px-3 py-2 border-r text-[11px] text-center font-mono text-gray-500">{item.assId}</td>
+                    <td className="px-3 py-2 border-r text-[11px] text-center">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${item.ledger === '0L' ? 'bg-blue-100 text-blue-700' :
+                          item.ledger === '2L' ? 'bg-purple-100 text-purple-700' :
+                            'bg-gray-100 text-gray-700'
+                        }`}>
+                        {item.ledger}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2 border-r text-[11px] text-center text-gray-400 italic">{item.deprStartDate}</td>
+                    <td className="px-3 py-2 border-r text-[11px] text-right font-medium px-4">{item.originalCost.toLocaleString()}</td>
+                    <td className="px-3 py-2 border-r text-[11px] text-right px-4 text-rose-500">{item.accumDepr.toLocaleString()}</td>
+                    <td className="px-3 py-2 border-r text-[11px] text-right font-black text-emerald-600 px-4 group-hover:bg-emerald-50/50 transition-colors uppercase italic tracking-tighter shadow-sm">{item.netBookValue.toLocaleString()}</td>
+                    <td className="px-3 py-2 text-center">
+                      <span className={`px-2 py-0.5 rounded-[4px] text-[9px] font-bold uppercase tracking-wider ${item.isDepreciate === 'Y' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-gray-100 text-gray-500 border border-gray-200'
+                        }`}>
+                        {item.isDepreciate === 'Y' ? 'Yes' : 'No'}
+                      </span>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {filteredData.length === 0 ? (
-                    <tr>
-                      <td colSpan={14} className="px-4 py-12 text-center text-gray-500">
-                        <div className="flex flex-col items-center gap-2">
-                          <Search className="w-12 h-12 opacity-10" />
-                          <span>No asset books found</span>
-                        </div>
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredData.map((item) => (
-                      <tr key={item.id} className="border-b hover:bg-gray-50 cursor-pointer">
-                        <td className="px-3 py-2.5 text-xs font-bold text-blue-600">{item.aboId}</td>
-                        <td className="px-3 py-2.5 text-xs font-mono">{item.assId}</td>
-                        <td className="px-3 py-2.5 text-xs font-mono">{item.acbId}</td>
-                        <td className="px-3 py-2.5 text-xs font-mono">{item.lenId}</td>
-                        <td className="px-3 py-2.5 text-xs">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            item.ledger === '0L' ? 'bg-blue-100 text-blue-700' :
-                            item.ledger === '1L' ? 'bg-green-100 text-green-700' :
-                            'bg-purple-100 text-purple-700'
-                          }`}>
-                            {item.ledger}
-                          </span>
-                        </td>
-                        <td className="px-3 py-2.5 text-xs">{item.currencyCode}</td>
-                        <td className="px-3 py-2.5 text-xs">{item.deprStartDate}</td>
-                        <td className="px-3 py-2.5 text-xs text-center">{item.lifeMonths}</td>
-                        <td className="px-3 py-2.5 text-xs text-center">{item.deprMonths}</td>
-                        <td className="px-3 py-2.5 text-xs font-mono">{item.deprMethod}</td>
-                        <td className="px-3 py-2.5 text-xs text-right font-medium">{item.originalCost.toLocaleString()}</td>
-                        <td className="px-3 py-2.5 text-xs text-right">{item.accumDepr.toLocaleString()}</td>
-                        <td className="px-3 py-2.5 text-xs text-right font-bold">{item.netBookValue.toLocaleString()}</td>
-                        <td className="px-3 py-2.5 text-xs">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            item.isDepreciate === 'Y' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                          }`}>
-                            {item.isDepreciate === 'Y' ? 'Yes' : 'No'}
-                          </span>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-            <div className="px-4 py-2 border-t bg-gray-50 text-sm text-right text-gray-600">
-              Showing {filteredData.length} of {mockData.length}
-            </div>
+          {/* Footer */}
+          <div className="bg-white border-t px-6 py-2 flex items-center justify-between shrink-0 font-bold text-[10px] text-gray-500 uppercase tracking-widest text-center">
+            <div>Showing <span className="text-blue-600">{filteredData.length}</span> of {mockData.length} records</div>
           </div>
         </div>
       </div>

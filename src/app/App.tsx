@@ -71,6 +71,11 @@ import GoodsIssuesRequirementList from './components/GoodsIssuesRequirementList'
 import CreateGoodsIssuesRequirement from './components/CreateGoodsIssuesRequirement';
 import FixedAssetList from './components/FixedAssetList';
 import CreateFixedAsset from './components/CreateFixedAsset';
+import CreateGoodIssue from './components/CreateGoodIssue';
+import GoodIssueList from './components/GoodIssueList';
+import CreateGoodReceipt from './components/CreateGoodReceipt';
+import GoodReceiptList from './components/GoodReceiptList';
+
 // ── Cost Allocation imports ──────────────────────────────────────────────────
 import PendingAllocationList from './components/PendingAllocationList';
 import AllocationDeclarationList from './components/AllocationDeclarationList';
@@ -80,22 +85,22 @@ import AllocationRunScreen from './components/AllocationRunScreen';
 import AllocationHistoryList from './components/AllocationHistoryList';
 import AllocationReverseScreen from './components/AllocationReverseScreen';
 
-type ViewType = 
-  | 'dashboard' 
-  | 'list-sales' 
-  | 'create-sales' 
-  | 'list-purchase' 
-  | 'create-purchase' 
-  | 'list-cash-receipt' 
-  | 'create-cash-receipt' 
-  | 'list-bank-receipt' 
-  | 'create-bank-receipt' 
-  | 'list-cash-payment' 
-  | 'create-cash-payment' 
-  | 'list-payment-request' 
-  | 'create-payment-request' 
-  | 'account-permission' 
-  | 'account-ledger' 
+type ViewType =
+  | 'dashboard'
+  | 'list-sales'
+  | 'create-sales'
+  | 'list-purchase'
+  | 'create-purchase'
+  | 'list-cash-receipt'
+  | 'create-cash-receipt'
+  | 'list-bank-receipt'
+  | 'create-bank-receipt'
+  | 'list-cash-payment'
+  | 'create-cash-payment'
+  | 'list-payment-request'
+  | 'create-payment-request'
+  | 'account-permission'
+  | 'account-ledger'
   | 'expense-policy'
   | 'account-accounting-setup'
   | 'doc-type'
@@ -118,7 +123,6 @@ type ViewType =
   | 'tem-dashboard'
   | 'advance-request'
   | 'advance-settlement'
-  | 'advance-registration'
   | 'travel-expenditure-requisition'
   | 'expense-declaration'
   | 'travel-expenditure-approval'
@@ -142,6 +146,7 @@ type ViewType =
   | 'create-asset-book'
   | 'asset-depreciations'
   | 'create-asset-depreciation'
+  | 'create-asset-transaction'
   // WMM Views
   | 'wmm-dashboard'
   | 'wmm-material-list'
@@ -154,7 +159,9 @@ type ViewType =
   | 'wmm-create-goods-issues-req'
   | 'wmm-material-req-processing'
   | 'wmm-goods-receipt'
+  | 'wmm-create-good-receipt'
   | 'wmm-good-issue'
+  | 'wmm-create-good-issue'
   | 'wmm-goods-receipt-adjust'
   | 'wmm-goods-issues-adjust'
   | 'wmm-goods-receipt-approval'
@@ -180,7 +187,7 @@ export default function App() {
 
   const handleResponsibilityChange = (responsibilityId: string) => {
     setCurrentResponsibility(responsibilityId);
-    
+
     // Navigate to default view for each responsibility
     if (responsibilityId === 'FCM') {
       setCurrentView('dashboard');
@@ -208,8 +215,8 @@ export default function App() {
         return <Dashboard />;
       case 'list-sales':
         return (
-          <InvoiceList 
-            onCreateClick={() => setCurrentView('create-sales')} 
+          <InvoiceList
+            onCreateClick={() => setCurrentView('create-sales')}
             type="sales"
           />
         );
@@ -217,23 +224,22 @@ export default function App() {
         return <CreateInvoice onClose={() => setCurrentView('list-sales')} />;
       case 'list-purchase':
         return (
-          <InvoiceList 
-            onCreateClick={() => setCurrentView('create-purchase')} 
+          <InvoiceList
+            onCreateClick={() => setCurrentView('create-purchase')}
             type="purchase"
           />
         );
       case 'create-purchase':
         return <CreatePurchaseInvoice onClose={() => setCurrentView('list-purchase')} />;
       case 'list-cash-receipt':
-        return <CashReceiptList 
-          onCreateClick={() => setCurrentView('create-cash-receipt')} 
-          onCreateBankReceiptClick={() => setCurrentView('create-bank-receipt')}
+        return <CashReceiptList
+          onCreateClick={() => setCurrentView('create-cash-receipt')}
         />;
       case 'create-cash-receipt':
         return <CreateCashReceipt onClose={() => setCurrentView('list-cash-receipt')} />;
       case 'list-bank-receipt':
-        return <BankReceiptList 
-          onCreateClick={() => setCurrentView('create-bank-receipt')} 
+        return <BankReceiptList
+          onCreateClick={() => setCurrentView('create-bank-receipt')}
         />;
       case 'create-bank-receipt':
         return <CreateBankReceipt onClose={() => setCurrentView('list-bank-receipt')} />;
@@ -252,7 +258,7 @@ export default function App() {
       case 'expense-policy':
         return <TravelPolicy />;
       case 'account-accounting-setup':
-        return <AccountAccountingSetupList />;
+        return <AccountAccountingSetupList onBack={() => setCurrentView('dashboard')} />;
       case 'doc-type':
         return <DocTypeList />;
       case 'transaction-type':
@@ -298,9 +304,9 @@ export default function App() {
       case 'dept-clearing':
         return (
           <div className="p-6">
-            <DeptClearingPopup 
-              type="receipt" 
-              onClose={() => setCurrentView('dashboard')} 
+            <DeptClearingPopup
+              type="receipt"
+              onClose={() => setCurrentView('dashboard')}
             />
           </div>
         );
@@ -334,7 +340,7 @@ export default function App() {
         return <CreateAssetDepreciation onClose={() => setCurrentView('asset-depreciations')} />;
       case 'create-asset-transaction':
         return <CreateAssetTransaction onClose={() => setCurrentView('asset-transactions')} />;
-      
+
       // TEM Views
       case 'tem-dashboard':
         return <TEMDashboard />;
@@ -342,8 +348,6 @@ export default function App() {
         return <AdvanceRequestList />;
       case 'advance-settlement':
         return <AdvanceSettlementList />;
-      case 'advance-registration':
-        return <ExpensePolicy />;
       case 'travel-expenditure-requisition':
         return <TravelExpenditureRequisition />;
       case 'expense-declaration':
@@ -362,7 +366,7 @@ export default function App() {
             <p className="text-gray-500 mt-2">Manage all travel and expenditures</p>
           </div>
         );
-      
+
       // WMM Views
       case 'wmm-dashboard':
         return <WMMDashboard />;
@@ -422,19 +426,13 @@ export default function App() {
           </div>
         );
       case 'wmm-goods-receipt':
-        return (
-          <div className="p-6">
-            <h1 className="text-2xl font-semibold text-gray-800">Goods Receipt</h1>
-            <p className="text-gray-500 mt-2">Manage goods receipts</p>
-          </div>
-        );
+        return <GoodReceiptList onCreateClick={() => setCurrentView('wmm-create-good-receipt')} />;
+      case 'wmm-create-good-receipt':
+        return <CreateGoodReceipt onClose={() => setCurrentView('wmm-goods-receipt')} />;
       case 'wmm-good-issue':
-        return (
-          <div className="p-6">
-            <h1 className="text-2xl font-semibold text-gray-800">Good Issue</h1>
-            <p className="text-gray-500 mt-2">Manage good issues</p>
-          </div>
-        );
+        return <GoodIssueList onCreateClick={() => setCurrentView('wmm-create-good-issue')} />;
+      case 'wmm-create-good-issue':
+        return <CreateGoodIssue onClose={() => setCurrentView('wmm-good-issue')} />;
       case 'wmm-goods-receipt-adjust':
         return (
           <div className="p-6">
@@ -503,7 +501,7 @@ export default function App() {
   const renderSidebar = () => {
     if (currentResponsibility === 'TEM') {
       return (
-        <TEMSidebar 
+        <TEMSidebar
           isOpen={isSidebarOpen}
           onNavigate={handleNavigate}
           currentView={currentView}
@@ -512,7 +510,7 @@ export default function App() {
       );
     } else if (currentResponsibility === 'WMM') {
       return (
-        <WMMSidebar 
+        <WMMSidebar
           isOpen={isSidebarOpen}
           onNavigate={handleNavigate}
           currentView={currentView}
@@ -520,11 +518,11 @@ export default function App() {
         />
       );
     }
-    
+
     // FCM Sidebar (default)
     return (
-      <Sidebar 
-        isOpen={isSidebarOpen} 
+      <Sidebar
+        isOpen={isSidebarOpen}
         onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
         onNavigate={handleNavigate}
         currentView={currentView}
@@ -550,7 +548,7 @@ export default function App() {
           {renderSidebar()}
 
           {/* Content */}
-          <div 
+          <div
             className={`flex-1 transition-all duration-300 ${isSidebarOpen ? 'ml-[260px]' : 'ml-0'}`}
           >
             {renderContent()}

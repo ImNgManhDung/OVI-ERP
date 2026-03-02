@@ -59,10 +59,10 @@ export default function WMMSidebar({ isOpen, onToggle, onNavigate, currentView, 
           icon: Package,
           iconColor: '#059669',
           children: [
-            { id: 'wmm-material-list',      label: t.wmm.materialList,        icon: FileText },
-            { id: 'wmm-material-category',  label: t.wmm.materialCategory,    icon: Layers },
-            { id: 'wmm-unit-of-measure',    label: t.wmm.unitOfMeasure,       icon: Settings },
-            { id: 'wmm-warehouse-location', label: t.wmm.warehouseLocation,   icon: Layers },
+            { id: 'wmm-material-list', label: t.wmm.materialList, icon: FileText },
+            { id: 'wmm-material-category', label: t.wmm.materialCategory, icon: Layers },
+            { id: 'wmm-unit-of-measure', label: t.wmm.unitOfMeasure, icon: Settings },
+            { id: 'wmm-warehouse-location', label: t.wmm.warehouseLocation, icon: Layers },
           ]
         },
         {
@@ -71,8 +71,8 @@ export default function WMMSidebar({ isOpen, onToggle, onNavigate, currentView, 
           icon: FileText,
           iconColor: '#0891b2',
           children: [
-            { id: 'wmm-goods-receipt-req',       label: t.wmm.goodsReceiptReq,       icon: ArrowDownToLine },
-            { id: 'wmm-goods-issues-req',        label: t.wmm.goodsIssuesReq,        icon: ArrowUpFromLine },
+            { id: 'wmm-goods-receipt-req', label: t.wmm.goodsReceiptReq, icon: ArrowDownToLine },
+            { id: 'wmm-goods-issues-req', label: t.wmm.goodsIssuesReq, icon: ArrowUpFromLine },
             { id: 'wmm-material-req-processing', label: t.wmm.materialReqProcessing, icon: FileText },
           ]
         },
@@ -87,12 +87,12 @@ export default function WMMSidebar({ isOpen, onToggle, onNavigate, currentView, 
           icon: Layers,
           iconColor: '#7c3aed',
           children: [
-            { id: 'wmm-goods-receipt',          label: t.wmm.goodsReceipt,          icon: ArrowDownToLine },
-            { id: 'wmm-good-issue',             label: t.wmm.goodsIssue,            icon: ArrowUpFromLine },
-            { id: 'wmm-goods-receipt-adjust',   label: t.wmm.goodsReceiptAdjust,    icon: RotateCcw },
-            { id: 'wmm-goods-issues-adjust',    label: t.wmm.goodsIssuesAdjust,     icon: RotateCcw },
-            { id: 'wmm-goods-receipt-approval', label: t.wmm.goodsReceiptApproval,  icon: CheckSquare },
-            { id: 'wmm-good-issue-approval',    label: t.wmm.goodsIssueApproval,    icon: CheckSquare },
+            { id: 'wmm-goods-receipt', label: t.wmm.goodsReceipt, icon: ArrowDownToLine },
+            { id: 'wmm-good-issue', label: t.wmm.goodsIssue, icon: ArrowUpFromLine },
+            { id: 'wmm-goods-receipt-adjust', label: t.wmm.goodsReceiptAdjust, icon: RotateCcw },
+            { id: 'wmm-goods-issues-adjust', label: t.wmm.goodsIssuesAdjust, icon: RotateCcw },
+            { id: 'wmm-goods-receipt-approval', label: t.wmm.goodsReceiptApproval, icon: CheckSquare },
+            { id: 'wmm-good-issue-approval', label: t.wmm.goodsIssueApproval, icon: CheckSquare },
           ]
         },
       ]
@@ -102,40 +102,40 @@ export default function WMMSidebar({ isOpen, onToggle, onNavigate, currentView, 
   // ── Navigation map ──────────────────────────────────────────────────────────
   const handleMenuClick = (id: string) => {
     const navMap: Record<string, string> = {
-      'wmm-dashboard':              'wmm-dashboard',
-      'wmm-material-list':          'wmm-material-list',
-      'wmm-material-category':      'wmm-material-category',
-      'wmm-unit-of-measure':        'wmm-unit-of-measure',
-      'wmm-warehouse-location':     'wmm-warehouse-location',
-      'wmm-goods-receipt-req':      'wmm-goods-receipt-req',
-      'wmm-goods-issues-req':       'wmm-goods-issues-req',
-      'wmm-material-req-processing':'wmm-material-req-processing',
-      'wmm-goods-receipt':          'wmm-goods-receipt',
-      'wmm-good-issue':             'wmm-good-issue',
-      'wmm-goods-receipt-adjust':   'wmm-goods-receipt-adjust',
-      'wmm-goods-issues-adjust':    'wmm-goods-issues-adjust',
+      'wmm-dashboard': 'wmm-dashboard',
+      'wmm-material-list': 'wmm-material-list',
+      'wmm-material-category': 'wmm-material-category',
+      'wmm-unit-of-measure': 'wmm-unit-of-measure',
+      'wmm-warehouse-location': 'wmm-warehouse-location',
+      'wmm-goods-receipt-req': 'wmm-goods-receipt-req',
+      'wmm-goods-issues-req': 'wmm-goods-issues-req',
+      'wmm-material-req-processing': 'wmm-material-req-processing',
+      'wmm-goods-receipt': 'wmm-goods-receipt',
+      'wmm-good-issue': 'wmm-good-issue',
+      'wmm-goods-receipt-adjust': 'wmm-goods-receipt-adjust',
+      'wmm-goods-issues-adjust': 'wmm-goods-issues-adjust',
       'wmm-goods-receipt-approval': 'wmm-goods-receipt-approval',
-      'wmm-good-issue-approval':    'wmm-good-issue-approval',
+      'wmm-good-issue-approval': 'wmm-good-issue-approval',
     };
     if (navMap[id]) onNavigate(navMap[id]);
   };
 
   const isActiveItem = (id: string): boolean => {
     const activeMap: Record<string, string[]> = {
-      'wmm-dashboard':              ['wmm-dashboard'],
-      'wmm-material-list':          ['wmm-material-list'],
-      'wmm-material-category':      ['wmm-material-category'],
-      'wmm-unit-of-measure':        ['wmm-unit-of-measure'],
-      'wmm-warehouse-location':     ['wmm-warehouse-location'],
-      'wmm-goods-receipt-req':      ['wmm-goods-receipt-req'],
-      'wmm-goods-issues-req':       ['wmm-goods-issues-req'],
-      'wmm-material-req-processing':['wmm-material-req-processing'],
-      'wmm-goods-receipt':          ['wmm-goods-receipt'],
-      'wmm-good-issue':             ['wmm-good-issue'],
-      'wmm-goods-receipt-adjust':   ['wmm-goods-receipt-adjust'],
-      'wmm-goods-issues-adjust':    ['wmm-goods-issues-adjust'],
+      'wmm-dashboard': ['wmm-dashboard'],
+      'wmm-material-list': ['wmm-material-list'],
+      'wmm-material-category': ['wmm-material-category'],
+      'wmm-unit-of-measure': ['wmm-unit-of-measure'],
+      'wmm-warehouse-location': ['wmm-warehouse-location'],
+      'wmm-goods-receipt-req': ['wmm-goods-receipt-req'],
+      'wmm-goods-issues-req': ['wmm-goods-issues-req'],
+      'wmm-material-req-processing': ['wmm-material-req-processing'],
+      'wmm-goods-receipt': ['wmm-goods-receipt', 'wmm-create-good-receipt'],
+      'wmm-good-issue': ['wmm-good-issue', 'wmm-create-good-issue'],
+      'wmm-goods-receipt-adjust': ['wmm-goods-receipt-adjust'],
+      'wmm-goods-issues-adjust': ['wmm-goods-issues-adjust'],
       'wmm-goods-receipt-approval': ['wmm-goods-receipt-approval'],
-      'wmm-good-issue-approval':    ['wmm-good-issue-approval'],
+      'wmm-good-issue-approval': ['wmm-good-issue-approval'],
     };
     return (activeMap[id] || []).includes(currentView);
   };
@@ -176,13 +176,12 @@ export default function WMMSidebar({ isOpen, onToggle, onNavigate, currentView, 
     return (
       <div key={item.id}>
         <div
-          className={`flex items-center justify-between cursor-pointer transition-all duration-100 group relative ${
-            isActive
-              ? 'bg-blue-50 text-blue-700'
-              : level === 0
-                ? 'text-gray-700 hover:bg-gray-50'
-                : 'text-gray-600 hover:bg-gray-50/80'
-          }`}
+          className={`flex items-center justify-between cursor-pointer transition-all duration-100 group relative ${isActive
+            ? 'bg-blue-50 text-blue-700'
+            : level === 0
+              ? 'text-gray-700 hover:bg-gray-50'
+              : 'text-gray-600 hover:bg-gray-50/80'
+            }`}
           style={{
             paddingLeft: `${level === 0 ? 16 : 12 + level * 16}px`,
             paddingRight: '12px',
@@ -205,10 +204,9 @@ export default function WMMSidebar({ isOpen, onToggle, onNavigate, currentView, 
               <div className="w-1 h-1 rounded-full flex-shrink-0"
                 style={{ backgroundColor: isActive ? '#1d4ed8' : '#cbd5e1' }} />
             )}
-            <span className={`text-xs leading-snug truncate ${
-              isActive ? 'font-semibold text-blue-700' :
+            <span className={`text-xs leading-snug truncate ${isActive ? 'font-semibold text-blue-700' :
               level === 0 ? 'font-medium text-gray-700' : 'text-gray-600'
-            } ${isParent && !isActive ? 'text-gray-800' : ''}`}>
+              } ${isParent && !isActive ? 'text-gray-800' : ''}`}>
               {item.label}
             </span>
           </div>
@@ -221,9 +219,8 @@ export default function WMMSidebar({ isOpen, onToggle, onNavigate, currentView, 
 
           {hasChildren && (
             <ChevronDown
-              className={`w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200 ${
-                isExpanded ? '' : '-rotate-90'
-              } ${isActive || isParent ? 'text-blue-500' : 'text-gray-400'}`}
+              className={`w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200 ${isExpanded ? '' : '-rotate-90'
+                } ${isActive || isParent ? 'text-blue-500' : 'text-gray-400'}`}
             />
           )}
         </div>
@@ -286,9 +283,8 @@ export default function WMMSidebar({ isOpen, onToggle, onNavigate, currentView, 
               filteredItems.map(item => (
                 <div
                   key={item.id}
-                  className={`flex items-center gap-2 px-4 py-2 cursor-pointer text-xs transition-colors ${
-                    isActiveItem(item.id) ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-600 hover:bg-gray-50'
-                  }`}
+                  className={`flex items-center gap-2 px-4 py-2 cursor-pointer text-xs transition-colors ${isActiveItem(item.id) ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-600 hover:bg-gray-50'
+                    }`}
                   onClick={() => { handleMenuClick(item.id); setSearchText(''); }}
                 >
                   <div className="w-1 h-1 rounded-full bg-gray-300" />
@@ -315,7 +311,7 @@ export default function WMMSidebar({ isOpen, onToggle, onNavigate, currentView, 
       <div className="flex-shrink-0 border-t border-gray-200">
         {/* Language Selector */}
         <div className="px-3 py-2 border-b border-gray-200">
-          <button 
+          <button
             onClick={() => setLang(lang === 'vi' ? 'en' : 'vi')}
             className="w-full flex items-center justify-between px-3 py-2 bg-teal-50 hover:bg-teal-100 rounded border border-teal-200 transition-colors"
           >
@@ -333,7 +329,7 @@ export default function WMMSidebar({ isOpen, onToggle, onNavigate, currentView, 
         <div className="px-3 py-3 flex items-center justify-between">
           <span className="text-xs text-gray-400">v1</span>
           <div className="relative">
-            <button 
+            <button
               onClick={() => setShowModuleSelector(!showModuleSelector)}
               className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded border border-blue-200 transition-colors"
             >
@@ -351,7 +347,7 @@ export default function WMMSidebar({ isOpen, onToggle, onNavigate, currentView, 
                   <div className="px-3 py-2 border-b border-gray-200">
                     <span className="text-xs font-semibold text-gray-500 uppercase">Select Module</span>
                   </div>
-                  
+
                   {/* Module List */}
                   <div className="py-1">
                     <button className="w-full flex items-center gap-3 px-3 py-2 hover:bg-gray-50 text-left transition-colors">
@@ -492,7 +488,7 @@ export default function WMMSidebar({ isOpen, onToggle, onNavigate, currentView, 
               </>
             )}
           </div>
-          <button 
+          <button
             className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded transition-colors"
           >
             <ChevronLeft className="w-4 h-4 text-gray-500" />

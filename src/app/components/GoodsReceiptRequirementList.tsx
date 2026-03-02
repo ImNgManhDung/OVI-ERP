@@ -104,10 +104,10 @@ const MOCK_DATA: GoodsReceiptRow[] = [
 
 const StatusBadge = ({ status }: { status: GoodsReceiptRow['status'] }) => {
   const map = {
-    Draft:    { cls: 'erp-badge-neutral', label: 'Draft' },
-    Submitted:  { cls: 'erp-badge-warning', label: 'Submitted' },
-    Approved: { cls: 'erp-badge-info',    label: 'Approved' },
-    Posted: { cls: 'erp-badge-success',  label: 'Posted' },
+    Draft: { cls: 'erp-badge-neutral', label: 'Draft' },
+    Submitted: { cls: 'erp-badge-warning', label: 'Submitted' },
+    Approved: { cls: 'erp-badge-info', label: 'Approved' },
+    Posted: { cls: 'erp-badge-success', label: 'Posted' },
   };
   const { cls, label } = map[status];
   return <span className={cls}>{label}</span>;
@@ -159,8 +159,8 @@ export default function GoodsReceiptRequirementList({ onCreateClick }: GoodsRece
   };
 
   const filteredData = data.filter(row => {
-    const matchSearch = !searchText || 
-      Object.values(row).some(v => 
+    const matchSearch = !searchText ||
+      Object.values(row).some(v =>
         String(v).toLowerCase().includes(searchText.toLowerCase())
       );
     const matchStatus = statusFilter === 'all' || row.status === statusFilter;
@@ -200,11 +200,18 @@ export default function GoodsReceiptRequirementList({ onCreateClick }: GoodsRece
     <div className="flex gap-6 p-6">
       {/* Left: Filter Panel */}
       <FilterPanel
-        title={t.wmm.filterOptions || "Filter Options"}
-        filters={filterOptions}
-        onClearAll={() => {
-          setStatusFilter('all');
-        }}
+        searchValue={searchText}
+        onSearchChange={setSearchText}
+        statusOptions={[
+          { value: 'all', label: 'All Status' },
+          { value: 'Draft', label: 'Draft' },
+          { value: 'Submitted', label: 'Submitted' },
+          { value: 'Approved', label: 'Approved' },
+          { value: 'Posted', label: 'Posted' },
+        ]}
+        selectedStatus={statusFilter}
+        onStatusChange={setStatusFilter}
+        showStatus={true}
       />
 
       {/* Right: Main Content */}
@@ -248,7 +255,7 @@ export default function GoodsReceiptRequirementList({ onCreateClick }: GoodsRece
 
         {/* Action Buttons */}
         <div className="flex justify-end gap-2 mb-4">
-          <Button 
+          <Button
             className="bg-red-600 hover:bg-red-700 text-white"
             onClick={handleDelete}
             disabled={selectedRows.length === 0}
@@ -256,7 +263,7 @@ export default function GoodsReceiptRequirementList({ onCreateClick }: GoodsRece
             <Trash2 className="w-4 h-4 mr-1" />
             {t.wmm.delete || 'Delete'}
           </Button>
-          <Button 
+          <Button
             className="bg-green-600 hover:bg-green-700 text-white"
             onClick={() => setShowCreateForm(true)}
           >

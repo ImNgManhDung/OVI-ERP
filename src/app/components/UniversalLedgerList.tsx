@@ -1,6 +1,8 @@
-import { Search, RotateCcw, CheckCircle, FileText, AlertTriangle, Calendar, ChevronDown } from 'lucide-react';
+import { useState } from 'react';
+import { Search, Plus, Settings2, RotateCcw, LayoutPanelLeft, CheckCircle, FileText, AlertTriangle, BookOpen, Scaling } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import { Checkbox } from './ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -8,8 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
-import StatsCard from './StatsCard';
-import { ActionsDropdown } from './ActionsDropdown';
+import MasterDataToolbar from './MasterDataToolbar';
 
 interface UniversalLedgerListProps {
   onCreateClick: () => void;
@@ -22,49 +23,11 @@ const ledgers = [
     ledger: '0L',
     docNumber: 'UL2026-00001',
     fiscalYear: '2026',
-    docItem: '1',
-    docType: 'UL',
-    ttyId: '1001',
-    postingDate: '02/02/2026',
-    docDate: '02/02/2026',
     accId: '1111',
     drCrInd: 'D',
     amount: 1000000,
-    currency: 'VND',
-    exchangeRate: 1,
-    exchangeDate: '02/02/2026',
-    exchangeType: 'M',
-    accAmount: 1000000,
-    accCurrency: 'VND',
-    groupAmount: null,
-    groupCurrency: '',
-    objectId: '10001',
-    objectType: 'C',
-    assId: '',
-    matId: '',
-    prodId: 'PROD01',
-    stoId: '',
-    sarId: '',
-    cceId: 'CCE01',
-    pceId: 'PCE01',
-    celId: 'CEL01',
-    enaId: 'ENA01',
-    projId: 'PROJ01',
-    quantity: 10,
-    uomId: 'PCS',
-    icFlag: 'N',
-    icLenId: '',
-    offsetAccId: '131',
-    sourceType: 'INV',
-    refDocId: 'INV20260202001',
-    refDocNo: 'INV/2026/001',
-    refContractNo: 'CON-001',
-    reversedId: '',
-    status: 'Posted',
-    createdBy: 'NGUYENVANA',
-    createDate: '2026-02-02',
-    modifiedBy: '',
-    modifyDate: ''
+    postingDate: '02/02/2026',
+    status: 'Posted'
   },
   {
     uleId: '1000002',
@@ -72,279 +35,206 @@ const ledgers = [
     ledger: '0L',
     docNumber: 'UL2026-00001',
     fiscalYear: '2026',
-    docItem: '2',
-    docType: 'UL',
-    ttyId: '1001',
-    postingDate: '02/02/2026',
-    docDate: '02/02/2026',
     accId: '1311',
     drCrInd: 'C',
     amount: -1000000,
-    currency: 'VND',
-    exchangeRate: 1,
-    exchangeDate: '02/02/2026',
-    exchangeType: 'M',
-    accAmount: -1000000,
-    accCurrency: 'VND',
-    groupAmount: null,
-    groupCurrency: '',
-    objectId: '10001',
-    objectType: 'C',
-    assId: '',
-    matId: '',
-    prodId: 'PROD01',
-    stoId: '',
-    sarId: '',
-    cceId: 'CCE01',
-    pceId: 'PCE01',
-    celId: 'CEL01',
-    enaId: 'ENA01',
-    projId: 'PROJ01',
-    quantity: 10,
-    uomId: 'PCS',
-    icFlag: 'N',
-    icLenId: '',
-    offsetAccId: '1111',
-    sourceType: 'INV',
-    refDocId: 'INV20260202001',
-    refDocNo: 'INV/2026/001',
-    refContractNo: 'CON-001',
-    reversedId: '',
-    status: 'Draft',
-    createdBy: 'NGUYENVANA',
-    createDate: '2026-02-02',
-    modifiedBy: '',
-    modifyDate: ''
+    postingDate: '02/02/2026',
+    status: 'Draft'
   }
 ];
 
 export default function UniversalLedgerList({ onCreateClick }: UniversalLedgerListProps) {
+  const [searchText, setSearchText] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+
+  const filteredData = ledgers.filter(item => {
+    const matchesSearch = searchText === '' || Object.values(item).some(val =>
+      String(val).toLowerCase().includes(searchText.toLowerCase())
+    );
+    const matchesStatus = selectedStatus === 'all' || item.status === selectedStatus;
+    return matchesSearch && matchesStatus;
+  });
+
   return (
-    <div className="p-6 overflow-x-auto">
-      <div style={{ width: '1552px' }}>
-        {/* Page Title */}
-        <div className="mb-4">
-          <h1 className="text-2xl font-semibold text-gray-800 uppercase tracking-tight">Danh sách sổ cái tổng hợp (Universal Ledgers)</h1>
+    <div className="flex flex-col h-screen bg-gray-50 overflow-hidden text-gray-800">
+      {/* Page Header */}
+      <div className="bg-white border-b px-6 py-2 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-2">
+          <h1 className="text-sm font-bold text-blue-900 uppercase">Universal Ledgers</h1>
+          <span className="text-[10px] text-gray-400 font-medium whitespace-nowrap">Danh sách sổ cái tổng hợp</span>
         </div>
+      </div>
 
-        {/* KPI Cards */}
-        <div className="grid grid-cols-4 gap-6 mb-6">
-          <StatsCard
-            title="Posted"
-            value={1}
-            icon={CheckCircle}
-            bgColor="text-green-500"
-            iconBgColor="bg-green-50"
-          />
-          <StatsCard
-            title="Draft"
-            value={1}
-            icon={FileText}
-            bgColor="text-gray-500"
-            iconBgColor="bg-gray-50"
-          />
-          <StatsCard
-            title="Pending Approval"
-            value={0}
-            icon={AlertTriangle}
-            bgColor="text-yellow-500"
-            iconBgColor="bg-yellow-50"
-          />
-          <StatsCard
-            title="New This Week"
-            value={2}
-            icon={Calendar}
-            bgColor="text-blue-500"
-            iconBgColor="bg-blue-50"
-          />
-        </div>
+      <div className="flex flex-1 overflow-hidden">
+        {/* Filter Panel - Left Sidebar */}
+        <div className="w-[240px] bg-white border-r flex flex-col shrink-0 p-4 shadow-sm z-10">
+          <div className="flex items-center gap-2 text-xs font-bold text-gray-800 mb-4 uppercase tracking-wider">
+            <Search className="w-3.5 h-3.5 text-blue-600" />
+            Filters
+          </div>
 
-        {/* Header Filters */}
-        <div className="bg-white border rounded-lg mb-4 p-4 shadow-sm">
-          <div className="grid grid-cols-10 gap-4 mb-4">
-            <div className="col-span-2">
-              <label className="block text-sm mb-1 text-gray-600">Batch Number</label>
-              <Input placeholder="Enter batch number" className="h-10" />
+          <div className="space-y-4 overflow-y-auto flex-1 pr-1 custom-scrollbar text-xs font-bold uppercase tracking-wider text-gray-500">
+            <div>
+              <label className="block text-[10px] mb-1.5 ml-0.5">Search</label>
+              <Input
+                placeholder="Doc # or ID..."
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                className="h-8 text-[11px] bg-gray-50/50 border-gray-200 shadow-none font-medium"
+              />
             </div>
-            <div className="col-span-2">
-              <label className="block text-sm mb-1 text-gray-600">Document Type</label>
-              <Select>
-                <SelectTrigger className="h-10">
-                  <SelectValue placeholder="All" />
+            <div>
+              <label className="block text-[10px] mb-1.5 ml-0.5">Status</label>
+              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                <SelectTrigger className="h-8 text-[11px] bg-gray-50/50 border-gray-200 font-bold uppercase">
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="ul">Universal Ledger</SelectItem>
+                  <SelectItem value="all" className="text-[11px]">All Status</SelectItem>
+                  <SelectItem value="Posted" className="text-[11px]">Posted</SelectItem>
+                  <SelectItem value="Draft" className="text-[11px]">Draft</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div className="col-span-2">
-              <label className="block text-sm mb-1 text-gray-600">Reference Doc ID</label>
-              <Input placeholder="Enter Reference Doc ID" className="h-10" />
-            </div>
-            <div className="col-span-2">
-              <label className="block text-sm mb-1 text-gray-600">From Date</label>
-              <Input type="date" className="h-10" />
-            </div>
-            <div className="col-span-2">
-              <label className="block text-sm mb-1 text-gray-600">To Date</label>
-              <Input type="date" className="h-10" />
-            </div>
-          </div>
-          
-          <div className="flex justify-end gap-2">
-            <Button variant="outline">Clear All Filter</Button>
-            <Button variant="default" onClick={onCreateClick} className="bg-black hover:bg-gray-800 text-white border-none rounded-md px-6">
-               Create Universal Ledger
-            </Button>
           </div>
         </div>
 
-        {/* Search and Actions Bar */}
-        <div className="bg-white border rounded-t-lg p-3 flex items-center justify-between shadow-sm">
-          <div className="flex items-center gap-2">
-            <Select defaultValue="all">
-              <SelectTrigger className="w-[120px] h-8">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-              </SelectContent>
-            </Select>
-            <Input
-              placeholder="Search All Text Columns"
-              className="w-64 h-8"
-            />
-            <Button variant="outline" size="sm" className="h-8">Go</Button>
-            <Button variant="outline" size="sm" className="h-8">
-              Actions <ChevronDown className="w-4 h-4 ml-1" />
-            </Button>
-          </div>
-          <Button variant="ghost" size="sm">
-            <RotateCcw className="w-4 h-4 mr-1" /> Reset
-          </Button>
-        </div>
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          {/* Statistics Cards */}
+          <div className="px-6 py-4 grid grid-cols-3 gap-4">
+            <div className="bg-blue-50/40 border border-blue-100 rounded-lg p-3 flex justify-between items-center h-20">
+              <div>
+                <p className="text-[9px] font-bold text-blue-600/70 uppercase mb-1">Total Ledgers</p>
+                <p className="text-2xl font-black text-blue-900 leading-none">{ledgers.length}</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-blue-100/30 flex items-center justify-center border border-blue-100">
+                <BookOpen className="w-5 h-5 text-blue-500" />
+              </div>
+            </div>
 
-        {/* Table */}
-        <div className="bg-white border border-t-0 rounded-b-lg overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-[6500px]">
-              <thead>
-                <tr className="bg-blue-50 border-b">
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase sticky left-0 bg-blue-50 z-20 border-r w-32">ULE ID</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-32">LEN ID</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-32">Ledger</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-48">Document Number</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-32">Fiscal Year</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-32">Document Item</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-32">Document Type</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-40">Transaction Type ID</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-40">Posting Date</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-40">Document Date</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-32">Account ID</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-32">DR CR Indicator</th>
-                  <th className="px-4 py-3 text-right text-blue-700 font-semibold uppercase border-r w-40">Amount</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-32">Currency</th>
-                  <th className="px-4 py-3 text-right text-blue-700 font-semibold uppercase border-r w-32">Exchange Rate</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-40">Exchange Date</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-32">Exchange Type</th>
-                  <th className="px-4 py-3 text-right text-blue-700 font-semibold uppercase border-r w-40">Accounted Amount</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-40">Accounted Currency</th>
-                  <th className="px-4 py-3 text-right text-blue-700 font-semibold uppercase border-r w-40">Group Amount</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-40">Group Currency</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-32">Object ID</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-32">Object Type</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-32">Asset ID</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-32">Material ID</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-32">Product ID</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-32">Store ID</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-40">Storage Area ID</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-40">Cost Center ID</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-40">Profit Center ID</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-40">Cost Element ID</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-56">Extension Analysis ID</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-40">Project ID</th>
-                  <th className="px-4 py-3 text-right text-blue-700 font-semibold uppercase border-r w-32">Quantity</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-32">UOM ID</th>
-                  <th className="px-4 py-3 text-center text-blue-700 font-semibold uppercase border-r w-24">IC Flag</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-40">IC Legal Entity ID</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-40">Offset Account ID</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-32">Source Type</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-48">Reference Doc ID</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-48">Reference Doc No</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-48">Reference Contract No</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-40">Reversed ID</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-32">Status</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-40">Created By</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-40">Create Date</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-40">Modified By</th>
-                  <th className="px-4 py-3 text-left text-blue-700 font-semibold uppercase border-r w-40">Modify Date</th>
+            <div className="bg-emerald-50/40 border border-emerald-100 rounded-lg p-3 flex justify-between items-center h-20">
+              <div>
+                <p className="text-[9px] font-bold text-emerald-600/70 uppercase mb-1">Posted</p>
+                <p className="text-2xl font-black text-emerald-900 leading-none">{ledgers.filter(r => r.status === 'Posted').length}</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-emerald-100/30 flex items-center justify-center border border-emerald-100">
+                <CheckCircle className="w-5 h-5 text-emerald-500" />
+              </div>
+            </div>
+
+            <div className="bg-indigo-50/40 border border-indigo-100 rounded-lg p-3 flex justify-between items-center h-20">
+              <div>
+                <p className="text-[9px] font-bold text-indigo-600/70 uppercase mb-1">Total Amount</p>
+                <p className="text-2xl font-black text-indigo-900 leading-none">0</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-indigo-100/30 flex items-center justify-center border border-indigo-100">
+                <Scaling className="w-5 h-5 text-indigo-500" />
+              </div>
+            </div>
+          </div>
+
+          {/* Grouping Bar and Toolbar */}
+          <div className="px-6 pb-2">
+            <div className="flex items-center justify-between mb-3">
+              <div className="bg-gray-100/50 border border-dashed border-gray-200 rounded-lg px-4 py-2 text-[11px] text-gray-400 italic flex-1 mr-6 flex items-center gap-2">
+                <LayoutPanelLeft className="w-3.5 h-3.5" />
+                Kéo tiêu đề một cột vào đây để nhóm một cột đó
+              </div>
+              <div className="flex items-center gap-3">
+                <Button size="sm" onClick={onCreateClick} className="bg-blue-600 hover:bg-blue-700 text-[11px] font-bold h-8 px-4 shadow-sm gap-2 whitespace-nowrap">
+                  <Plus className="w-3.5 h-3.5" /> New Ledger
+                </Button>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                  <Input placeholder="Search..." className="h-8 w-40 pl-9 text-[11px] shadow-none font-medium" value={searchText} onChange={(e) => setSearchText(e.target.value)} />
+                </div>
+                <div className="flex items-center gap-1 h-8 bg-white border border-gray-200 rounded-md px-1 ml-1 divide-x divide-gray-100 text-gray-400">
+                  <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm scale-90"><LayoutPanelLeft className="w-3 h-3" /></Button>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm scale-90"><RotateCcw className="w-3 h-3" /></Button>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm scale-90"><Settings2 className="w-3 h-3" /></Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Toolbar */}
+          {selectedRows.length > 0 && (
+            <div className="mx-6 mb-2">
+              <MasterDataToolbar
+                searchText={searchText}
+                onSearchChange={setSearchText}
+                onAddRow={onCreateClick}
+                onDeleteRows={() => setSelectedRows([])}
+                onSave={() => console.log('Saving ledgers...')}
+                selectedCount={selectedRows.length}
+              />
+            </div>
+          )}
+
+          {/* Table */}
+          <div className="flex-1 overflow-auto bg-white mx-6 mb-6 border rounded-lg shadow-sm">
+            <table className="w-full text-sm min-w-[1600px]">
+              <thead className="sticky top-0 z-30 font-bold uppercase tracking-tight text-[10px]">
+                <tr className="bg-[#f0f7ff] border-b">
+                  <th className="px-3 py-3 text-left w-12 border-r bg-[#f0f7ff] sticky left-0 z-40">
+                    <Checkbox
+                      checked={selectedRows.length === filteredData.length && filteredData.length > 0}
+                      onCheckedChange={(checked) => {
+                        if (checked) setSelectedRows(filteredData.map(r => r.uleId));
+                        else setSelectedRows([]);
+                      }}
+                    />
+                  </th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-32 bg-[#f0f7ff] sticky left-12 z-40 uppercase">ULE ID</th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-40 font-medium uppercase text-center">Doc Number</th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-32 font-medium uppercase text-center">Fiscal Year</th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-32 font-medium uppercase text-center">Posting Date</th>
+                  <th className="px-3 py-3 text-left text-blue-700 border-r w-32 font-medium uppercase text-center">Account ID</th>
+                  <th className="px-3 py-3 text-right text-blue-700 border-r w-40 font-medium uppercase px-4">Amount</th>
+                  <th className="px-3 py-3 text-center text-blue-700 border-r w-32 font-medium uppercase">Indicator</th>
+                  <th className="px-3 py-3 text-center text-blue-700 w-32 font-medium uppercase">Status</th>
                 </tr>
               </thead>
               <tbody>
-                {ledgers.map((ledger, index) => (
-                  <tr key={index} className="border-b hover:bg-gray-50 cursor-pointer">
-                    <td className="px-4 py-3 sticky left-0 bg-white z-10 border-r">{ledger.uleId}</td>
-                    <td className="px-4 py-3 border-r">{ledger.lenId}</td>
-                    <td className="px-4 py-3 border-r">{ledger.ledger}</td>
-                    <td className="px-4 py-3 border-r font-mono">{ledger.docNumber}</td>
-                    <td className="px-4 py-3 border-r">{ledger.fiscalYear}</td>
-                    <td className="px-4 py-3 border-r">{ledger.docItem}</td>
-                    <td className="px-4 py-3 border-r">{ledger.docType}</td>
-                    <td className="px-4 py-3 border-r">{ledger.ttyId}</td>
-                    <td className="px-4 py-3 border-r">{ledger.postingDate}</td>
-                    <td className="px-4 py-3 border-r">{ledger.docDate}</td>
-                    <td className="px-4 py-3 border-r">{ledger.accId}</td>
-                    <td className="px-4 py-3 border-r">{ledger.drCrInd}</td>
-                    <td className="px-4 py-3 text-right font-mono border-r">{ledger.amount.toLocaleString()}</td>
-                    <td className="px-4 py-3 border-r">{ledger.currency}</td>
-                    <td className="px-4 py-3 text-right border-r">{ledger.exchangeRate}</td>
-                    <td className="px-4 py-3 border-r">{ledger.exchangeDate}</td>
-                    <td className="px-4 py-3 border-r">{ledger.exchangeType}</td>
-                    <td className="px-4 py-3 text-right font-mono border-r">{ledger.accAmount.toLocaleString()}</td>
-                    <td className="px-4 py-3 border-r">{ledger.accCurrency}</td>
-                    <td className="px-4 py-3 text-right font-mono border-r">{ledger.groupAmount?.toLocaleString() || ''}</td>
-                    <td className="px-4 py-3 border-r">{ledger.groupCurrency}</td>
-                    <td className="px-4 py-3 border-r">{ledger.objectId}</td>
-                    <td className="px-4 py-3 border-r">{ledger.objectType}</td>
-                    <td className="px-4 py-3 border-r">{ledger.assId}</td>
-                    <td className="px-4 py-3 border-r">{ledger.matId}</td>
-                    <td className="px-4 py-3 border-r">{ledger.prodId}</td>
-                    <td className="px-4 py-3 border-r">{ledger.stoId}</td>
-                    <td className="px-4 py-3 border-r">{ledger.sarId}</td>
-                    <td className="px-4 py-3 border-r">{ledger.cceId}</td>
-                    <td className="px-4 py-3 border-r">{ledger.pceId}</td>
-                    <td className="px-4 py-3 border-r">{ledger.celId}</td>
-                    <td className="px-4 py-3 border-r">{ledger.enaId}</td>
-                    <td className="px-4 py-3 border-r">{ledger.projId}</td>
-                    <td className="px-4 py-3 text-right border-r">{ledger.quantity}</td>
-                    <td className="px-4 py-3 border-r">{ledger.uomId}</td>
-                    <td className="px-4 py-3 text-center border-r">{ledger.icFlag}</td>
-                    <td className="px-4 py-3 border-r">{ledger.icLenId}</td>
-                    <td className="px-4 py-3 border-r">{ledger.offsetAccId}</td>
-                    <td className="px-4 py-3 border-r">{ledger.sourceType}</td>
-                    <td className="px-4 py-3 border-r">{ledger.refDocId}</td>
-                    <td className="px-4 py-3 border-r">{ledger.refDocNo}</td>
-                    <td className="px-4 py-3 border-r">{ledger.refContractNo}</td>
-                    <td className="px-4 py-3 border-r">{ledger.reversedId}</td>
-                    <td className="px-4 py-3 border-r">
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${
-                        ledger.status === 'Posted' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                      }`}>
-                        {ledger.status}
+                {filteredData.map((item) => (
+                  <tr key={item.uleId} className="border-b hover:bg-blue-50/30 transition-colors bg-white">
+                    <td className="px-3 py-2 border-r bg-white sticky left-0 z-20">
+                      <Checkbox checked={selectedRows.includes(item.uleId)} onCheckedChange={() => setSelectedRows(prev => prev.includes(item.uleId) ? prev.filter(x => x !== item.uleId) : [...prev, item.uleId])} />
+                    </td>
+                    <td className="px-3 py-2 border-r bg-white sticky left-12 z-20 text-[11px] font-bold text-blue-600 group cursor-pointer hover:underline flex items-center gap-1.5" onClick={onCreateClick}>
+                      <FileText className="w-3 h-3 text-blue-400 group-hover:text-blue-600" />
+                      {item.uleId}
+                    </td>
+                    <td className="px-3 py-2 border-r text-[11px] font-mono font-bold text-center text-gray-700">{item.docNumber}</td>
+                    <td className="px-3 py-2 border-r text-[11px] text-center font-bold text-gray-500">{item.fiscalYear}</td>
+                    <td className="px-3 py-2 border-r text-[11px] text-center text-blue-600 font-medium">{item.postingDate}</td>
+                    <td className="px-3 py-2 border-r text-[11px] text-center font-mono text-gray-400">{item.accId}</td>
+                    <td className={`px-3 py-2 border-r text-[11px] text-right font-black px-4 ${item.amount > 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                      {item.amount.toLocaleString()}
+                    </td>
+                    <td className="px-3 py-2 border-r text-[11px] text-center font-bold">
+                      <span className={`px-2 py-0.5 rounded ${item.drCrInd === 'D' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>
+                        {item.drCrInd}
                       </span>
                     </td>
-                    <td className="px-4 py-3 border-r">{ledger.createdBy}</td>
-                    <td className="px-4 py-3 border-r">{ledger.createDate}</td>
-                    <td className="px-4 py-3 border-r">{ledger.modifiedBy}</td>
-                    <td className="px-4 py-3 border-r">{ledger.modifyDate}</td>
+                    <td className="px-3 py-2 text-center">
+                      <span className={`px-2 py-0.5 rounded-[4px] text-[9px] font-bold uppercase tracking-wider ${item.status === 'Posted' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' :
+                          'bg-gray-100 text-gray-500 border border-gray-200'
+                        }`}>
+                        {item.status}
+                      </span>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <div className="px-4 py-3 border-t bg-gray-50 text-right text-gray-600 font-medium">
-            Total Records: {ledgers.length}
+
+          {/* Footer */}
+          <div className="bg-white border-t px-6 py-2 flex items-center justify-between shrink-0 font-bold text-[10px] text-gray-500 uppercase tracking-widest text-center">
+            <div>Showing <span className="text-blue-600">{filteredData.length}</span> of {ledgers.length} records</div>
           </div>
         </div>
       </div>

@@ -17,6 +17,11 @@ interface MenuItem {
   iconColor?: string;
 }
 
+interface MenuGroup {
+  groupLabel: string;
+  items: MenuItem[];
+}
+
 export default function TEMSidebar({ isOpen, onNavigate, currentView, onModuleChange }: TEMSidebarProps) {
   const [searchText, setSearchText] = useState('');
   const [showModuleSelector, setShowModuleSelector] = useState(false);
@@ -29,7 +34,7 @@ export default function TEMSidebar({ isOpen, onNavigate, currentView, onModuleCh
     }
   };
 
-  const menuGroups = [
+  const menuGroups: MenuGroup[] = [
     {
       groupLabel: t.tem.groupOverview,
       items: [
@@ -39,16 +44,15 @@ export default function TEMSidebar({ isOpen, onNavigate, currentView, onModuleCh
     {
       groupLabel: t.tem.groupAdvances,
       items: [
-        { id: 'advance-request',      label: t.tem.advanceRequest,      icon: DollarSign, iconColor: '#16a34a' },
-        { id: 'advance-settlement',   label: t.tem.advanceSettlement,   icon: DollarSign, iconColor: '#0891b2' },
-        { id: 'advance-registration', label: t.tem.advanceRegistration, icon: FileText,   iconColor: '#7c3aed' },
+        { id: 'advance-request', label: t.tem.advanceRequest, icon: DollarSign, iconColor: '#16a34a' },
+        { id: 'advance-settlement', label: t.tem.advanceSettlement, icon: DollarSign, iconColor: '#0891b2' },
       ]
     },
     {
       groupLabel: t.tem.groupTravelExpenses,
       items: [
-        { id: 'travel-expenditure-requisition', label: t.tem.travelExpensesRequest, icon: Plane,     iconColor: '#d97706' },
-        { id: 'expense-declaration',            label: t.tem.expenseDeclaration,    icon: DollarSign, iconColor: '#dc2626' },
+        { id: 'travel-expenditure-requisition', label: t.tem.travelExpensesRequest, icon: Plane, iconColor: '#d97706' },
+        { id: 'expense-declaration', label: t.tem.expenseDeclaration, icon: DollarSign, iconColor: '#dc2626' },
       ]
     },
   ];
@@ -111,9 +115,8 @@ export default function TEMSidebar({ isOpen, onNavigate, currentView, onModuleCh
                 return (
                   <div
                     key={item.id}
-                    className={`flex items-center gap-2 px-4 py-2 cursor-pointer text-xs transition-colors ${
-                      isActive ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-600 hover:bg-gray-50'
-                    }`}
+                    className={`flex items-center gap-2 px-4 py-2 cursor-pointer text-xs transition-colors ${isActive ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-600 hover:bg-gray-50'
+                      }`}
                     onClick={() => { onNavigate(item.id); setSearchText(''); }}
                   >
                     <div className="w-1 h-1 rounded-full bg-gray-300" />
@@ -137,9 +140,8 @@ export default function TEMSidebar({ isOpen, onNavigate, currentView, onModuleCh
                 return (
                   <div
                     key={item.id}
-                    className={`flex items-center gap-2.5 cursor-pointer transition-all duration-100 ${
-                      isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50'
-                    }`}
+                    className={`flex items-center gap-2.5 cursor-pointer transition-all duration-100 ${isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50'
+                      }`}
                     style={{
                       paddingLeft: '16px',
                       paddingRight: '12px',
@@ -167,7 +169,7 @@ export default function TEMSidebar({ isOpen, onNavigate, currentView, onModuleCh
       <div className="flex-shrink-0 border-t border-gray-200">
         {/* Language Selector */}
         <div className="px-3 py-2 border-b border-gray-200">
-          <button 
+          <button
             onClick={() => setLang(lang === 'vi' ? 'en' : 'vi')}
             className="w-full flex items-center justify-between px-3 py-2 bg-teal-50 hover:bg-teal-100 rounded border border-teal-200 transition-colors"
           >
@@ -185,7 +187,7 @@ export default function TEMSidebar({ isOpen, onNavigate, currentView, onModuleCh
         <div className="px-3 py-3 flex items-center justify-between">
           <span className="text-xs text-gray-400">v1</span>
           <div className="relative">
-            <button 
+            <button
               onClick={() => setShowModuleSelector(!showModuleSelector)}
               className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded border border-blue-200 transition-colors"
             >
@@ -203,7 +205,7 @@ export default function TEMSidebar({ isOpen, onNavigate, currentView, onModuleCh
                   <div className="px-3 py-2 border-b border-gray-200">
                     <span className="text-xs font-semibold text-gray-500 uppercase">Select Module</span>
                   </div>
-                  
+
                   {/* Module List */}
                   <div className="py-1">
                     <button className="w-full flex items-center gap-3 px-3 py-2 hover:bg-gray-50 text-left transition-colors">
@@ -344,7 +346,7 @@ export default function TEMSidebar({ isOpen, onNavigate, currentView, onModuleCh
               </>
             )}
           </div>
-          <button 
+          <button
             className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded transition-colors"
           >
             <ChevronLeft className="w-4 h-4 text-gray-500" />

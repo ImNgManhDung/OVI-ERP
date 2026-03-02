@@ -88,7 +88,7 @@ export default function Sidebar({ isOpen, onToggle, onNavigate, currentView, onM
           children: [
             { id: 'list-fixed-assets', label: 'Fixed Assets', icon: FileText },
             { id: 'asset-funding-sources', label: t.nav.assetFundingSources, icon: FileText },
-            { id: 'list-asset-category', label: t.nav.assetCategory, icon: FileText },
+            { id: 'asset-category', label: t.nav.assetCategory, icon: FileText },
             { id: 'asset-books', label: t.nav.assetBooks, icon: FileText },
             { id: 'asset-depreciations', label: t.nav.assetDepreciations, icon: FileText },
             { id: 'asset-transactions', label: t.nav.assetTransactions, icon: FileText },
