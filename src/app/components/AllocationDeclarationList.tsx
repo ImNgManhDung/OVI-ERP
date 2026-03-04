@@ -22,7 +22,7 @@ interface AllocationDeclarationRow {
 }
 
 const EXPENSE_TYPES   = ['Utilities', 'Rent', 'Insurance', 'Depreciation', 'Labor', 'Transport', 'Marketing', 'Training', 'Other'];
-const METHODS         = ['Tỷ lệ cố định', 'Theo doanh thu', 'Theo số nhân viên', 'Theo diện tích', 'Theo giờ máy', 'Thủ công'];
+const METHODS         = ['Tỷ lệ cố định', 'Số lượng'];
 const PERIODS         = ['Hàng tháng', 'Hàng quý', 'Hàng năm', 'Một lần'];
 const COST_CENTERS    = ['CCE-001 Admin', 'CCE-002 IT', 'CCE-003 Finance', 'CCE-004 Logistics', 'CCE-005 Prod', 'CCE-006 Sales'];
 

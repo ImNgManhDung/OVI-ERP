@@ -322,22 +322,15 @@ export default function CreatePurchaseInvoice({ onClose }: CreatePurchaseInvoice
           </div>
           <div className="flex items-center gap-2">
             {/* Action Buttons */}
-            <Button className="bg-cyan-600 hover:bg-cyan-700 text-white" onClick={() => setShowOffsetModal(true)}>
-              <Search className="w-4 h-4 mr-1" />
-              Offset
-            </Button>
+            
             <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
               Tiền thuế
             </Button>
             <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setShowApplyDocPopup(true)}>
               Apply Doc
             </Button>
-            <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-              Dept Clearing
-            </Button>
-            <Button className="bg-pink-600 hover:bg-pink-700 text-white" onClick={() => setShowPayScheduleModal(true)}>
-              Pay Schedule
-            </Button>
+            
+            
             <div className="w-px h-6 bg-gray-300 mx-1"></div>
             <Button className="bg-green-600 hover:bg-green-700 text-white">
               Save
@@ -1228,18 +1221,7 @@ export default function CreatePurchaseInvoice({ onClose }: CreatePurchaseInvoice
         </Tabs>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-between px-6 py-4 border-t">
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose}>Cancel</Button>
-            <Button variant="default">Save</Button>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="default">Tính thuế</Button>
-            <Button variant="default" className="bg-blue-700 hover:bg-blue-800" onClick={() => setShowApplyDocPopup(true)}>Apply Doc</Button>
-            <Button variant="default" onClick={() => setShowPayScheduleModal(true)}>Pay Schedule</Button>
-            <Button variant="default">Create</Button>
-          </div>
-        </div>
+        
       </div>
 
       {showPayScheduleModal && (

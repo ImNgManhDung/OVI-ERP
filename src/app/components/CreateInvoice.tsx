@@ -324,13 +324,9 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
             <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setShowApplyDocPopup(true)}>
               Apply Doc
             </Button>
-            <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={() => setShowDeptClearingPopup(true)}>
-              Dept Clearing
-            </Button>
-            <Button className="bg-pink-600 hover:bg-pink-700 text-white" onClick={() => setShowPayScheduleModal(true)}>
-              Pay Schedule
-            </Button>
-            <div className="w-px h-6 bg-gray-300 mx-1"></div>
+            
+            
+            
             <Button className="bg-green-600 hover:bg-green-700 text-white">
               <Save className="w-4 h-4 mr-1" />
               Save
@@ -1193,20 +1189,7 @@ export default function CreateInvoice({ onClose }: CreateInvoiceProps) {
         </Tabs>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-between px-6 py-4 border-t bg-gray-50">
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose}>Cancel</Button>
-          </div>
-          <div className="flex gap-2">
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-              <Save className="w-4 h-4 mr-1" />
-              Save
-            </Button>
-            <Button className="bg-green-600 hover:bg-green-700 text-white">
-              Create
-            </Button>
-          </div>
-        </div>
+        
       </div>
 
       {showDeptClearingPopup && (
